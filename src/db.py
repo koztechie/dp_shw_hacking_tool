@@ -18,20 +18,20 @@ def get_connection():
 
 def init_db():
     """
-    Безпечно ініціалізує структуру бази даних.
+    Безпечно ініціалізує повну структуру бази даних.
     Використовує блок try...finally для запобігання витоку блокування файлу БД.
     """
     con = get_connection()
     try:
-        # Таблиця хакатонів
+        # 1. Таблиця хакатонів (start_date та end_date тепер VARCHAR)
         con.execute("""
             CREATE TABLE IF NOT EXISTS hackathons (
                 id VARCHAR PRIMARY KEY,
                 url VARCHAR,
                 title VARCHAR,
                 organizer VARCHAR,
-                start_date DATE,
-                end_date DATE,
+                start_date VARCHAR,     -- Змінено на VARCHAR для стійкості до форматів дат
+                end_date VARCHAR,       -- Змінено на VARCHAR для стійкості до форматів дат
                 prize_total VARCHAR,
                 participant_count INTEGER,
                 themes VARCHAR,  -- JSON array
@@ -41,7 +41,7 @@ def init_db():
             )
         """)
         
-        # Таблиця проектів
+        # 2. Таблиця проектів
         con.execute("""
             CREATE TABLE IF NOT EXISTS projects (
                 id VARCHAR PRIMARY KEY,
@@ -56,11 +56,13 @@ def init_db():
                 is_winner BOOLEAN DEFAULT FALSE,
                 prize_track VARCHAR,
                 win_score FLOAT,  -- розрахований нами
+                readme_length INTEGER,       -- ДОДАНО для збереження GitHub метрик
+                commit_count_48h INTEGER,     -- ДОДАНО для збереження GitHub метрик
                 scraped_at TIMESTAMP DEFAULT current_timestamp
             )
         """)
         
-        # Таблиця ознак для ML
+        # 3. Таблиця ознак для ML
         con.execute("""
             CREATE TABLE IF NOT EXISTS features (
                 project_id VARCHAR PRIMARY KEY,
@@ -76,7 +78,7 @@ def init_db():
             )
         """)
         
-        # Таблиця прогнозів та генерацій ТЗ
+        # 4. Таблиця прогнозів та генерацій ТЗ
         con.execute("""
             CREATE TABLE IF NOT EXISTS predictions (
                 id VARCHAR PRIMARY KEY,

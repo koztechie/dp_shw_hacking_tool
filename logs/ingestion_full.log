@@ -3308,3 +3308,4 @@
 2026-06-22 23:22:46.372 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/what-do-i-need
 2026-06-22 23:22:48.418 | INFO     | __main__:run_full_ingestion:115 - Успішно імпортовано хакатон: Databricks Apps & Agents for Good Hackathon 2026 (122 проектів).
 2026-06-22 23:22:50.731 | INFO     | __main__:run_full_ingestion:130 - Процедуру повної оркестрації збору завершено.
+Базу даних DuckDB успішно ініціалізовано.
