@@ -41,9 +41,13 @@ def scrape_project_detail(project_url: str) -> dict:
         members = soup.select(".members .user-profile")
         team_size = len(members) if members else 1
         
-        # 4. Призовий трек / номінація
-        prize_el = soup.select_one(".winner-badge")
-        prize_track = prize_el.get_text(strip=True) if prize_el else None
+        # 4. Призовий трек / номінація (НОВИЙ АНТИКРИХКИЙ СЕЛЕКТОР)
+        winner_el = soup.select_one("span.winner")
+        prize_track = None
+        if winner_el:
+            parent_text = winner_el.parent.get_text(strip=True) if winner_el.parent else ""
+            # Вирізаємо слово "Winner" та прибираємо зайві пробіли
+            prize_track = parent_text.replace("Winner", "").strip()
         
         # 5. Теги технологій (новий антикрихкий збір зі сторінки деталей)
         tags_el = soup.select("#built-with li") or soup.select(".cp-tag")
@@ -54,7 +58,7 @@ def scrape_project_detail(project_url: str) -> dict:
             "demo_url": demo_url,
             "team_size": team_size,
             "prize_track": prize_track,
-            "tech_tags": tech_tags  # Нове поле
+            "tech_tags": tech_tags
         }
         
     except Exception as e:
@@ -62,27 +66,10 @@ def scrape_project_detail(project_url: str) -> dict:
         return {}
 
 if __name__ == "__main__":
-    from src.scraper.projects_scraper import fetch_hackathon_projects
+    # Тестуємо на нашому перевіреному проекті-переможці
+    test_url = "https://devpost.com/software/pennywise-3yka0v"
+    print(f"🔄 Тестуємо оновлений детальний скрапер на проекті-переможці: {test_url}")
     
-    test_subdomain = "hackmars-3-0-neon"
-    print(f"🔄 Отримуємо проекти з {test_subdomain} для пошуку тестового URL...")
-    
-    projects = fetch_hackathon_projects(test_subdomain)
-    
-    target_project = None
-    for p in projects:
-        if p.get("project_url"):
-            target_project = p
-            break
-            
-    if not target_project:
-        print("❌ Не знайдено жодного проекту з робочим project_url для тесту.")
-        sys.exit(1)
-        
-    print(f"\n🎯 Знайдено тестовий проект: '{target_project.get('title')}'")
-    print(f"🔗 URL: {target_project.get('project_url')}")
-    
-    details = scrape_project_detail(target_project.get("project_url"))
-    
+    details = scrape_project_detail(test_url)
     print("\n📋 РЕЗУЛЬТАТ ПАРСИНГУ ДЕТАЛЕЙ ПРОЕКТУ:")
     print(json.dumps(details, indent=2, ensure_ascii=False))

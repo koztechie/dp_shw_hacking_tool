@@ -23,15 +23,15 @@ def init_db():
     """
     con = get_connection()
     try:
-        # 1. Таблиця хакатонів (start_date та end_date тепер VARCHAR)
+        # 1. Таблиця хакатонів
         con.execute("""
             CREATE TABLE IF NOT EXISTS hackathons (
                 id VARCHAR PRIMARY KEY,
                 url VARCHAR,
                 title VARCHAR,
                 organizer VARCHAR,
-                start_date VARCHAR,     -- Змінено на VARCHAR для стійкості до форматів дат
-                end_date VARCHAR,       -- Змінено на VARCHAR для стійкості до форматів дат
+                start_date VARCHAR,     -- VARCHAR для стійкості до форматів дат
+                end_date VARCHAR,       -- VARCHAR для стійкості до форматів дат
                 prize_total VARCHAR,
                 participant_count INTEGER,
                 themes VARCHAR,  -- JSON array
@@ -41,7 +41,7 @@ def init_db():
             )
         """)
         
-        # 2. Таблиця проектів
+        # 2. Таблиця проектів (Додано project_url)
         con.execute("""
             CREATE TABLE IF NOT EXISTS projects (
                 id VARCHAR PRIMARY KEY,
@@ -56,8 +56,9 @@ def init_db():
                 is_winner BOOLEAN DEFAULT FALSE,
                 prize_track VARCHAR,
                 win_score FLOAT,  -- розрахований нами
-                readme_length INTEGER,       -- ДОДАНО для збереження GitHub метрик
-                commit_count_48h INTEGER,     -- ДОДАНО для збереження GitHub метрик
+                readme_length INTEGER,       -- для збереження GitHub метрик
+                commit_count_48h INTEGER,     -- для збереження GitHub метрик
+                project_url VARCHAR,         -- ДОДАНО для повної антикрихкості
                 scraped_at TIMESTAMP DEFAULT current_timestamp
             )
         """)

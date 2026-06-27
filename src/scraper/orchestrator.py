@@ -20,7 +20,7 @@ def run_full_ingestion(pages: int = 5):
     """
     Повний цикл збору даних з Devpost:
     список -> деталі хакатону -> проекти -> деталі проектів -> GitHub.
-    Відмовостійкий, здійснює автоматичний бекфіл тегів та переможних статусів з деталей.
+    Оркестратор повністю збагачує та записує project_url для повної аналітики.
     """
     logger.info("Запуск ініціалізації бази даних згідно з оновленою схемою дат...")
     init_db()
@@ -85,27 +85,27 @@ def run_full_ingestion(pages: int = 5):
                     readme_length = github.get("readme_length", 0)
                     commit_count = github.get("commit_count_48h", 0)
                     
-                    # БЕЗПЕЧНЕ ОБ'ЄДНАННЯ ТА БЕКФІЛ (АНТИКРИХКІСТЬ)
-                    # Якщо у списку не було тегів, беремо їх зі сторінки проекту
+                    # Безпечне об'єднання: беремо теги з деталей
                     tech_tags = pdetail.get("tech_tags") or p.get("tech_tags", [])
                     
-                    # Якщо у списку не було бейджа переможця, але проект виграв номінацію у деталях
+                    # Визначення переможця на основі наявності номінації у деталях
                     is_winner = p.get("is_winner", False) or (pdetail.get("prize_track") is not None)
                     
                     con.execute("""
-                        INSERT OR IGNORE INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, current_timestamp)
+                        INSERT OR IGNORE INTO projects VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, current_timestamp)
                     """, [
                         p_id, h_id, p["title"], p["description"],
-                        json.dumps(tech_tags),  # Записуємо збагачені теги
+                        json.dumps(tech_tags),
                         pdetail.get("team_size", 1),
                         p.get("likes", 0),
                         pdetail.get("github_url"),
                         pdetail.get("demo_url"),
-                        is_winner,              # Записуємо збагачений статус переможця
+                        is_winner,
                         pdetail.get("prize_track"),
                         None,  # win_score
                         readme_length,
-                        commit_count
+                        commit_count,
+                        p_url  # Записуємо project_url
                     ])
                     
                     # Затримка між проектами
@@ -130,5 +130,5 @@ def run_full_ingestion(pages: int = 5):
         logger.info("Процедуру повної оркестрації збору завершено.")
 
 if __name__ == "__main__":
-    # Локальний пробний запуск на 1 сторінці (перші 24 хакатони)
+    # Робимо 1 сторінку для швидкої тестової перевірки (24 хакатони)
     run_full_ingestion(pages=1)
