@@ -72,6 +72,7 @@ def init_db():
                 has_social_angle BOOLEAN,
                 description_length INTEGER,
                 novelty_score FLOAT,
+                sponsor_challenge_match BOOLEAN,
                 has_github BOOLEAN,
                 readme_length INTEGER,
                 commit_count_48h INTEGER,

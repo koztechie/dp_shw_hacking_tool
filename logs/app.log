@@ -11298,3 +11298,403 @@
 2026-06-26 10:02:07.501 | INFO     | __main__:run_backfill:27 - [4969/4969] Перевірка нагороди проекту: https://devpost.com/software/echoroots
 2026-06-26 10:02:07.501 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/echoroots
 2026-06-26 10:02:08.709 | INFO     | __main__:run_backfill:50 - 🎉 Збагачення переможців успішно завершено!
+2026-06-27 11:06:27.986 | INFO     | __main__:run_batch_feature_extraction:22 - Починаємо генерацію ознак для 120 хакатонів...
+2026-06-27 11:06:28.521 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: HACKFEST'26 (55 проектів)
+2026-06-27 11:06:28.983 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Cyber_Coders (43 проектів)
+2026-06-27 11:06:33.141 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: USAII® Global AI Hackathon 2026 (499 проектів)
+2026-06-27 11:06:34.762 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: FIND EVIL! (226 проектів)
+2026-06-27 11:06:36.788 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Mind the Product presents World Product Day: Everyone Ships Now (292 проектів)
+2026-06-27 11:06:40.213 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: NextGenHacks (465 проектів)
+2026-06-27 11:06:42.318 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: DSH Hacks V1 (245 проектів)
+2026-06-27 11:06:45.187 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: UC Berkeley AI Hackathon 2026 (400 проектів)
+2026-06-27 11:06:46.068 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: TecStorm'26 (117 проектів)
+2026-06-27 11:06:47.862 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Quantum Sprint (240 проектів)
+2026-06-27 11:06:48.571 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: VALSEA Edtech Sprint (HCM) (82 проектів)
+2026-06-27 11:06:49.259 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону:  Production Engineering Hackathon (87 проектів)
+2026-06-27 11:06:50.146 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Databricks Apps & Agents for Good Hackathon 2026 (121 проектів)
+2026-06-27 11:06:50.673 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Beyond Tomorrow Summit (68 проектів)
+2026-06-27 11:06:51.239 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Design4Future (74 проектів)
+2026-06-27 11:06:51.820 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Hack4Her 2026 (77 проектів)
+2026-06-27 11:06:52.180 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: STEMINATE HACKS 2026 (44 проектів)
+2026-06-27 11:06:53.016 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Anthropic Hackathon @ IIT Delhi (78 проектів)
+2026-06-27 11:06:53.426 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Aurora Global Hackathon (52 проектів)
+2026-06-27 11:06:53.688 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Build with GLM 5.1 Challenge by Z.AI (24 проектів)
+2026-06-27 11:06:53.931 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Grizzly Hacks III (29 проектів)
+2026-06-27 11:06:54.495 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Hackspire Hackathon (72 проектів)
+2026-06-27 11:06:54.899 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: WeatherWise Hack (50 проектів)
+2026-06-27 11:06:55.073 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: EcoHacks (18 проектів)
+2026-06-27 11:06:55.422 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: RidgeHacks 2026 (46 проектів)
+2026-06-27 11:06:55.698 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: The Future Innovators Hackathon: A Road to START Hack (33 проектів)
+2026-06-27 11:06:56.090 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Devlance Hack (50 проектів)
+2026-06-27 11:06:56.397 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Digital Innovation Challenge 2025 - Finance Track (37 проектів)
+2026-06-27 11:06:56.869 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: AI for Civic Innovation Hackathon (60 проектів)
+2026-06-27 11:06:57.484 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: ESE 1900, Silicon Garage, Spring 2026 (80 проектів)
+2026-06-27 11:06:57.954 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: ImagineHack 2026 (54 проектів)
+2026-06-27 11:06:58.213 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: HackMars 3.0: NEON (29 проектів)
+2026-06-27 11:06:58.556 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: [case]Hacks 2026 (42 проектів)
+2026-06-27 11:06:58.836 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: CodeStorm (29 проектів)
+2026-06-27 11:06:59.291 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: She ships - 8M hackathon (56 проектів)
+2026-06-27 11:06:59.811 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: AcademiesHacks 2026 (66 проектів)
+2026-06-27 11:07:00.305 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: VibeHack London 2026 (61 проектів)
+2026-06-27 11:07:00.700 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Hack Kosice 2026 (48 проектів)
+2026-06-27 11:07:00.951 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: HackJPS 2026 (30 проектів)
+2026-06-27 11:07:01.303 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: BugBash (42 проектів)
+2026-06-27 11:07:01.807 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Claude Hackathon at Imperial College London | Claude Builder Club @ Imperial (63 проектів)
+2026-06-27 11:07:02.053 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Innovate for Impact - NGM Group (29 проектів)
+2026-06-27 11:07:02.303 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Luddy Hacks 2026 (29 проектів)
+2026-06-27 11:07:02.529 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: BUILD ZERO HACKATHON- NAIROBI (20 проектів)
+2026-06-27 11:07:02.771 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: ALI Builds Hackathon (15 проектів)
+2026-06-27 11:07:03.092 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: HackDKU 2026 (29 проектів)
+2026-06-27 11:07:03.363 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: 2026 MakeNJIT Hardware hackathon (30 проектів)
+2026-06-27 11:07:03.744 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: AI Forecasting Hackathon (42 проектів)
+2026-06-27 11:07:04.061 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: QuantiHack 2026 (39 проектів)
+2026-06-27 11:07:04.289 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Student Life Track Hackathon 2026 (26 проектів)
+2026-06-27 11:07:04.536 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: IntelliAI Arena (29 проектів)
+2026-06-27 11:07:04.785 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: VALSEA EdTech System Sprint (HCM) (27 проектів)
+2026-06-27 11:07:04.977 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: 2025-2026 Spring ESE Senior Design (21 проектів)
+2026-06-27 11:07:05.145 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: xStocks Hackathon EthCC: Market Open (18 проектів)
+2026-06-27 11:07:05.201 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: 05/22/2026 (3 проектів)
+2026-06-27 11:07:05.491 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: CodeQuantum 2026 (34 проектів)
+2026-06-27 11:07:05.722 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Be Hackathon (27 проектів)
+2026-06-27 11:07:05.832 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: NeuroHack Spring 2026 (7 проектів)
+2026-06-27 11:07:06.084 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: SoCal Claude Builder Club Hackathon (29 проектів)
+2026-06-27 11:07:06.378 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: UCI AWS Cloud Hacks - 2026 (31 проектів)
+2026-06-27 11:07:06.607 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Global Public Health Hackathon 2026 (24 проектів)
+2026-06-27 11:07:06.876 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Hack the Bay Launch 2026 (32 проектів)
+2026-06-27 11:07:07.251 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: MariHacks IX (29 проектів)
+2026-06-27 11:07:07.462 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: HackFox (23 проектів)
+2026-06-27 11:07:07.637 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: AgentVerse (18 проектів)
+2026-06-27 11:07:07.891 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: DawsHacks 2026 (19 проектів)
+2026-06-27 11:07:08.249 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Alan x Mistral: AI Health Hack (24 проектів)
+2026-06-27 11:07:08.412 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: ViTAL Hacks 2026 (9 проектів)
+2026-06-27 11:07:08.804 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Claude Builder Hackathon, UG (24 проектів)
+2026-06-27 11:07:08.880 | INFO     | __main__:run_batch_feature_extraction:83 - Процедуру генерації ознак завершено.
+2026-06-27 11:12:43.080 | INFO     | __main__:backfill_sponsors:46 - Початок пере-перевірки спонсорів для 120 хакатонів...
+2026-06-27 11:12:44.276 | INFO     | __main__:backfill_sponsors:68 - [1/120] Спонсорів для HACKFEST'26 не знайдено.
+2026-06-27 11:12:45.719 | INFO     | __main__:backfill_sponsors:68 - [2/120] Спонсорів для Cyber_Coders не знайдено.
+2026-06-27 11:12:47.140 | INFO     | __main__:backfill_sponsors:68 - [3/120] Спонсорів для IntelliShift Hackathon не знайдено.
+2026-06-27 11:12:48.569 | INFO     | __main__:backfill_sponsors:68 - [4/120] Спонсорів для Alpha Club не знайдено.
+2026-06-27 11:12:49.940 | INFO     | __main__:backfill_sponsors:68 - [5/120] Спонсорів для Google Cloud Rapid Agent Hackathon не знайдено.
+2026-06-27 11:12:51.995 | INFO     | __main__:backfill_sponsors:68 - [6/120] Спонсорів для USAII® Global AI Hackathon 2026 не знайдено.
+2026-06-27 11:12:53.517 | INFO     | __main__:backfill_sponsors:68 - [7/120] Спонсорів для FIND EVIL! не знайдено.
+2026-06-27 11:12:54.988 | INFO     | __main__:backfill_sponsors:68 - [8/120] Спонсорів для Splunk Agentic Ops Hackathon не знайдено.
+2026-06-27 11:12:56.412 | INFO     | __main__:backfill_sponsors:68 - [9/120] Спонсорів для Mind the Product presents World Product Day: Everyone Ships Now не знайдено.
+2026-06-27 11:12:57.891 | INFO     | __main__:backfill_sponsors:68 - [10/120] Спонсорів для NextGenHacks не знайдено.
+2026-06-27 11:12:59.497 | INFO     | __main__:backfill_sponsors:68 - [11/120] Спонсорів для DSH Hacks V1 не знайдено.
+2026-06-27 11:13:00.879 | INFO     | __main__:backfill_sponsors:68 - [12/120] Спонсорів для Learning Hackathon: Spec Driven Development не знайдено.
+2026-06-27 11:13:02.329 | INFO     | __main__:backfill_sponsors:68 - [13/120] Спонсорів для UC Berkeley AI Hackathon 2026 не знайдено.
+2026-06-27 11:13:03.804 | INFO     | __main__:backfill_sponsors:68 - [14/120] Спонсорів для Africa Digital ID Hackathon 2026 не знайдено.
+2026-06-27 11:13:05.144 | INFO     | __main__:backfill_sponsors:68 - [15/120] Спонсорів для BluePrint 2026 - Hackthon for freshers and Students не знайдено.
+2026-06-27 11:13:06.588 | INFO     | __main__:backfill_sponsors:68 - [16/120] Спонсорів для Beyond Tomorrow Summit не знайдено.
+2026-06-27 11:13:08.051 | INFO     | __main__:backfill_sponsors:68 - [17/120] Спонсорів для TecStorm'26 не знайдено.
+2026-06-27 11:13:09.497 | INFO     | __main__:backfill_sponsors:68 - [18/120] Спонсорів для INNOSpark Pitch Competition не знайдено.
+2026-06-27 11:13:11.042 | INFO     | __main__:backfill_sponsors:68 - [19/120] Спонсорів для Quantum Sprint не знайдено.
+2026-06-27 11:13:12.476 | INFO     | __main__:backfill_sponsors:68 - [20/120] Спонсорів для VALSEA Edtech Sprint (HCM) не знайдено.
+2026-06-27 11:13:13.926 | INFO     | __main__:backfill_sponsors:68 - [21/120] Спонсорів для  Production Engineering Hackathon не знайдено.
+2026-06-27 11:13:15.363 | INFO     | __main__:backfill_sponsors:68 - [22/120] Спонсорів для API Innovate 2026 не знайдено.
+2026-06-27 11:13:16.747 | INFO     | __main__:backfill_sponsors:68 - [23/120] Спонсорів для Databricks Apps & Agents for Good Hackathon 2026 не знайдено.
+2026-06-27 11:13:18.177 | INFO     | __main__:backfill_sponsors:68 - [24/120] Спонсорів для International AI Agents Hackathon не знайдено.
+2026-06-27 11:13:19.502 | INFO     | __main__:backfill_sponsors:68 - [25/120] Спонсорів для Beyond Tomorrow Summit не знайдено.
+2026-06-27 11:13:20.901 | INFO     | __main__:backfill_sponsors:68 - [26/120] Спонсорів для Design4Future не знайдено.
+2026-06-27 11:13:22.356 | INFO     | __main__:backfill_sponsors:68 - [27/120] Спонсорів для QWEN AI BUILD DAY не знайдено.
+2026-06-27 11:13:23.774 | INFO     | __main__:backfill_sponsors:68 - [28/120] Спонсорів для Hack4Her 2026 не знайдено.
+2026-06-27 11:13:25.240 | INFO     | __main__:backfill_sponsors:68 - [29/120] Спонсорів для STEMINATE HACKS 2026 не знайдено.
+2026-06-27 11:13:26.638 | INFO     | __main__:backfill_sponsors:68 - [30/120] Спонсорів для Bharat Bricks Hacks 2026: IIT Indore не знайдено.
+2026-06-27 11:13:28.101 | INFO     | __main__:backfill_sponsors:68 - [31/120] Спонсорів для Anthropic Hackathon @ IIT Delhi не знайдено.
+2026-06-27 11:13:29.644 | INFO     | __main__:backfill_sponsors:68 - [32/120] Спонсорів для Aurora Global Hackathon не знайдено.
+2026-06-27 11:13:31.085 | INFO     | __main__:backfill_sponsors:68 - [33/120] Спонсорів для Strathspace Hack Day не знайдено.
+2026-06-27 11:13:32.612 | INFO     | __main__:backfill_sponsors:68 - [34/120] Спонсорів для COMM STEM X SUDATA HACKATHON не знайдено.
+2026-06-27 11:13:34.021 | INFO     | __main__:backfill_sponsors:68 - [35/120] Спонсорів для APOGEE GameJam 2026 не знайдено.
+2026-06-27 11:13:35.388 | INFO     | __main__:backfill_sponsors:68 - [36/120] Спонсорів для Build with GLM 5.1 Challenge by Z.AI не знайдено.
+2026-06-27 11:13:36.843 | INFO     | __main__:backfill_sponsors:68 - [37/120] Спонсорів для Grizzly Hacks III не знайдено.
+2026-06-27 11:13:38.265 | INFO     | __main__:backfill_sponsors:68 - [38/120] Спонсорів для Optimization Grand Challenge 2026 не знайдено.
+2026-06-27 11:13:39.830 | INFO     | __main__:backfill_sponsors:68 - [39/120] Спонсорів для Hackspire Hackathon не знайдено.
+2026-06-27 11:13:41.259 | INFO     | __main__:backfill_sponsors:68 - [40/120] Спонсорів для WeatherWise Hack не знайдено.
+2026-06-27 11:13:42.727 | INFO     | __main__:backfill_sponsors:68 - [41/120] Спонсорів для Your idea vs 1,000 other marketers. Let’s see where you actually stand.  не знайдено.
+2026-06-27 11:13:44.129 | INFO     | __main__:backfill_sponsors:68 - [42/120] Спонсорів для EcoHacks не знайдено.
+2026-06-27 11:13:45.561 | INFO     | __main__:backfill_sponsors:68 - [43/120] Спонсорів для RidgeHacks 2026 не знайдено.
+2026-06-27 11:13:46.971 | INFO     | __main__:backfill_sponsors:68 - [44/120] Спонсорів для The Future Innovators Hackathon: A Road to START Hack не знайдено.
+2026-06-27 11:13:48.530 | INFO     | __main__:backfill_sponsors:68 - [45/120] Спонсорів для Devlance Hack не знайдено.
+2026-06-27 11:13:49.875 | INFO     | __main__:backfill_sponsors:68 - [46/120] Спонсорів для Digital Innovation Challenge 2025 - Finance Track не знайдено.
+2026-06-27 11:13:51.738 | INFO     | __main__:backfill_sponsors:68 - [47/120] Спонсорів для AlgosQuest 2025 не знайдено.
+2026-06-27 11:13:53.052 | INFO     | __main__:backfill_sponsors:68 - [48/120] Спонсорів для AI for Civic Innovation Hackathon не знайдено.
+2026-06-27 11:13:54.425 | INFO     | __main__:backfill_sponsors:68 - [49/120] Спонсорів для ESE 1900, Silicon Garage, Spring 2026 не знайдено.
+2026-06-27 11:13:55.909 | INFO     | __main__:backfill_sponsors:68 - [50/120] Спонсорів для Bharat Bricks Hacks 2026: IIT Madras не знайдено.
+2026-06-27 11:13:57.274 | INFO     | __main__:backfill_sponsors:68 - [51/120] Спонсорів для BrailleVision Hackathon не знайдено.
+2026-06-27 11:13:58.765 | INFO     | __main__:backfill_sponsors:68 - [52/120] Спонсорів для ImagineHack 2026 не знайдено.
+2026-06-27 11:14:00.192 | INFO     | __main__:backfill_sponsors:68 - [53/120] Спонсорів для HackMars 3.0: NEON не знайдено.
+2026-06-27 11:14:01.656 | INFO     | __main__:backfill_sponsors:68 - [54/120] Спонсорів для HackNation не знайдено.
+2026-06-27 11:14:03.072 | INFO     | __main__:backfill_sponsors:68 - [55/120] Спонсорів для [case]Hacks 2026 не знайдено.
+2026-06-27 11:14:04.494 | INFO     | __main__:backfill_sponsors:68 - [56/120] Спонсорів для CodeStorm не знайдено.
+2026-06-27 11:14:05.929 | INFO     | __main__:backfill_sponsors:68 - [57/120] Спонсорів для hatrek не знайдено.
+2026-06-27 11:14:07.348 | INFO     | __main__:backfill_sponsors:68 - [58/120] Спонсорів для She ships - 8M hackathon не знайдено.
+2026-06-27 11:14:08.775 | INFO     | __main__:backfill_sponsors:68 - [59/120] Спонсорів для AcademiesHacks 2026 не знайдено.
+2026-06-27 11:14:10.172 | INFO     | __main__:backfill_sponsors:68 - [60/120] Спонсорів для Neurocore Overnight Hackathon не знайдено.
+2026-06-27 11:14:11.596 | INFO     | __main__:backfill_sponsors:68 - [61/120] Спонсорів для VibeHack London 2026 не знайдено.
+2026-06-27 11:14:13.009 | INFO     | __main__:backfill_sponsors:68 - [62/120] Спонсорів для Hack Kosice 2026 не знайдено.
+2026-06-27 11:14:14.472 | INFO     | __main__:backfill_sponsors:68 - [63/120] Спонсорів для HackJPS 2026 не знайдено.
+2026-06-27 11:14:15.875 | INFO     | __main__:backfill_sponsors:68 - [64/120] Спонсорів для GreenHack By Grevoro не знайдено.
+2026-06-27 11:14:17.288 | INFO     | __main__:backfill_sponsors:68 - [65/120] Спонсорів для Smart Innovation 2026 не знайдено.
+2026-06-27 11:14:18.848 | INFO     | __main__:backfill_sponsors:68 - [66/120] Спонсорів для DSOC : Summer Edition не знайдено.
+2026-06-27 11:14:20.265 | INFO     | __main__:backfill_sponsors:68 - [67/120] Спонсорів для BugBash не знайдено.
+2026-06-27 11:14:21.732 | INFO     | __main__:backfill_sponsors:68 - [68/120] Спонсорів для Kifiya Inspire 3.0 не знайдено.
+2026-06-27 11:14:23.253 | INFO     | __main__:backfill_sponsors:68 - [69/120] Спонсорів для NJx Hackathon Summer 2026 не знайдено.
+2026-06-27 11:14:24.731 | INFO     | __main__:backfill_sponsors:68 - [70/120] Спонсорів для Hack Days Ankara: Build with Gemini не знайдено.
+2026-06-27 11:14:26.298 | INFO     | __main__:backfill_sponsors:68 - [71/120] Спонсорів для Claude Hackathon at Imperial College London | Claude Builder Club @ Imperial не знайдено.
+2026-06-27 11:14:27.820 | INFO     | __main__:backfill_sponsors:68 - [72/120] Спонсорів для Innovate for Impact - NGM Group не знайдено.
+2026-06-27 11:14:29.237 | INFO     | __main__:backfill_sponsors:68 - [73/120] Спонсорів для Ignisia | National Level AI Hackathon не знайдено.
+2026-06-27 11:14:30.801 | INFO     | __main__:backfill_sponsors:68 - [74/120] Спонсорів для Luddy Hacks 2026 не знайдено.
+2026-06-27 11:14:32.352 | INFO     | __main__:backfill_sponsors:68 - [75/120] Спонсорів для Inactive (Hackathon Moved) не знайдено.
+2026-06-27 11:14:33.901 | INFO     | __main__:backfill_sponsors:68 - [76/120] Спонсорів для AEE Energy Hackathon не знайдено.
+2026-06-27 11:14:35.313 | INFO     | __main__:backfill_sponsors:68 - [77/120] Спонсорів для Bharat Bricks Hacks 2026: IISc Bengaluru не знайдено.
+2026-06-27 11:14:36.788 | INFO     | __main__:backfill_sponsors:68 - [78/120] Спонсорів для BUILD ZERO HACKATHON- NAIROBI не знайдено.
+2026-06-27 11:14:38.226 | INFO     | __main__:backfill_sponsors:68 - [79/120] Спонсорів для ALI Builds Hackathon не знайдено.
+2026-06-27 11:14:39.797 | INFO     | __main__:backfill_sponsors:68 - [80/120] Спонсорів для HackDKU 2026 не знайдено.
+2026-06-27 11:14:41.208 | INFO     | __main__:backfill_sponsors:68 - [81/120] Спонсорів для 2026 MakeNJIT Hardware hackathon не знайдено.
+2026-06-27 11:14:42.656 | INFO     | __main__:backfill_sponsors:68 - [82/120] Спонсорів для AI Forecasting Hackathon не знайдено.
+2026-06-27 11:14:44.279 | INFO     | __main__:backfill_sponsors:68 - [83/120] Спонсорів для QuantiHack 2026 не знайдено.
+2026-06-27 11:14:45.727 | INFO     | __main__:backfill_sponsors:68 - [84/120] Спонсорів для Student Life Track Hackathon 2026 не знайдено.
+2026-06-27 11:14:47.235 | INFO     | __main__:backfill_sponsors:68 - [85/120] Спонсорів для IntelliAI Arena не знайдено.
+2026-06-27 11:14:48.747 | INFO     | __main__:backfill_sponsors:68 - [86/120] Спонсорів для Caltech Longevity Hackathon 2026 не знайдено.
+2026-06-27 11:14:50.251 | INFO     | __main__:backfill_sponsors:68 - [87/120] Спонсорів для AIVENTRA не знайдено.
+2026-06-27 11:14:51.709 | INFO     | __main__:backfill_sponsors:68 - [88/120] Спонсорів для AI Unleashed 2026 не знайдено.
+2026-06-27 11:14:53.192 | INFO     | __main__:backfill_sponsors:68 - [89/120] Спонсорів для VALSEA EdTech System Sprint (HCM) не знайдено.
+2026-06-27 11:14:54.719 | INFO     | __main__:backfill_sponsors:68 - [90/120] Спонсорів для 2025-2026 Spring ESE Senior Design не знайдено.
+2026-06-27 11:14:56.364 | INFO     | __main__:backfill_sponsors:68 - [91/120] Спонсорів для xStocks Hackathon EthCC: Market Open не знайдено.
+2026-06-27 11:14:57.897 | INFO     | __main__:backfill_sponsors:68 - [92/120] Спонсорів для 05/22/2026 не знайдено.
+2026-06-27 11:14:59.386 | INFO     | __main__:backfill_sponsors:68 - [93/120] Спонсорів для Everything But the Byte не знайдено.
+2026-06-27 11:15:01.049 | INFO     | __main__:backfill_sponsors:68 - [94/120] Спонсорів для CodeQuantum 2026 не знайдено.
+2026-06-27 11:15:02.905 | INFO     | __main__:backfill_sponsors:68 - [95/120] Спонсорів для Be Hackathon не знайдено.
+2026-06-27 11:15:04.408 | INFO     | __main__:backfill_sponsors:68 - [96/120] Спонсорів для Vector Vision не знайдено.
+2026-06-27 11:15:05.904 | INFO     | __main__:backfill_sponsors:68 - [97/120] Спонсорів для The AI Hack не знайдено.
+2026-06-27 11:15:07.498 | INFO     | __main__:backfill_sponsors:68 - [98/120] Спонсорів для Spiti-AI Hackathon не знайдено.
+2026-06-27 11:15:09.214 | INFO     | __main__:backfill_sponsors:68 - [99/120] Спонсорів для JSS Navotthana 2.0 не знайдено.
+2026-06-27 11:15:11.197 | INFO     | __main__:backfill_sponsors:68 - [100/120] Спонсорів для Hacknarok не знайдено.
+2026-06-27 11:15:12.791 | INFO     | __main__:backfill_sponsors:68 - [101/120] Спонсорів для CyberHack не знайдено.
+2026-06-27 11:15:14.405 | INFO     | __main__:backfill_sponsors:68 - [102/120] Спонсорів для NeuroHack Spring 2026 не знайдено.
+2026-06-27 11:15:15.967 | INFO     | __main__:backfill_sponsors:68 - [103/120] Спонсорів для Hack the Tech не знайдено.
+2026-06-27 11:15:17.619 | INFO     | __main__:backfill_sponsors:68 - [104/120] Спонсорів для SoCal Claude Builder Club Hackathon не знайдено.
+2026-06-27 11:15:19.233 | INFO     | __main__:backfill_sponsors:68 - [105/120] Спонсорів для UCI AWS Cloud Hacks - 2026 не знайдено.
+2026-06-27 11:15:20.926 | INFO     | __main__:backfill_sponsors:68 - [106/120] Спонсорів для Bharat Bricks Hacks 2026: IIT Delhi не знайдено.
+2026-06-27 11:15:22.511 | INFO     | __main__:backfill_sponsors:68 - [107/120] Спонсорів для Global Public Health Hackathon 2026 не знайдено.
+2026-06-27 11:15:24.076 | INFO     | __main__:backfill_sponsors:68 - [108/120] Спонсорів для Databricks_Accenture_Hackathon не знайдено.
+2026-06-27 11:15:25.570 | INFO     | __main__:backfill_sponsors:68 - [109/120] Спонсорів для Hack the Bay Launch 2026 не знайдено.
+2026-06-27 11:15:27.256 | INFO     | __main__:backfill_sponsors:68 - [110/120] Спонсорів для MariHacks IX не знайдено.
+2026-06-27 11:15:28.880 | INFO     | __main__:backfill_sponsors:68 - [111/120] Спонсорів для HackFox не знайдено.
+2026-06-27 11:15:30.370 | INFO     | __main__:backfill_sponsors:68 - [112/120] Спонсорів для Build for the Border - Immigrant Hackathon NYC не знайдено.
+2026-06-27 11:15:32.024 | INFO     | __main__:backfill_sponsors:68 - [113/120] Спонсорів для AgentVerse не знайдено.
+2026-06-27 11:15:33.664 | INFO     | __main__:backfill_sponsors:68 - [114/120] Спонсорів для comma_hack (six) не знайдено.
+2026-06-27 11:15:35.233 | INFO     | __main__:backfill_sponsors:68 - [115/120] Спонсорів для Red Alert | Cybersecurity Hackathon 2026 не знайдено.
+2026-06-27 11:15:36.904 | INFO     | __main__:backfill_sponsors:68 - [116/120] Спонсорів для SattamThon не знайдено.
+2026-06-27 11:15:39.143 | INFO     | __main__:backfill_sponsors:68 - [117/120] Спонсорів для DawsHacks 2026 не знайдено.
+2026-06-27 11:15:41.493 | INFO     | __main__:backfill_sponsors:68 - [118/120] Спонсорів для Alan x Mistral: AI Health Hack не знайдено.
+2026-06-27 11:15:43.045 | INFO     | __main__:backfill_sponsors:68 - [119/120] Спонсорів для ViTAL Hacks 2026 не знайдено.
+2026-06-27 11:15:44.511 | INFO     | __main__:backfill_sponsors:68 - [120/120] Спонсорів для Claude Builder Hackathon, UG не знайдено.
+2026-06-27 11:15:45.015 | INFO     | __main__:backfill_sponsors:76 - 🎉 Процедуру завершено! Збагачено хакатонів: 0
+2026-06-27 11:22:13.294 | INFO     | __main__:backfill_sponsors:54 - Початок пере-перевірки спонсорів для 120 хакатонів...
+2026-06-27 11:22:14.522 | INFO     | __main__:backfill_sponsors:76 - [1/120] Спонсорів для HACKFEST'26 не знайдено.
+2026-06-27 11:22:15.889 | INFO     | __main__:backfill_sponsors:76 - [2/120] Спонсорів для Cyber_Coders не знайдено.
+2026-06-27 11:22:17.197 | INFO     | __main__:backfill_sponsors:76 - [3/120] Спонсорів для IntelliShift Hackathon не знайдено.
+2026-06-27 11:22:18.614 | INFO     | __main__:backfill_sponsors:76 - [4/120] Спонсорів для Alpha Club не знайдено.
+2026-06-27 11:22:20.583 | INFO     | __main__:backfill_sponsors:73 - [5/120] 🏆 Оновлено спонсорів для Google Cloud Rapid Agent Hackathon: ['Google Cloud', 'GitLab', 'MongoDB', 'Elastic', 'Dynatrace', 'Arize', 'Fivetran']
+2026-06-27 11:22:22.224 | INFO     | __main__:backfill_sponsors:76 - [6/120] Спонсорів для USAII® Global AI Hackathon 2026 не знайдено.
+2026-06-27 11:22:23.861 | INFO     | __main__:backfill_sponsors:73 - [7/120] 🏆 Оновлено спонсорів для FIND EVIL!: ['SANS Institute']
+2026-06-27 11:22:25.287 | INFO     | __main__:backfill_sponsors:76 - [8/120] Спонсорів для Splunk Agentic Ops Hackathon не знайдено.
+2026-06-27 11:22:26.597 | INFO     | __main__:backfill_sponsors:73 - [9/120] 🏆 Оновлено спонсорів для Mind the Product presents World Product Day: Everyone Ships Now: ['Pendo', 'Novus']
+2026-06-27 11:22:28.039 | INFO     | __main__:backfill_sponsors:76 - [10/120] Спонсорів для NextGenHacks не знайдено.
+2026-06-27 11:22:29.692 | INFO     | __main__:backfill_sponsors:73 - [11/120] 🏆 Оновлено спонсорів для DSH Hacks V1: ['CodeCrafters', 'Iteration Machine', 'InterviewBuddy', 'Featherless', 'Cleanshot X', 'Ideavo', 'Interview Cake', 'relay.app', 'crackd', 'LLM.API', 'Hudson River Trading', 'Aniko', 'Art of Problem Solving (AoPS)']
+2026-06-27 11:22:31.000 | INFO     | __main__:backfill_sponsors:76 - [12/120] Спонсорів для Learning Hackathon: Spec Driven Development не знайдено.
+2026-06-27 11:22:32.397 | INFO     | __main__:backfill_sponsors:76 - [13/120] Спонсорів для UC Berkeley AI Hackathon 2026 не знайдено.
+2026-06-27 11:22:33.896 | INFO     | __main__:backfill_sponsors:76 - [14/120] Спонсорів для Africa Digital ID Hackathon 2026 не знайдено.
+2026-06-27 11:22:35.362 | INFO     | __main__:backfill_sponsors:76 - [15/120] Спонсорів для BluePrint 2026 - Hackthon for freshers and Students не знайдено.
+2026-06-27 11:22:36.691 | INFO     | __main__:backfill_sponsors:73 - [16/120] 🏆 Оновлено спонсорів для Beyond Tomorrow Summit: ['Google Developer Group at Eastern Washington University', 'AiForJob', 'Google Developer Group at Whitworth University']
+2026-06-27 11:22:38.200 | INFO     | __main__:backfill_sponsors:73 - [17/120] 🏆 Оновлено спонсорів для TecStorm'26: ['Mota-Engil Next (MEXT)', 'UNICRE', 'Vodafone', 'Galp', 'Grupo Brisa']
+2026-06-27 11:22:39.689 | INFO     | __main__:backfill_sponsors:73 - [18/120] 🏆 Оновлено спонсорів для INNOSpark Pitch Competition: ['Y2 Entrepreneurship Labs', 'Vibegrade', 'Treefrog Accelerator', 'MaRS', 'UWaterloo - Velocity', 'City of Richmond Hill', 'Notion', 'Replit', 'Y Combinator', 'TypeOS']
+2026-06-27 11:22:41.348 | INFO     | __main__:backfill_sponsors:73 - [19/120] 🏆 Оновлено спонсорів для Quantum Sprint: ['WolfRam']
+2026-06-27 11:22:42.751 | INFO     | __main__:backfill_sponsors:76 - [20/120] Спонсорів для VALSEA Edtech Sprint (HCM) не знайдено.
+2026-06-27 11:22:44.239 | INFO     | __main__:backfill_sponsors:76 - [21/120] Спонсорів для  Production Engineering Hackathon не знайдено.
+2026-06-27 11:22:45.533 | INFO     | __main__:backfill_sponsors:76 - [22/120] Спонсорів для API Innovate 2026 не знайдено.
+2026-06-27 11:22:46.947 | INFO     | __main__:backfill_sponsors:76 - [23/120] Спонсорів для Databricks Apps & Agents for Good Hackathon 2026 не знайдено.
+2026-06-27 11:22:48.355 | INFO     | __main__:backfill_sponsors:76 - [24/120] Спонсорів для International AI Agents Hackathon не знайдено.
+2026-06-27 11:22:49.793 | INFO     | __main__:backfill_sponsors:76 - [25/120] Спонсорів для Beyond Tomorrow Summit не знайдено.
+2026-06-27 11:22:51.159 | INFO     | __main__:backfill_sponsors:73 - [26/120] 🏆 Оновлено спонсорів для Design4Future: ['Nord Pass', 'Iteration Machine', 'Code Crafters', 'Nord Vpn', 'Saily', 'nexos.ai', 'Incogni']
+2026-06-27 11:22:52.597 | INFO     | __main__:backfill_sponsors:73 - [27/120] 🏆 Оновлено спонсорів для QWEN AI BUILD DAY: ['Tasco', "Shinhan Future's Lab", 'Qwen', 'Elfie']
+2026-06-27 11:22:54.051 | INFO     | __main__:backfill_sponsors:73 - [28/120] 🏆 Оновлено спонсорів для Hack4Her 2026: ['MLH', 'Arca Continental']
+2026-06-27 11:22:55.545 | INFO     | __main__:backfill_sponsors:73 - [29/120] 🏆 Оновлено спонсорів для STEMINATE HACKS 2026: ['CodeCrafters', 'CoCalc', 'YRI Science', 'CleanShot X', 'Vue School', 'Figma', 'Interview Cake', 'GreenPT', 'Momen']
+2026-06-27 11:22:57.054 | INFO     | __main__:backfill_sponsors:76 - [30/120] Спонсорів для Bharat Bricks Hacks 2026: IIT Indore не знайдено.
+2026-06-27 11:22:58.613 | INFO     | __main__:backfill_sponsors:76 - [31/120] Спонсорів для Anthropic Hackathon @ IIT Delhi не знайдено.
+2026-06-27 11:23:00.033 | INFO     | __main__:backfill_sponsors:73 - [32/120] 🏆 Оновлено спонсорів для Aurora Global Hackathon: ['Featherless']
+2026-06-27 11:23:01.461 | INFO     | __main__:backfill_sponsors:73 - [33/120] 🏆 Оновлено спонсорів для Strathspace Hack Day: ['major League Hacking']
+2026-06-27 11:23:03.058 | INFO     | __main__:backfill_sponsors:76 - [34/120] Спонсорів для COMM STEM X SUDATA HACKATHON не знайдено.
+2026-06-27 11:23:04.443 | INFO     | __main__:backfill_sponsors:76 - [35/120] Спонсорів для APOGEE GameJam 2026 не знайдено.
+2026-06-27 11:23:05.751 | INFO     | __main__:backfill_sponsors:73 - [36/120] 🏆 Оновлено спонсорів для Build with GLM 5.1 Challenge by Z.AI: ['AI Valley', 'Z.ai']
+2026-06-27 11:23:07.150 | INFO     | __main__:backfill_sponsors:76 - [37/120] Спонсорів для Grizzly Hacks III не знайдено.
+2026-06-27 11:23:08.492 | INFO     | __main__:backfill_sponsors:73 - [38/120] 🏆 Оновлено спонсорів для Optimization Grand Challenge 2026: ['LG CNS', 'Kiie']
+2026-06-27 11:23:10.025 | INFO     | __main__:backfill_sponsors:76 - [39/120] Спонсорів для Hackspire Hackathon не знайдено.
+2026-06-27 11:23:11.460 | INFO     | __main__:backfill_sponsors:76 - [40/120] Спонсорів для WeatherWise Hack не знайдено.
+2026-06-27 11:23:12.916 | INFO     | __main__:backfill_sponsors:76 - [41/120] Спонсорів для Your idea vs 1,000 other marketers. Let’s see where you actually stand.  не знайдено.
+2026-06-27 11:23:14.365 | INFO     | __main__:backfill_sponsors:73 - [42/120] 🏆 Оновлено спонсорів для EcoHacks: ['Featherless.ai']
+2026-06-27 11:23:15.807 | INFO     | __main__:backfill_sponsors:76 - [43/120] Спонсорів для RidgeHacks 2026 не знайдено.
+2026-06-27 11:23:17.209 | INFO     | __main__:backfill_sponsors:73 - [44/120] 🏆 Оновлено спонсорів для The Future Innovators Hackathon: A Road to START Hack: ['Sonae', 'Cloudflare', 'José de Mello']
+2026-06-27 11:23:18.767 | INFO     | __main__:backfill_sponsors:76 - [45/120] Спонсорів для Devlance Hack не знайдено.
+2026-06-27 11:23:20.370 | INFO     | __main__:backfill_sponsors:73 - [46/120] 🏆 Оновлено спонсорів для Digital Innovation Challenge 2025 - Finance Track: ['NYUSH DIC', 'GenOptim (智推时代)', 'DKU Division of Natural and Applied Sciences', 'DKU Center for the Study for Contemporary China', 'DKU AI Club', 'Amazon Web Services', 'DKU Student Organization Members', 'DKU Finance Club', 'DKU Innovation and Entrepreneurship Initiative', 'DKU Computer Science Club']
+2026-06-27 11:23:21.921 | INFO     | __main__:backfill_sponsors:76 - [47/120] Спонсорів для AlgosQuest 2025 не знайдено.
+2026-06-27 11:23:23.326 | INFO     | __main__:backfill_sponsors:73 - [48/120] 🏆 Оновлено спонсорів для AI for Civic Innovation Hackathon: ['FAST NUCES Islamabad', 'Grey Software', 'Code for Pakistan', 'Scrimba']
+2026-06-27 11:23:24.672 | INFO     | __main__:backfill_sponsors:76 - [49/120] Спонсорів для ESE 1900, Silicon Garage, Spring 2026 не знайдено.
+2026-06-27 11:23:26.052 | INFO     | __main__:backfill_sponsors:76 - [50/120] Спонсорів для Bharat Bricks Hacks 2026: IIT Madras не знайдено.
+2026-06-27 11:23:27.446 | INFO     | __main__:backfill_sponsors:76 - [51/120] Спонсорів для BrailleVision Hackathon не знайдено.
+2026-06-27 11:23:28.836 | INFO     | __main__:backfill_sponsors:73 - [52/120] 🏆 Оновлено спонсорів для ImagineHack 2026: ['Finlatics', 'DoubleDot', 'Grafilab', 'Halolo Park', 'HILTI', 'Coca Cola SIMA', 'Advisors Alliance Group']
+2026-06-27 11:23:30.344 | INFO     | __main__:backfill_sponsors:73 - [53/120] 🏆 Оновлено спонсорів для HackMars 3.0: NEON: ['HackMars', 'HowToHackathon']
+2026-06-27 11:23:31.736 | INFO     | __main__:backfill_sponsors:73 - [54/120] 🏆 Оновлено спонсорів для HackNation: ['Lovable', 'Databricks', 'Github', "Masters' Union", 'DSV Gruppe', 'openAi']
+2026-06-27 11:23:33.126 | INFO     | __main__:backfill_sponsors:73 - [55/120] 🏆 Оновлено спонсорів для [case]Hacks 2026: ['Scotiabank']
+2026-06-27 11:23:34.508 | INFO     | __main__:backfill_sponsors:76 - [56/120] Спонсорів для CodeStorm не знайдено.
+2026-06-27 11:23:35.948 | INFO     | __main__:backfill_sponsors:76 - [57/120] Спонсорів для hatrek не знайдено.
+2026-06-27 11:23:37.351 | INFO     | __main__:backfill_sponsors:73 - [58/120] 🏆 Оновлено спонсорів для She ships - 8M hackathon: ['Tropicalia', 'IEEE Computer Society PUCP', 'Sezzle', 'V0', 'ElevenLabs', 'Make', 'Featheress AI']
+2026-06-27 11:23:38.838 | INFO     | __main__:backfill_sponsors:73 - [59/120] 🏆 Оновлено спонсорів для AcademiesHacks 2026: ['GT Edge AI', 'LCPS CTE', 'Microsoft']
+2026-06-27 11:23:40.351 | INFO     | __main__:backfill_sponsors:73 - [60/120] 🏆 Оновлено спонсорів для Neurocore Overnight Hackathon: ['All State India']
+2026-06-27 11:23:41.833 | INFO     | __main__:backfill_sponsors:76 - [61/120] Спонсорів для VibeHack London 2026 не знайдено.
+2026-06-27 11:23:43.243 | INFO     | __main__:backfill_sponsors:76 - [62/120] Спонсорів для Hack Kosice 2026 не знайдено.
+2026-06-27 11:23:44.732 | INFO     | __main__:backfill_sponsors:73 - [63/120] 🏆 Оновлено спонсорів для HackJPS 2026: ['Nexos.ai', 'Wolfram', 'incogni', 'Interview Cake', 'Saily', 'AoPS', 'Appwrite', 'NordVPN', 'NordPass', 'NordProtect']
+2026-06-27 11:23:46.174 | INFO     | __main__:backfill_sponsors:76 - [64/120] Спонсорів для GreenHack By Grevoro не знайдено.
+2026-06-27 11:23:47.560 | INFO     | __main__:backfill_sponsors:76 - [65/120] Спонсорів для Smart Innovation 2026 не знайдено.
+2026-06-27 11:23:48.970 | INFO     | __main__:backfill_sponsors:73 - [66/120] 🏆 Оновлено спонсорів для DSOC : Summer Edition: ['XYZ', 'Hello Club', 'WolfRam']
+2026-06-27 11:23:50.341 | INFO     | __main__:backfill_sponsors:76 - [67/120] Спонсорів для BugBash не знайдено.
+2026-06-27 11:23:51.721 | INFO     | __main__:backfill_sponsors:73 - [68/120] 🏆 Оновлено спонсорів для Kifiya Inspire 3.0: ['Kifiya Financial Technology']
+2026-06-27 11:23:53.116 | INFO     | __main__:backfill_sponsors:73 - [69/120] 🏆 Оновлено спонсорів для NJx Hackathon Summer 2026: ['1435 Capital Management', 'NJ AI Hub', 'StartupGrind Princeton', 'Cogent Connections', 'mTap', 'Montgomery Innovation Hub']
+2026-06-27 11:23:54.585 | INFO     | __main__:backfill_sponsors:73 - [70/120] 🏆 Оновлено спонсорів для Hack Days Ankara: Build with Gemini: ['Google Gemini', 'Major League Hacking']
+2026-06-27 11:23:55.995 | INFO     | __main__:backfill_sponsors:76 - [71/120] Спонсорів для Claude Hackathon at Imperial College London | Claude Builder Club @ Imperial не знайдено.
+2026-06-27 11:23:57.463 | INFO     | __main__:backfill_sponsors:73 - [72/120] 🏆 Оновлено спонсорів для Innovate for Impact - NGM Group: ['Lake Macquarie & Newcastle Suicide Prevention Network', 'HealthWISE', 'Dress for Success']
+2026-06-27 11:23:58.832 | INFO     | __main__:backfill_sponsors:76 - [73/120] Спонсорів для Ignisia | National Level AI Hackathon не знайдено.
+2026-06-27 11:24:00.304 | INFO     | __main__:backfill_sponsors:76 - [74/120] Спонсорів для Luddy Hacks 2026 не знайдено.
+2026-06-27 11:24:01.686 | INFO     | __main__:backfill_sponsors:76 - [75/120] Спонсорів для Inactive (Hackathon Moved) не знайдено.
+2026-06-27 11:24:03.138 | INFO     | __main__:backfill_sponsors:73 - [76/120] 🏆 Оновлено спонсорів для AEE Energy Hackathon: ['Kemabonta Ventures', 'Lovable', 'IEEE ASU Student Club', 'AEE', 'Pheonix Contact', 'Collide io', 'Prescott Student Venture Fund', 'bkpk', 'OpenVPP', 'Energy Forward']
+2026-06-27 11:24:04.581 | INFO     | __main__:backfill_sponsors:76 - [77/120] Спонсорів для Bharat Bricks Hacks 2026: IISc Bengaluru не знайдено.
+2026-06-27 11:24:05.990 | INFO     | __main__:backfill_sponsors:76 - [78/120] Спонсорів для BUILD ZERO HACKATHON- NAIROBI не знайдено.
+2026-06-27 11:24:07.413 | INFO     | __main__:backfill_sponsors:76 - [79/120] Спонсорів для ALI Builds Hackathon не знайдено.
+2026-06-27 11:24:08.817 | INFO     | __main__:backfill_sponsors:73 - [80/120] 🏆 Оновлено спонсорів для HackDKU 2026: ['DKU - Student Leaders Board', 'DKU AI Club', 'Caidazi (财搭子)', 'Lovable', 'DKU - Academic Services', 'DKU - Career Services', 'Geex Finance', 'DKU Finance Club', 'DKU - Center for the Study of Contemporary China', 'DKU iOS Club', 'DKU iGEM Club', 'DKU - Innovation and Entrepreneurship Initiative', 'DKU Computer Science Club']
+2026-06-27 11:24:10.190 | INFO     | __main__:backfill_sponsors:76 - [81/120] Спонсорів для 2026 MakeNJIT Hardware hackathon не знайдено.
+2026-06-27 11:24:11.600 | INFO     | __main__:backfill_sponsors:76 - [82/120] Спонсорів для AI Forecasting Hackathon не знайдено.
+2026-06-27 11:24:12.992 | INFO     | __main__:backfill_sponsors:73 - [83/120] 🏆 Оновлено спонсорів для QuantiHack 2026: ['Hummingbird VC', 'Jane Street', 'Optiver', 'Corvera', 'Anthropic']
+2026-06-27 11:24:14.398 | INFO     | __main__:backfill_sponsors:76 - [84/120] Спонсорів для Student Life Track Hackathon 2026 не знайдено.
+2026-06-27 11:24:15.848 | INFO     | __main__:backfill_sponsors:76 - [85/120] Спонсорів для IntelliAI Arena не знайдено.
+2026-06-27 11:24:17.346 | INFO     | __main__:backfill_sponsors:73 - [86/120] 🏆 Оновлено спонсорів для Caltech Longevity Hackathon 2026: ['XYZ', 'Longevity Pledge', 'GlycanAge', 'Lovable', 'InSilico', "That's It", 'Fastshot', 'Bright Data', 'Calico', 'Aetas', 'Anthropic', 'Luria Health']
+2026-06-27 11:24:18.730 | INFO     | __main__:backfill_sponsors:73 - [87/120] 🏆 Оновлено спонсорів для AIVENTRA: ['Elyon Clothing']
+2026-06-27 11:24:20.107 | INFO     | __main__:backfill_sponsors:73 - [88/120] 🏆 Оновлено спонсорів для AI Unleashed 2026: ['Viitpay', 'Moniepoint', 'KOYO HealthTech']
+2026-06-27 11:24:21.505 | INFO     | __main__:backfill_sponsors:76 - [89/120] Спонсорів для VALSEA EdTech System Sprint (HCM) не знайдено.
+2026-06-27 11:24:22.851 | INFO     | __main__:backfill_sponsors:76 - [90/120] Спонсорів для 2025-2026 Spring ESE Senior Design не знайдено.
+2026-06-27 11:24:24.254 | INFO     | __main__:backfill_sponsors:73 - [91/120] 🏆 Оновлено спонсорів для xStocks Hackathon EthCC: Market Open: ['xStocks']
+2026-06-27 11:24:25.599 | INFO     | __main__:backfill_sponsors:76 - [92/120] Спонсорів для 05/22/2026 не знайдено.
+2026-06-27 11:24:27.491 | INFO     | __main__:backfill_sponsors:76 - [93/120] Спонсорів для Everything But the Byte не знайдено.
+2026-06-27 11:24:28.861 | INFO     | __main__:backfill_sponsors:73 - [94/120] 🏆 Оновлено спонсорів для CodeQuantum 2026: ['HEB']
+2026-06-27 11:24:30.252 | INFO     | __main__:backfill_sponsors:73 - [95/120] 🏆 Оновлено спонсорів для Be Hackathon: ['JetBrains']
+2026-06-27 11:24:31.710 | INFO     | __main__:backfill_sponsors:76 - [96/120] Спонсорів для Vector Vision не знайдено.
+2026-06-27 11:24:33.201 | INFO     | __main__:backfill_sponsors:76 - [97/120] Спонсорів для The AI Hack не знайдено.
+2026-06-27 11:24:34.713 | INFO     | __main__:backfill_sponsors:76 - [98/120] Спонсорів для Spiti-AI Hackathon не знайдено.
+2026-06-27 11:24:36.120 | INFO     | __main__:backfill_sponsors:73 - [99/120] 🏆 Оновлено спонсорів для JSS Navotthana 2.0: ['IEEE (Information Theory Society)', 'Dhiware', 'Savishkar', "Institution's Innovation Council", 'GeeksforGeeks']
+2026-06-27 11:24:37.514 | INFO     | __main__:backfill_sponsors:76 - [100/120] Спонсорів для Hacknarok не знайдено.
+2026-06-27 11:24:38.876 | INFO     | __main__:backfill_sponsors:73 - [101/120] 🏆 Оновлено спонсорів для CyberHack: ['AWS', 'Sima Arome', 'Xtremax']
+2026-06-27 11:24:40.596 | INFO     | __main__:backfill_sponsors:73 - [102/120] 🏆 Оновлено спонсорів для NeuroHack Spring 2026: ['Eleven Labs']
+2026-06-27 11:24:42.078 | INFO     | __main__:backfill_sponsors:76 - [103/120] Спонсорів для Hack the Tech не знайдено.
+2026-06-27 11:24:43.510 | INFO     | __main__:backfill_sponsors:73 - [104/120] 🏆 Оновлено спонсорів для SoCal Claude Builder Club Hackathon: ['AfterQuery', 'Fetch.ai']
+2026-06-27 11:24:44.884 | INFO     | __main__:backfill_sponsors:76 - [105/120] Спонсорів для UCI AWS Cloud Hacks - 2026 не знайдено.
+2026-06-27 11:24:46.304 | INFO     | __main__:backfill_sponsors:76 - [106/120] Спонсорів для Bharat Bricks Hacks 2026: IIT Delhi не знайдено.
+2026-06-27 11:24:47.755 | INFO     | __main__:backfill_sponsors:73 - [107/120] 🏆 Оновлено спонсорів для Global Public Health Hackathon 2026: ['Young AI Leaders Madrid', 'Young AI Leaders Linz', 'The World Federation of Public Health Associations']
+2026-06-27 11:24:49.138 | INFO     | __main__:backfill_sponsors:76 - [108/120] Спонсорів для Databricks_Accenture_Hackathon не знайдено.
+2026-06-27 11:24:50.515 | INFO     | __main__:backfill_sponsors:73 - [109/120] 🏆 Оновлено спонсорів для Hack the Bay Launch 2026: ['Major League Hacking']
+2026-06-27 11:24:51.962 | INFO     | __main__:backfill_sponsors:73 - [110/120] 🏆 Оновлено спонсорів для MariHacks IX: ['Liftoff', 'Alten Canada', 'Les Producteurs de Lait du Québec', 'Major League Hacking', 'CAE', 'Levio', 'Marianopolis College', 'Marianopolis Student Union', 'Morgan Stanley Canada', 'Concordia University Gina Coda School of Engineering']
+2026-06-27 11:24:53.400 | INFO     | __main__:backfill_sponsors:76 - [111/120] Спонсорів для HackFox не знайдено.
+2026-06-27 11:24:54.762 | INFO     | __main__:backfill_sponsors:76 - [112/120] Спонсорів для Build for the Border - Immigrant Hackathon NYC не знайдено.
+2026-06-27 11:24:56.188 | INFO     | __main__:backfill_sponsors:76 - [113/120] Спонсорів для AgentVerse не знайдено.
+2026-06-27 11:24:57.596 | INFO     | __main__:backfill_sponsors:76 - [114/120] Спонсорів для comma_hack (six) не знайдено.
+2026-06-27 11:24:59.017 | INFO     | __main__:backfill_sponsors:76 - [115/120] Спонсорів для Red Alert | Cybersecurity Hackathon 2026 не знайдено.
+2026-06-27 11:25:00.424 | INFO     | __main__:backfill_sponsors:76 - [116/120] Спонсорів для SattamThon не знайдено.
+2026-06-27 11:25:01.849 | INFO     | __main__:backfill_sponsors:76 - [117/120] Спонсорів для DawsHacks 2026 не знайдено.
+2026-06-27 11:25:03.316 | INFO     | __main__:backfill_sponsors:73 - [118/120] 🏆 Оновлено спонсорів для Alan x Mistral: AI Health Hack: ['Nebius', 'Dust', 'Linkup', 'Index Ventures', 'ElevenLabs']
+2026-06-27 11:25:04.741 | INFO     | __main__:backfill_sponsors:76 - [119/120] Спонсорів для ViTAL Hacks 2026 не знайдено.
+2026-06-27 11:25:06.150 | INFO     | __main__:backfill_sponsors:73 - [120/120] 🏆 Оновлено спонсорів для Claude Builder Hackathon, UG: ['GAIA', 'Anthropic', 'Swivel']
+2026-06-27 11:25:06.677 | INFO     | __main__:backfill_sponsors:84 - 🎉 Процедуру завершено! Збагачено хакатонів: 51
+2026-06-27 11:25:10.281 | INFO     | __main__:run_batch_feature_extraction:22 - Починаємо генерацію ознак для 120 хакатонів...
+2026-06-27 11:25:10.666 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: HACKFEST'26 (55 проектів)
+2026-06-27 11:25:11.134 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Cyber_Coders (43 проектів)
+2026-06-27 11:25:14.458 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: USAII® Global AI Hackathon 2026 (499 проектів)
+2026-06-27 11:25:16.098 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: FIND EVIL! (226 проектів)
+2026-06-27 11:25:18.158 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Mind the Product presents World Product Day: Everyone Ships Now (292 проектів)
+2026-06-27 11:25:21.739 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: NextGenHacks (465 проектів)
+2026-06-27 11:25:23.467 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: DSH Hacks V1 (245 проектів)
+2026-06-27 11:25:26.164 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: UC Berkeley AI Hackathon 2026 (400 проектів)
+2026-06-27 11:25:26.998 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: TecStorm'26 (117 проектів)
+2026-06-27 11:25:28.704 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Quantum Sprint (240 проектів)
+2026-06-27 11:25:29.277 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: VALSEA Edtech Sprint (HCM) (82 проектів)
+2026-06-27 11:25:29.886 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону:  Production Engineering Hackathon (87 проектів)
+2026-06-27 11:25:30.904 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Databricks Apps & Agents for Good Hackathon 2026 (121 проектів)
+2026-06-27 11:25:31.414 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Beyond Tomorrow Summit (68 проектів)
+2026-06-27 11:25:31.943 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Design4Future (74 проектів)
+2026-06-27 11:25:32.498 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Hack4Her 2026 (77 проектів)
+2026-06-27 11:25:32.837 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: STEMINATE HACKS 2026 (44 проектів)
+2026-06-27 11:25:33.445 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Anthropic Hackathon @ IIT Delhi (78 проектів)
+2026-06-27 11:25:33.880 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Aurora Global Hackathon (52 проектів)
+2026-06-27 11:25:34.087 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Build with GLM 5.1 Challenge by Z.AI (24 проектів)
+2026-06-27 11:25:34.316 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Grizzly Hacks III (29 проектів)
+2026-06-27 11:25:34.829 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Hackspire Hackathon (72 проектів)
+2026-06-27 11:25:35.191 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: WeatherWise Hack (50 проектів)
+2026-06-27 11:25:35.356 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: EcoHacks (18 проектів)
+2026-06-27 11:25:35.726 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: RidgeHacks 2026 (46 проектів)
+2026-06-27 11:25:35.981 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: The Future Innovators Hackathon: A Road to START Hack (33 проектів)
+2026-06-27 11:25:36.349 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Devlance Hack (50 проектів)
+2026-06-27 11:25:36.629 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Digital Innovation Challenge 2025 - Finance Track (37 проектів)
+2026-06-27 11:25:37.062 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: AI for Civic Innovation Hackathon (60 проектів)
+2026-06-27 11:25:37.629 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: ESE 1900, Silicon Garage, Spring 2026 (80 проектів)
+2026-06-27 11:25:38.037 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: ImagineHack 2026 (54 проектів)
+2026-06-27 11:25:38.284 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: HackMars 3.0: NEON (29 проектів)
+2026-06-27 11:25:38.699 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: [case]Hacks 2026 (42 проектів)
+2026-06-27 11:25:38.930 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: CodeStorm (29 проектів)
+2026-06-27 11:25:39.334 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: She ships - 8M hackathon (56 проектів)
+2026-06-27 11:25:39.815 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: AcademiesHacks 2026 (66 проектів)
+2026-06-27 11:25:40.293 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: VibeHack London 2026 (61 проектів)
+2026-06-27 11:25:40.648 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Hack Kosice 2026 (48 проектів)
+2026-06-27 11:25:40.877 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: HackJPS 2026 (30 проектів)
+2026-06-27 11:25:41.220 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: BugBash (42 проектів)
+2026-06-27 11:25:41.691 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Claude Hackathon at Imperial College London | Claude Builder Club @ Imperial (63 проектів)
+2026-06-27 11:25:41.917 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Innovate for Impact - NGM Group (29 проектів)
+2026-06-27 11:25:42.154 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Luddy Hacks 2026 (29 проектів)
+2026-06-27 11:25:42.346 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: BUILD ZERO HACKATHON- NAIROBI (20 проектів)
+2026-06-27 11:25:42.553 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: ALI Builds Hackathon (15 проектів)
+2026-06-27 11:25:42.836 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: HackDKU 2026 (29 проектів)
+2026-06-27 11:25:43.114 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: 2026 MakeNJIT Hardware hackathon (30 проектів)
+2026-06-27 11:25:43.517 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: AI Forecasting Hackathon (42 проектів)
+2026-06-27 11:25:44.027 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: QuantiHack 2026 (39 проектів)
+2026-06-27 11:25:44.236 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Student Life Track Hackathon 2026 (26 проектів)
+2026-06-27 11:25:44.466 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: IntelliAI Arena (29 проектів)
+2026-06-27 11:25:44.704 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: VALSEA EdTech System Sprint (HCM) (27 проектів)
+2026-06-27 11:25:44.890 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: 2025-2026 Spring ESE Senior Design (21 проектів)
+2026-06-27 11:25:45.045 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: xStocks Hackathon EthCC: Market Open (18 проектів)
+2026-06-27 11:25:45.091 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: 05/22/2026 (3 проектів)
+2026-06-27 11:25:45.369 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: CodeQuantum 2026 (34 проектів)
+2026-06-27 11:25:45.586 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Be Hackathon (27 проектів)
+2026-06-27 11:25:45.696 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: NeuroHack Spring 2026 (7 проектів)
+2026-06-27 11:25:45.929 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: SoCal Claude Builder Club Hackathon (29 проектів)
+2026-06-27 11:25:46.177 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: UCI AWS Cloud Hacks - 2026 (31 проектів)
+2026-06-27 11:25:46.386 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Global Public Health Hackathon 2026 (24 проектів)
+2026-06-27 11:25:46.635 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Hack the Bay Launch 2026 (32 проектів)
+2026-06-27 11:25:46.872 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: MariHacks IX (29 проектів)
+2026-06-27 11:25:47.074 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: HackFox (23 проектів)
+2026-06-27 11:25:47.252 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: AgentVerse (18 проектів)
+2026-06-27 11:25:47.425 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: DawsHacks 2026 (19 проектів)
+2026-06-27 11:25:47.619 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Alan x Mistral: AI Health Hack (24 проектів)
+2026-06-27 11:25:47.711 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: ViTAL Hacks 2026 (9 проектів)
+2026-06-27 11:25:47.904 | INFO     | __main__:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Claude Builder Hackathon, UG (24 проектів)
+2026-06-27 11:25:47.957 | INFO     | __main__:run_batch_feature_extraction:83 - Процедуру генерації ознак завершено.
+2026-06-27 15:30:02.516 | INFO     | __main__:scrape_hackathon_detail:19 - Збір деталей для хакатону за адресою: https://haignyc1.devpost.com/
+2026-06-27 15:35:29.876 | INFO     | __main__:scrape_hackathon_detail:19 - Збір деталей для хакатону за адресою: https://haignyc1.devpost.com/
+2026-06-27 15:55:37.154 | INFO     | __main__:prepare_dataset:15 - Зчитування даних для тренувального датасету...
+2026-06-27 15:57:38.593 | INFO     | __main__:train:16 - Початок підготовки даних...
+2026-06-27 15:57:38.594 | INFO     | src.ml.prepare_dataset:prepare_dataset:15 - Зчитування даних для тренувального датасету...
+2026-06-27 15:57:38.748 | INFO     | __main__:train:28 - Тренування моделі Random Forest... (зачекайте кілька секунд)
+2026-06-27 15:57:39.826 | INFO     | __main__:train:30 - Тренування завершено. Оцінюємо якість...
+2026-06-27 15:57:40.642 | INFO     | __main__:train:71 - Модель успішно збережено у data/models/random_forest.pkl
+2026-06-27 16:01:15.883 | INFO     | __main__:train_xgboost:17 - Початок підготовки даних для XGBoost...
+2026-06-27 16:01:15.885 | INFO     | src.ml.prepare_dataset:prepare_dataset:15 - Зчитування даних для тренувального датасету...
+2026-06-27 16:01:16.037 | INFO     | __main__:train_xgboost:25 - Обчислено коефіцієнт дисбалансу класів (Neg/Pos): 25.69
+2026-06-27 16:01:16.042 | INFO     | __main__:train_xgboost:38 - Тренування моделі XGBoost...
+2026-06-27 16:01:16.950 | INFO     | __main__:train_xgboost:40 - Тренування XGBoost завершено. Оцінюємо якість...
+2026-06-27 16:03:19.166 | INFO     | __main__:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Innovative AI Hackathon Tool': 0.3860
