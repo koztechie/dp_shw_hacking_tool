@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DP_SHW_Hacking_Tool {% block title %}{% endblock %}</title>
+    <!-- Антикрихке підключення стилів через url_for -->
+    <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="brand">⚡ DP_SHW</div>
+        <div class="nav-links">
+            <a href="/">Головна</a>
+            <a href="/training">Навчання</a>
+            <a href="/analyze">Аналіз</a>
+            <a href="/history">Історія</a>
+        </div>
+    </nav>
+    <main class="container">
+        <!-- Сюди буде ін'єктуватися контент інших сторінок -->
+        {% block content %}{% endblock %}
+    </main>
+    <!-- Антикрихке підключення скриптів через url_for -->
+    <script src="{{ url_for('static', path='js/app.js') }}"></script>
+</body>
+</html>

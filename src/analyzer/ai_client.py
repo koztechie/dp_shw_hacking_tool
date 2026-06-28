@@ -17,8 +17,8 @@ def generate_json_with_failover(prompt: str) -> dict:
     """
     Каскадний маршрутизатор генерації JSON:
     Спроба 1: Gemini (Основна модель, наприклад gemini-2.5-flash)
-    Спроба 2: Gemini (Резервна модель на іншому серверному ендпоінті, наприклад gemini-1.5-pro)
-    Спроба 3: OpenRouter (Найкращі безкоштовні моделі: qwen3-coder:free або llama-3.1-8b)
+    Спроба 2: Gemini (Резервна модель PRO актуального покоління, наприклад gemini-2.5-pro або gemini-1.5-flash)
+    Спроба 3: OpenRouter (АКТУАЛЬНІ БЕЗКОШТОВНІ моделі 2026 року: Llama 3.3, Qwen 2.5, Gemma 3)
     Спроба 4: Розумний офлайн-фолбек
     """
     
@@ -40,14 +40,14 @@ def generate_json_with_failover(prompt: str) -> dict:
             )
             return json.loads(response.text.strip())
         except Exception as e:
-            logger.warning(f"⚠️ Основна модель Gemini ({GEMINI_MODEL}) перевантажена або недоступна: {e}")
+            logger.warning(f"⚠️ Основна модель Gemini ({GEMINI_MODEL}) не повернула валідний JSON або недоступна: {e}")
 
-    # --- СПРОБА 2: Google Gemini (Резервна модель Pro для обходу квот) ---
+    # --- СПРОБА 2: Google Gemini (Резервна модель PRO актуального покоління) ---
     if GEMINI_API_KEY and GEMINI_API_KEY != "your_key_here":
-        # Спробуємо переключитися на PRO версію (вона хоститься на окремих кластерах)
-        fallback_model = "gemini-1.5-pro" if GEMINI_MODEL != "gemini-1.5-pro" else "gemini-1.5-flash"
+        # Переключаємося на gemini-2.5-pro (актуальна PRO модель замість застарілої 1.5-pro)
+        fallback_model = "gemini-2.5-pro" if GEMINI_MODEL != "gemini-2.5-pro" else "gemini-2.5-flash"
         try:
-            logger.info(f"ШІ-Маршрутизатор [Спроба 2]: Переключення на альтернативну модель ({fallback_model})...")
+            logger.info(f"ШІ-Маршрутизатор [Спроба 2]: Переключення на резервну модель ({fallback_model})...")
             from google import genai
             from google.genai import types
             
@@ -61,16 +61,17 @@ def generate_json_with_failover(prompt: str) -> dict:
                 )
             )
             return json.loads(response.text.strip())
-        except Exception as e:
-            logger.warning(f"⚠️ Резервна модель Gemini ({fallback_model}) також недоступна: {e}")
+        except BaseException as e:
+            logger.warning(f"⚠️ Резервна модель Gemini ({fallback_model}) також недоступна: {e}. Перехід до OpenRouter...")
 
-    # --- СПРОБА 3: OpenRouter API (Повністю безкоштовні відкриті моделі) ---
+    # --- СПРОБА 3: OpenRouter API (АКТУАЛЬНІ БЕЗКОШТОВНІ моделі 2026 року) ---
     if OPENROUTER_API_KEY and OPENROUTER_API_KEY != "your_key_here":
-        # Спробуємо три безкоштовні моделі по черзі для повної стійкості
+        # Використовуємо ТІЛЬКИ ті безкоштовні моделі, які зараз є активними та безкоштовними
         openrouter_models = [
-            "qwen/qwen3-coder:free",                  # Надійна та розумна модель кодування 2026 року
-            "meta-llama/llama-3.1-8b-instruct:free",  # Перевірений стандарт
-            "google/gemma-3-27b-it:free"              # Легка та швидка модель
+            "meta-llama/llama-3.3-70b-instruct:free",       # Найкраща безкоштовна модель великого розміру
+            "deepseek/deepseek-r1:free",                     # Найсильніший аналітичний інструмент
+            "qwen/qwen-2.5-coder-32b-instruct:free",         # Оновлена безкоштовна модель кодування Qwen
+            "google/gemini-2.0-flash-exp:free"               # Безкоштовний Gemini 2.0
         ]
         
         for model_name in openrouter_models:
@@ -87,11 +88,10 @@ def generate_json_with_failover(prompt: str) -> dict:
                     ],
                     "temperature": 0.3
                 }
-                r = httpx.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload, timeout=25.0)
+                r = httpx.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload, timeout=30.0)
                 if r.status_code == 200:
                     result_text = r.json()["choices"][0]["message"]["content"].strip()
                     
-                    # Захист від маркдауну в безкоштовних моделях OpenRouter
                     if "```json" in result_text:
                         result_text = result_text.split("```json")[1].split("```")[0].strip()
                     elif "```" in result_text:

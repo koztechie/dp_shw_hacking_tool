@@ -1,0 +1,106 @@
+{% extends "base.html" %}
+
+{% block title %} - Аналіз хакатону{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 0 auto; background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 2rem;">
+    <h2 style="color: #f78166; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+        🔍 Аналіз нового хакатону
+    </h2>
+    <p style="color: #8b949e; margin-bottom: 2rem;">
+        Введіть URL-адресу хакарону на Devpost. Наша ШІ-система збере правила, проведе OSINT організатора, згенерує 3 переможні ідеї та розрахує їхні скори в реальному часі [INDEX].
+    </p>
+
+    <!-- Форма аналізу за URL -->
+    <form id="analyze-form" onsubmit="analyzeHackathon(event)">
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.5rem; color: #e6edf3; font-weight: 500;">
+                Посилання на хакатон на Devpost:
+            </label>
+            <input type="url" name="url" placeholder="https://ai-hackathon-2026.devpost.com/" required 
+                   style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid #30363d; background: #0d1117; color: #e6edf3; font-size: 1rem;">
+        </div>
+        <button type="submit" id="analyze-btn" 
+                style="width: 100%; padding: 0.9rem; font-size: 1.1rem; font-weight: bold; background: #f78166; color: white; border: none; border-radius: 6px; cursor: pointer; transition: opacity 0.2s;">
+            🔮 Запустити AI-Аналіз
+        </button>
+    </form>
+
+    <!-- Секція завантаження та логування статусу -->
+    <div id="status-box" style="margin-top: 2rem; display: none; text-align: center; padding: 1.5rem; border: 1px solid #30363d; border-radius: 8px; background: #0d1117;">
+        <h3 id="status-msg" style="color: #58a6ff; margin-bottom: 0.8rem; animation: pulse 1.5s infinite;">⏳ AI аналізує хакатон...</h3>
+        <p style="font-size: 0.95rem; color: #8b949e; line-height: 1.5;">
+            Запускаємо скрапінг правил, OSINT організатора, генерацію ідей з каскадним резервуванням та гібридний скоринг (~15-25 сек) [INDEX].
+        </p>
+    </div>
+
+    <!-- Повідомлення про помилки -->
+    <div id="error-box" style="margin-top: 1.5rem; display: none; background: #4a1919; border: 1px solid #f85149; color: #ffcccc; padding: 1rem; border-radius: 6px; font-size: 0.95rem; line-height: 1.4;">
+        ❌ <strong>Помилка аналізу:</strong> <span id="error-msg"></span>
+    </div>
+</div>
+
+<script>
+    async function analyzeHackathon(e) {
+        e.preventDefault();
+        
+        const btn = document.getElementById('analyze-btn');
+        const statusBox = document.getElementById('status-box');
+        const errorBox = document.getElementById('error-box');
+        const statusMsg = document.getElementById('status-msg');
+        
+        // Блокування інтерфейсу під час генерації
+        btn.disabled = true;
+        btn.innerText = "⏳ Обробка ШІ...";
+        btn.style.opacity = "0.5";
+        btn.style.cursor = "not-allowed";
+        
+        statusBox.style.display = 'block';
+        errorBox.style.display = 'none';
+        statusMsg.innerText = "⏳ AI аналізує хакатон...";
+
+        const formData = new FormData();
+        formData.append('url', e.target.url.value);
+
+        try {
+            const response = await fetch('/analyze/url', {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.status === 'success') {
+                statusMsg.style.color = "#3fb950";
+                statusMsg.innerText = "✅ Аналіз завершено! Перенаправлення...";
+                
+                // Перенаправляємо користувача на сторінку ідей (Етап 47)
+                window.location.href = `/ideas/${data.prediction_id}`;
+            } else {
+                throw new Error(data.error || 'Не вдалося виконати генерацію');
+            }
+            
+        } catch (err) {
+            console.error(err);
+            
+            // Розблокуємо кнопку у разі збою
+            btn.disabled = false;
+            btn.innerText = "🔮 Запустити AI-Аналіз";
+            btn.style.opacity = "1";
+            btn.style.cursor = "pointer";
+            
+            statusBox.style.display = 'none';
+            errorBox.style.display = 'block';
+            document.getElementById('error-msg').innerText = err.message;
+        }
+    }
+</script>
+
+<style>
+    @keyframes pulse {
+        0% { opacity: 0.6; }
+        50% { opacity: 1; }
+        100% { opacity: 0.6; }
+    }
+</style>
+{% endblock %}

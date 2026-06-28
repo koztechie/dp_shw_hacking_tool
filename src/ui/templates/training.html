@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %} - Навчання{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <h2 style="color: var(--accent2); margin-bottom: 1rem;">🛠 Тренування моделі (Збір даних)</h2>
+    <p style="color: var(--muted); margin-bottom: 1.5rem;">
+        Запустіть фоновий збір даних з Devpost. Процес автоматично збагатить базу фічами та метриками GitHub.
+    </p>
+
+    <form id="training-form" onsubmit="startTraining(event)">
+        <div style="margin-bottom: 1rem;">
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--text);">Кількість сторінок для парсингу (1 стор. = 24 хакатони):</label>
+            <input type="number" name="pages" value="1" min="1" max="100" required>
+        </div>
+        <button type="submit" class="btn btn-primary" id="start-btn" style="width: 100%; padding: 0.8rem; font-size: 1.1rem; font-weight: bold;">
+            🚀 Запустити оркестратор
+        </button>
+    </form>
+
+    <div id="status-box" style="margin-top: 2rem; display: none; text-align: center; padding: 1.5rem; border: 1px solid var(--border); border-radius: 8px; background: #0d1117;">
+        <h3 id="status-msg" style="color: var(--success); margin-bottom: 1rem;">Збір даних розпочато!</h3>
+        <div style="font-size: 1.2rem; color: var(--muted);">
+            Зібрано хакатонів у базі: <br>
+            <span id="training-count" style="font-size: 3rem; color: var(--accent); font-weight: bold;">0</span>
+        </div>
+        <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--muted);">
+            Ви можете перейти на інші вкладки, збір продовжиться у фоні.
+        </p>
+    </div>
+</div>
+
+<script>
+    let pollInterval;
+
+    async function updateStatus() {
+        try {
+            const res = await fetch('/training/status');
+            const data = await res.json();
+            document.getElementById('training-count').innerText = data.hackathons_collected;
+        } catch (e) {
+            console.error("Помилка опитування статусу:", e);
+        }
+    }
+
+    async function startTraining(e) {
+        e.preventDefault();
+        
+        // Блокуємо кнопку, щоб уникнути подвійних запусків
+        const btn = document.getElementById('start-btn');
+        btn.disabled = true;
+        btn.innerText = "⏳ Процес виконується...";
+        btn.style.opacity = "0.5";
+        
+        // Показуємо панель статусу
+        document.getElementById('status-box').style.display = 'block';
+
+        const formData = new FormData();
+        formData.append('pages', e.target.pages.value);
+
+        // Відправляємо POST запит
+        await fetch('/training/start', { method: 'POST', body: formData });
+        
+        // Миттєво оновлюємо поточну кількість
+        await updateStatus();
+        
+        // Запускаємо опитування кожні 3 секунди
+        if (pollInterval) clearInterval(pollInterval);
+        pollInterval = setInterval(updateStatus, 3000);
+    }
+    
+    // Запускаємо перевірку одразу при завантаженні сторінки (якщо оркестратор вже працює)
+    updateStatus();
+</script>
+{% endblock %}

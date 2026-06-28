@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+
+{% block title %} - Технічне Завдання{% endblock %}
+
+{% block content %}
+<div class="techspec-container" style="background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 2.5rem; max-width: 900px; margin: 0 auto;">
+    
+    <!-- Панель керування експортом -->
+    <div class="print-controls" style="display: flex; justify-content: flex-end; gap: 1rem; margin-bottom: 1.5rem;">
+        <button onclick="exportToMarkdown()" class="btn btn-primary" style="background: #238636; border: 1px solid #30363d; color: white; padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer; font-weight: bold;">
+            💾 Зберегти як Markdown (.md)
+        </button>
+        <button onclick="window.print()" class="btn btn-secondary" style="background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer;">
+            🖨️ Друк / PDF
+        </button>
+    </div>
+
+    <!-- Заголовок -->
+    <div style="border-bottom: 2px solid #30363d; padding-bottom: 1.5rem; margin-bottom: 2rem;">
+        <h1 style="color: #f78166; font-size: 2.5rem; margin-bottom: 0.5rem;">{{ techspec.project_name | default("MVP Project") }}</h1>
+        <p style="font-size: 1.2rem; color: #8b949e; font-style: italic;">"{{ techspec.tagline }}"</p>
+        <div style="margin-top: 1rem; background: rgba(63, 185, 80, 0.1); border-left: 4px solid #3fb950; padding: 1rem;">
+            <strong style="color: #3fb950;">KILLER FEATURE:</strong> {{ techspec.killer_feature }}
+        </div>
+    </div>
+
+    <!-- Архітектура -->
+    <div style="margin-bottom: 2.5rem;">
+        <h3 style="color: #58a6ff; border-bottom: 1px solid #30363d; padding-bottom: 0.5rem; margin-bottom: 1rem;">🏗️ Архітектура</h3>
+        <ul style="list-style: none; padding: 0; color: #c9d1d9;">
+            <li style="margin-bottom: 0.8rem;"><strong>Frontend:</strong> {{ techspec.architecture.frontend }}</li>
+            <li style="margin-bottom: 0.8rem;"><strong>Backend:</strong> {{ techspec.architecture.backend }}</li>
+            <li style="margin-bottom: 0.8rem;"><strong>Database:</strong> {{ techspec.architecture.database }}</li>
+            <li style="margin-bottom: 0.8rem;"><strong>AI Integration:</strong> {{ techspec.architecture.ai_integration }}</li>
+            <li style="margin-bottom: 0.8rem;"><strong>Deployment:</strong> {{ techspec.architecture.deployment }}</li>
+        </ul>
+    </div>
+
+    <!-- Tech Stack -->
+    <div style="margin-bottom: 2.5rem;">
+        <h3 style="color: #58a6ff; border-bottom: 1px solid #30363d; padding-bottom: 0.5rem; margin-bottom: 1rem;">🛠️ Технологічний стек</h3>
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+            <div>
+                <strong style="color: #3fb950;">Must Have:</strong>
+                <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap;">
+                    {% for tech in techspec.tech_stack.must_have %}
+                    <span style="background: #238636; color: white; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.85rem;">{{ tech }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            <div>
+                <strong style="color: #f85149;">AVOID (Не використовувати):</strong>
+                <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem; flex-wrap: wrap;">
+                    {% for tech in techspec.tech_stack.avoid %}
+                    <span style="background: #4a1919; color: #ffcccc; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.85rem;">{{ tech }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 48H Timeline -->
+    <div style="margin-bottom: 2.5rem;">
+        <h3 style="color: #58a6ff; border-bottom: 1px solid #30363d; padding-bottom: 0.5rem; margin-bottom: 1rem;">⏱️ 48-Hour MVP Scope</h3>
+        <div style="background: #0d1117; padding: 1.5rem; border-radius: 8px; border: 1px solid #30363d;">
+            <p><strong>Години 0 - 4:</strong> {{ techspec.mvp_scope.hour_0_4 }}</p>
+            <p><strong>Години 4 - 12:</strong> {{ techspec.mvp_scope.hour_4_12 }}</p>
+            <p><strong>Години 12 - 24:</strong> {{ techspec.mvp_scope.hour_12_24 }}</p>
+            <p><strong>Години 24 - 36:</strong> {{ techspec.mvp_scope.hour_24_36 }}</p>
+            <p><strong>Години 36 - 48 (Submission):</strong> <span style="color: #f78166;">{{ techspec.mvp_scope.hour_36_48 }}</span></p>
+        </div>
+    </div>
+
+    <!-- Antifragility -->
+    <div style="margin-bottom: 2.5rem;">
+        <h3 style="color: #d29922; border-bottom: 1px solid #30363d; padding-bottom: 0.5rem; margin-bottom: 1rem;">🛡️ Antifragile Features (Запасний план)</h3>
+        <ul style="color: #c9d1d9; padding-left: 1.5rem;">
+            {% for feature in techspec.antifragile_features %}
+            <li style="margin-bottom: 0.5rem;">{{ feature }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Demo Script -->
+    <div style="margin-bottom: 2.5rem;">
+        <h3 style="color: #bc8cff; border-bottom: 1px solid #30363d; padding-bottom: 0.5rem; margin-bottom: 1rem;">🎤 Demo Script (60 секунд)</h3>
+        <div style="background: rgba(188, 140, 255, 0.1); border-left: 4px solid #bc8cff; padding: 1.5rem; color: #e6edf3; font-style: italic;">
+            {{ techspec.demo_script }}
+        </div>
+    </div>
+</div>
+
+<script>
+    function exportToMarkdown() {
+        // Надійно забираємо JSON прямо з Jinja
+        const ts = {{ techspec | tojson }};
+        
+        let md = `# 🎯 ${ts.project_name || 'MVP Project'}\n\n`;
+        md += `> ${ts.tagline || ''}\n\n`;
+        md += `## 🚀 Killer Feature\n**${ts.killer_feature || ''}**\n\n`;
+        
+        md += `## 🏗️ Архітектура (Architecture)\n`;
+        if (ts.architecture) {
+            md += `- **Frontend:** ${ts.architecture.frontend || ''}\n`;
+            md += `- **Backend:** ${ts.architecture.backend || ''}\n`;
+            md += `- **Database:** ${ts.architecture.database || ''}\n`;
+            md += `- **AI Integration:** ${ts.architecture.ai_integration || ''}\n`;
+            md += `- **Deployment:** ${ts.architecture.deployment || ''}\n\n`;
+        }
+        
+        md += `## 🛠️ Технологічний стек (Tech Stack)\n`;
+        if (ts.tech_stack) {
+            md += `### 🟢 Must Have (Інтерактивний чек-лист):\n`;
+            (ts.tech_stack.must_have || []).forEach(t => {
+                md += `- [ ] **${t}**\n`;
+            });
+            md += `\n### 🟡 Nice to Have:\n`;
+            (ts.tech_stack.nice_to_have || []).forEach(t => {
+                md += `- [ ] ${t}\n`;
+            });
+            md += `\n### 🔴 AVOID (Не використовувати):\n`;
+            (ts.tech_stack.avoid || []).forEach(t => {
+                md += `- ❌ ${t}\n`;
+            });
+            md += `\n`;
+        }
+        
+        md += `## ⏱️ 48-Hour MVP Timeline\n`;
+        if (ts.mvp_scope) {
+            md += `- [ ] **Години 0 - 4:** ${ts.mvp_scope.hour_0_4 || ''}\n`;
+            md += `- [ ] **Години 4 - 12:** ${ts.mvp_scope.hour_4_12 || ''}\n`;
+            md += `- [ ] **Години 12 - 24:** ${ts.mvp_scope.hour_12_24 || ''}\n`;
+            md += `- [ ] **Години 24 - 36:** ${ts.mvp_scope.hour_24_36 || ''}\n`;
+            md += `- [ ] **Години 36 - 48 (Submission):** ${ts.mvp_scope.hour_36_48 || ''}\n\n`;
+        }
+        
+        md += `## 🛡️ Antifragile Features (Запасний план)\n`;
+        (ts.antifragile_features || []).forEach(f => {
+            md += `- [ ] 🛡️ ${f}\n`;
+        });
+        md += `\n`;
+        
+        md += `## 🎤 Demo Script (60 секунд)\n> *${ts.demo_script || ''}*\n\n`;
+        
+        md += `## 🚫 Do NOT List\n`;
+        (ts.do_not || []).forEach(d => {
+            md += `- 🚫 ${d}\n`;
+        });
+
+        // Створення та симуляція завантаження файлу
+        const blob = new Blob([md], { type: 'text/markdown;charset=utf-8;' });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        
+        // Формуємо красиву назву файлу
+        const fileName = (ts.project_name || 'project').toLowerCase().replace(/\s+/g, '_') + '_techspec.md';
+        
+        link.setAttribute("href", url);
+        link.setAttribute("download", fileName);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+    }
+</script>
+
+<style>
+    @media print {
+        body { background: white !important; color: black !important; }
+        .navbar, .print-controls { display: none !important; }
+        .techspec-container { border: none !important; padding: 0 !important; max-width: 100% !important; }
+        * { color: black !important; }
+    }
+</style>
+{% endblock %}

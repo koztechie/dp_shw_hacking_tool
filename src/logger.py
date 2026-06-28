@@ -1,17 +1,39 @@
 import sys
 from pathlib import Path
+import os
 from loguru import logger
 
-# Додаємо корінь проекту до шляхів імпорту
+# Гарантуємо правильні шляхи імпорту
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from config.settings import LOG_PATH
 
-# Гарантуємо існування директорії logs/
+# Створюємо директорію для логів, якщо вона відсутня
 Path(LOG_PATH).parent.mkdir(parents=True, exist_ok=True)
 
-# Налаштовуємо запис у файл із примусовим UTF-8 кодуванням
+# --- АНТИКРИХКА ІНІЦІАЛІЗАЦІЯ SENTRY ---
+SENTRY_DSN = os.getenv("SENTRY_DSN")
+
+if SENTRY_DSN and SENTRY_DSN != "https://your_sentry_dsn_here" and "sentry.io" in SENTRY_DSN:
+    try:
+        import sentry_sdk
+        from sentry_sdk.integrations.loguru import LoguruIntegration
+        
+        sentry_sdk.init(
+            dsn=SENTRY_DSN,
+            # Виправлено: ініціалізуємо інтегратор без параметрів
+            integrations=[LoguruIntegration()],
+            send_default_pii=True,          # Дозволяє збирати контекст запитів FastAPI
+            traces_sample_rate=1.0,
+            profiles_sample_rate=1.0,
+        )
+        logger.info("📡 Sentry SDK успішно ініціалізовано. Моніторинг активний!")
+    except Exception as e:
+        # У разі будь-якого збою не ламаємо запуск системи
+        sys.stderr.write(f"⚠️ Не вдалося ініціалізувати Sentry: {e}\n")
+
+# Налаштовуємо логування в локальний файл через Loguru
 logger.add(
     LOG_PATH,
     rotation="10 MB",
@@ -21,7 +43,3 @@ logger.add(
     backtrace=True,
     diagnose=True
 )
-
-if __name__ == "__main__":
-    logger.info("Тестовий запис системи логування. Українська кирилиця підтримується успішно.")
-    print("Логування налаштовано. Перевірте вміст файлу за шляхом logs/app.log")

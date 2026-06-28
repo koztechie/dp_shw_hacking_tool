@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %} - Дашборд{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 2rem;">
+    <h2>📊 Аналітика бази даних</h2>
+    <p style="color: var(--muted);">Поточний стан зібраних даних для ML-моделі</p>
+</div>
+
+{% if stats.error %}
+    <div style="background: #4a1919; color: #ffcccc; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
+        <strong>Помилка БД:</strong> {{ stats.error }}
+    </div>
+{% endif %}
+
+<!-- Використовуємо класи, які ми додамо у style.css на Етапі 49 -->
+<div class="stat-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+    
+    <div class="stat-card card" style="background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1.5rem; text-align: center;">
+        <h3 style="color: #8b949e; font-size: 1rem; margin-bottom: 0.5rem;">Хакатонів</h3>
+        <div class="stat-number" style="font-size: 2.5rem; font-weight: bold; color: #79c0ff;">{{ stats.hackathons }}</div>
+    </div>
+    
+    <div class="stat-card card" style="background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1.5rem; text-align: center;">
+        <h3 style="color: #8b949e; font-size: 1rem; margin-bottom: 0.5rem;">Проектів</h3>
+        <div class="stat-number" style="font-size: 2.5rem; font-weight: bold; color: #79c0ff;">{{ stats.projects }}</div>
+    </div>
+    
+    <div class="stat-card card" style="background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1.5rem; text-align: center;">
+        <h3 style="color: #8b949e; font-size: 1rem; margin-bottom: 0.5rem;">Переможців</h3>
+        <div class="stat-number" style="font-size: 2.5rem; font-weight: bold; color: #3fb950;">{{ stats.winners }}</div>
+    </div>
+    
+    <div class="stat-card card" style="background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1.5rem; text-align: center;">
+        <h3 style="color: #8b949e; font-size: 1rem; margin-bottom: 0.5rem;">Передбачень</h3>
+        <div class="stat-number" style="font-size: 2.5rem; font-weight: bold; color: #f78166;">{{ stats.predictions }}</div>
+    </div>
+    
+</div>
+{% endblock %}

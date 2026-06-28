@@ -1,0 +1,13 @@
+{
+  "max_team_size": null,
+  "must_use_apis_or_tech": [
+    "Amazon Web Services Databases (Aurora, Aurora DSQL, or DynamoDB)",
+    "Vercel",
+    "v0.app",
+    "AWS Account",
+    "Vercel Account"
+  ],
+  "forbidden_tech": [],
+  "eligibility_restrictions": "Entrants must be individuals at least the age of majority where they reside, teams of eligible individuals, or existing organizations. Not open to residents of countries where US or local law prohibits participation (e.g., Argentina, Italy, Philippines, Thailand, Vietnam, Syria, Brazil, Quebec, Russia, Crimea, Cuba, Iran, North Korea, OFAC-designated countries). Not open to Promotion Entities (Sponsor, Administrator, etc.), their employees, representatives, agents, immediate family, or household members. Not open to Judges, their employers, or affiliates of any excluded entities. Projects must not have been developed with financial or preferential support from the Sponsor or Administrator.",
+  "intellectual_property_rules": "Submissions must be the Entrant's (or Team/Organization's) original work product, solely owned by the Entrant, and must not violate any intellectual property rights (copyright, trademark, patent, contract, privacy) of any other person or entity. Third-party technical assistance is allowed if the submission components are solely the Entrant's work product and ideas, and the Entrant owns all rights. Open source software/hardware use is permitted if applicable licenses are complied with and the submission enhances/builds upon the open source product."
+}

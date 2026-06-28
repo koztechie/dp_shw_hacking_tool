@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block title %} - Історія{% endblock %}
+
+{% block content %}
+<div class="card" style="background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 2rem;">
+    <h2 style="color: #79c0ff; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+        📚 Історія аналізу
+    </h2>
+    
+    {% if predictions %}
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; color: #c9d1d9;">
+            <thead>
+                <tr style="border-bottom: 2px solid #30363d; color: #8b949e;">
+                    <th style="padding: 1rem 0.5rem;">Дата</th>
+                    <th style="padding: 1rem 0.5rem;">Хакатон</th>
+                    <th style="padding: 1rem 0.5rem;">Головна ідея</th>
+                    <th style="padding: 1rem 0.5rem;">ML Скор</th>
+                    <th style="padding: 1rem 0.5rem;">Дія</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in predictions %}
+                <tr style="border-bottom: 1px solid #30363d; transition: background 0.2s;" onmouseover="this.style.background='#21262d'" onmouseout="this.style.background='transparent'">
+                    <td style="padding: 1rem 0.5rem; white-space: nowrap; font-size: 0.9rem; color: #8b949e;">{{ p.gen_date }}</td>
+                    <td style="padding: 1rem 0.5rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                        <a href="{{ p.hackathon_url }}" target="_blank" style="color: #58a6ff; text-decoration: none;">Лінк ↗</a>
+                    </td>
+                    <td style="padding: 1rem 0.5rem; font-weight: 500; color: #e6edf3;">{{ p.idea_1_title | default('Не згенеровано', true) }}</td>
+                    <td style="padding: 1rem 0.5rem;">
+                        <strong style="color: {% if p.idea_1_score > 0.6 %}#3fb950{% else %}#d29922{% endif %};">
+                            {{ (p.idea_1_score * 100)|round(1) }}%
+                        </strong>
+                    </td>
+                    <td style="padding: 1rem 0.5rem;">
+                        {% if p.selected_idea %}
+                            <a href="/techspec/{{ p.id }}" class="btn" style="display: inline-block; text-decoration: none; text-align: center; background: rgba(63, 185, 80, 0.1); color: #3fb950; border: 1px solid #3fb950; padding: 0.4rem 0.8rem;">📄 Відкрити ТЗ</a>
+                        {% else %}
+                            <a href="/ideas/{{ p.id }}" class="btn" style="display: inline-block; text-decoration: none; text-align: center; background: rgba(247, 129, 102, 0.1); color: #f78166; border: 1px solid #f78166; padding: 0.4rem 0.8rem;">💡 Вибрати ідею</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 3rem; color: #8b949e;">
+        <h3>Поки що порожньо</h3>
+        <p>Ви ще не аналізували жодного хакатону.</p>
+        <a href="/analyze" class="btn btn-primary" style="display: inline-block; margin-top: 1rem; text-decoration: none;">Перейти до аналізу</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
