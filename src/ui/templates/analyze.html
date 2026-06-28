@@ -3,104 +3,129 @@
 {% block title %} - Аналіз хакатону{% endblock %}
 
 {% block content %}
-<div class="card" style="max-width: 600px; margin: 0 auto; background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 2rem;">
+<div class="card" style="max-width: 900px; margin: 0 auto; background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 2rem;">
     <h2 style="color: #f78166; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
         🔍 Аналіз нового хакатону
     </h2>
     <p style="color: #8b949e; margin-bottom: 2rem;">
-        Введіть URL-адресу хакарону на Devpost. Наша ШІ-система збере правила, проведе OSINT організатора, згенерує 3 переможні ідеї та розрахує їхні скори в реальному часі [INDEX].
+        Введіть URL-адресу або завантажте збережений HTML-файл хакатону. Система згенерує 3 переможні ідеї та розрахує їхні шанси.
     </p>
 
-    <!-- Форма аналізу за URL -->
-    <form id="analyze-form" onsubmit="analyzeHackathon(event)">
-        <div style="margin-bottom: 1.5rem;">
-            <label style="display: block; margin-bottom: 0.5rem; color: #e6edf3; font-weight: 500;">
-                Посилання на хакатон на Devpost:
-            </label>
-            <input type="url" name="url" placeholder="https://ai-hackathon-2026.devpost.com/" required 
-                   style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid #30363d; background: #0d1117; color: #e6edf3; font-size: 1rem;">
+    <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+        
+        <!-- СЕКЦІЯ 1: URL -->
+        <div style="flex: 1; min-width: 300px; padding: 1.5rem; background: #0d1117; border-radius: 8px; border: 1px solid #30363d;">
+            <h3 style="color: #c9d1d9; font-size: 1.1rem; margin-bottom: 1rem;">🌐 Аналіз онлайн (URL)</h3>
+            <form id="analyze-form" onsubmit="analyzeHackathon(event)">
+                <input type="url" name="url" placeholder="https://devpost.com/..." required 
+                       style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid #30363d; background: #161b22; color: #e6edf3; margin-bottom: 1rem;">
+                <button type="submit" id="analyze-btn" class="btn btn-primary" style="width: 100%; font-weight: bold;">
+                    🔮 Запустити за URL
+                </button>
+            </form>
         </div>
-        <button type="submit" id="analyze-btn" 
-                style="width: 100%; padding: 0.9rem; font-size: 1.1rem; font-weight: bold; background: #f78166; color: white; border: none; border-radius: 6px; cursor: pointer; transition: opacity 0.2s;">
-            🔮 Запустити AI-Аналіз
-        </button>
-    </form>
 
-    <!-- Секція завантаження та логування статусу -->
-    <div id="status-box" style="margin-top: 2rem; display: none; text-align: center; padding: 1.5rem; border: 1px solid #30363d; border-radius: 8px; background: #0d1117;">
-        <h3 id="status-msg" style="color: #58a6ff; margin-bottom: 0.8rem; animation: pulse 1.5s infinite;">⏳ AI аналізує хакатон...</h3>
-        <p style="font-size: 0.95rem; color: #8b949e; line-height: 1.5;">
-            Запускаємо скрапінг правил, OSINT організатора, генерацію ідей з каскадним резервуванням та гібридний скоринг (~15-25 сек) [INDEX].
-        </p>
+        <!-- СЕКЦІЯ 2: Drag & Drop HTML -->
+        <div style="flex: 1; min-width: 300px; padding: 1.5rem; background: #0d1117; border-radius: 8px; border: 1px dashed #79c0ff; text-align: center; transition: all 0.3s; cursor: pointer;" id="drop-zone">
+            <h3 style="color: #c9d1d9; font-size: 1.1rem; margin-bottom: 0.5rem;">📄 Офлайн аналіз (HTML)</h3>
+            <p style="color: #8b949e; font-size: 0.9rem; margin-bottom: 1.5rem;">
+                Перетягніть вивантажений файл .html сюди, або клікніть для вибору.
+            </p>
+            <div style="font-size: 3rem; color: #79c0ff; opacity: 0.5; margin-bottom: 1rem;">📥</div>
+            <input type="file" id="html-file" accept=".html,.htm" style="display: none;">
+        </div>
+
     </div>
 
-    <!-- Повідомлення про помилки -->
-    <div id="error-box" style="margin-top: 1.5rem; display: none; background: #4a1919; border: 1px solid #f85149; color: #ffcccc; padding: 1rem; border-radius: 6px; font-size: 0.95rem; line-height: 1.4;">
-        ❌ <strong>Помилка аналізу:</strong> <span id="error-msg"></span>
+    <!-- Секція завантаження -->
+    <div id="status-box" style="margin-top: 2rem; display: none; text-align: center; padding: 1.5rem; border: 1px solid #30363d; border-radius: 8px; background: #0d1117;">
+        <h3 id="status-msg" style="color: #58a6ff; margin-bottom: 0.8rem; animation: pulse 1.5s infinite;">⏳ AI аналізує дані...</h3>
+        <p style="font-size: 0.95rem; color: #8b949e;">Це може зайняти ~15-25 сек.</p>
+    </div>
+
+    <!-- Помилка -->
+    <div id="error-box" style="margin-top: 1.5rem; display: none; background: #4a1919; border: 1px solid #f85149; color: #ffcccc; padding: 1rem; border-radius: 6px;">
+        ❌ <strong>Помилка:</strong> <span id="error-msg"></span>
     </div>
 </div>
 
 <script>
-    async function analyzeHackathon(e) {
-        e.preventDefault();
-        
-        const btn = document.getElementById('analyze-btn');
-        const statusBox = document.getElementById('status-box');
-        const errorBox = document.getElementById('error-box');
-        const statusMsg = document.getElementById('status-msg');
-        
-        // Блокування інтерфейсу під час генерації
+    const btn = document.getElementById('analyze-btn');
+    const statusBox = document.getElementById('status-box');
+    const errorBox = document.getElementById('error-box');
+    const statusMsg = document.getElementById('status-msg');
+    
+    // Функція для локування UI та перенаправлення
+    async function processAnalysisRequest(fetchPromise) {
         btn.disabled = true;
-        btn.innerText = "⏳ Обробка ШІ...";
-        btn.style.opacity = "0.5";
-        btn.style.cursor = "not-allowed";
-        
         statusBox.style.display = 'block';
         errorBox.style.display = 'none';
-        statusMsg.innerText = "⏳ AI аналізує хакатон...";
-
-        const formData = new FormData();
-        formData.append('url', e.target.url.value);
-
+        
         try {
-            const response = await fetch('/analyze/url', {
-                method: 'POST',
-                body: formData
-            });
-            
+            const response = await fetchPromise;
             const data = await response.json();
             
             if (response.ok && data.status === 'success') {
                 statusMsg.style.color = "#3fb950";
-                statusMsg.innerText = "✅ Аналіз завершено! Перенаправлення...";
-                
-                // Перенаправляємо користувача на сторінку ідей (Етап 47)
+                statusMsg.innerText = "✅ Готово! Перенаправлення...";
                 window.location.href = `/ideas/${data.prediction_id}`;
             } else {
-                throw new Error(data.error || 'Не вдалося виконати генерацію');
+                throw new Error(data.error || 'Помилка генерації');
             }
-            
         } catch (err) {
-            console.error(err);
-            
-            // Розблокуємо кнопку у разі збою
             btn.disabled = false;
-            btn.innerText = "🔮 Запустити AI-Аналіз";
-            btn.style.opacity = "1";
-            btn.style.cursor = "pointer";
-            
             statusBox.style.display = 'none';
             errorBox.style.display = 'block';
             document.getElementById('error-msg').innerText = err.message;
         }
     }
+
+    // Обробник URL форми
+    function analyzeHackathon(e) {
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('url', e.target.url.value);
+        processAnalysisRequest(fetch('/analyze/url', { method: 'POST', body: formData }));
+    }
+
+    // Обробник Drag & Drop
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('html-file');
+
+    dropZone.addEventListener('click', () => fileInput.click());
+    
+    dropZone.addEventListener('dragover', (e) => { 
+        e.preventDefault(); 
+        dropZone.style.background = '#161b22'; 
+    });
+    
+    dropZone.addEventListener('dragleave', (e) => { 
+        e.preventDefault(); 
+        dropZone.style.background = '#0d1117'; 
+    });
+    
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.style.background = '#0d1117';
+        if (e.dataTransfer.files.length) {
+            uploadHTML(e.dataTransfer.files[0]);
+        }
+    });
+
+    fileInput.addEventListener('change', () => {
+        if (fileInput.files.length) {
+            uploadHTML(fileInput.files[0]);
+        }
+    });
+
+    function uploadHTML(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+        processAnalysisRequest(fetch('/analyze/html', { method: 'POST', body: formData }));
+    }
 </script>
 
 <style>
-    @keyframes pulse {
-        0% { opacity: 0.6; }
-        50% { opacity: 1; }
-        100% { opacity: 0.6; }
-    }
+    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
 </style>
 {% endblock %}

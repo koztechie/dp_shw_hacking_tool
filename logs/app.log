@@ -12337,3 +12337,109 @@ ZeroDivisionError: division by zero
 2026-06-28 12:48:33.158 | INFO     | __main__:generate_and_save_techspec:18 - Запуск генерації ТЗ для передбачення c594779f-1f2a-4e2c-8c5d-e106c97767d7 (Ідея #1)
 2026-06-28 12:48:34.036 | INFO     | __main__:generate_and_save_techspec:52 - ТЗ успішно завантажено з кешу.
 2026-06-28 12:48:34.064 | INFO     | __main__:generate_and_save_techspec:60 - ТЗ успішно збережено в базі даних.
+2026-06-28 19:43:36.593 | INFO     | src.analyzer.pipeline:analyze_hackathon_offline:96 - 🚀 Запуск AI-аналізу для вивантаженого HTML файлу
+2026-06-28 19:43:36.858 | WARNING  | src.analyzer.pipeline:_run_analysis_pipeline:22 - ⚠️ Увага: Цей хакатон має жорсткі обмеження (Invite Only або Students Only)!
+2026-06-28 19:43:36.862 | INFO     | src.analyzer.gemini_analyzer:analyze_hackathon_with_gemini:12 - AI-аналіз профілю хакатону: Healthcare x AI Hackathon | HAIG Media
+2026-06-28 19:43:36.866 | INFO     | src.analyzer.ai_client:generate_json_with_failover:28 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-06-28 19:43:47.099 | INFO     | src.analyzer.idea_generator:generate_winning_ideas:12 - AI-генерація ідей для хакатону: Healthcare x AI Hackathon | HAIG Media
+2026-06-28 19:43:47.100 | INFO     | src.analyzer.ai_client:generate_json_with_failover:28 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-06-28 19:44:12.282 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'MedSpeak Simplifier': 0.1373
+2026-06-28 19:44:12.283 | INFO     | src.analyzer.scorer:score_idea:63 - Оцінка ідеї 'MedSpeak Simplifier': ML_prob=0.137, Semantic_bonus=0.15 -> Final=0.197
+2026-06-28 19:44:12.484 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'AI Wellness Buddy': 0.1221
+2026-06-28 19:44:12.486 | INFO     | src.analyzer.scorer:score_idea:63 - Оцінка ідеї 'AI Wellness Buddy': ML_prob=0.122, Semantic_bonus=0.15 -> Final=0.182
+2026-06-28 19:44:13.032 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'ClinicFlow AI Assistant': 0.1271
+2026-06-28 19:44:13.035 | INFO     | src.analyzer.scorer:score_idea:63 - Оцінка ідеї 'ClinicFlow AI Assistant': ML_prob=0.127, Semantic_bonus=0.15 -> Final=0.187
+2026-06-28 19:44:13.799 | INFO     | src.analyzer.pipeline:_run_analysis_pipeline:71 - ✅ Результати аналізу успішно збережено в БД. Prediction ID: 3eaa5666-4b32-4118-b2a0-9313b42ebfd5
+2026-06-28 19:44:58.003 | INFO     | src.analyzer.techspec_pipeline:generate_and_save_techspec:18 - Запуск генерації ТЗ для передбачення 3eaa5666-4b32-4118-b2a0-9313b42ebfd5 (Ідея #1)
+2026-06-28 19:44:58.097 | INFO     | src.analyzer.techspec_pipeline:generate_and_save_techspec:47 - Кеш не знайдено. Звернення до AI-генератора ТЗ...
+2026-06-28 19:44:58.098 | INFO     | src.analyzer.techspec_generator:generate_techspec:13 - AI-генерація детального ТЗ для ідеї: MedSpeak Simplifier
+2026-06-28 19:44:58.101 | INFO     | src.analyzer.ai_client:generate_json_with_failover:28 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-06-28 19:45:28.572 | INFO     | src.analyzer.techspec_pipeline:generate_and_save_techspec:60 - ТЗ успішно збережено в базі даних.
+2026-06-28 19:48:47.838 | WARNING  | src.analyzer.rate_limiter:check_and_increment:55 - 🛑 Досягнуто хвилинний ліміт Gemini (15 req/min).
+2026-06-28 19:48:47.839 | WARNING  | src.analyzer.rate_limiter:check_and_increment:55 - 🛑 Досягнуто хвилинний ліміт Gemini (15 req/min).
+2026-06-28 19:50:46.031 | INFO     | src.analyzer.gemini_analyzer:analyze_hackathon_with_gemini:12 - AI-аналіз профілю хакатону: No-Internet Hackathon
+2026-06-28 19:50:46.031 | WARNING  | src.analyzer.gemini_analyzer:analyze_hackathon_with_gemini:50 - Застосування детермінованого офлайн-аналізу...
+2026-06-28 19:58:22.084 | INFO     | src.api.main:run_ml_pipeline:282 - 🧠 Запуск фонового MLOps пайплайну...
+2026-06-28 19:58:22.131 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:22 - Починаємо генерацію ознак для 142 хакатонів...
+2026-06-28 19:58:22.636 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: HACKFEST'26 (55 проектів)
+2026-06-28 19:58:23.058 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Cyber_Coders (43 проектів)
+2026-06-28 19:58:29.077 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: USAII® Global AI Hackathon 2026 (499 проектів)
+2026-06-28 19:58:31.980 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: FIND EVIL! (226 проектів)
+2026-06-28 19:58:34.829 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Mind the Product presents World Product Day: Everyone Ships Now (292 проектів)
+2026-06-28 19:58:39.775 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: NextGenHacks (465 проектів)
+2026-06-28 19:58:42.079 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: DSH Hacks V1 (245 проектів)
+2026-06-28 19:58:45.980 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: UC Berkeley AI Hackathon 2026 (400 проектів)
+2026-06-28 19:58:46.966 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: TecStorm'26 (117 проектів)
+2026-06-28 19:58:49.141 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Quantum Sprint (240 проектів)
+2026-06-28 19:58:49.972 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: VALSEA Edtech Sprint (HCM) (82 проектів)
+2026-06-28 19:58:50.743 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону:  Production Engineering Hackathon (87 проектів)
+2026-06-28 19:58:51.818 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Databricks Apps & Agents for Good Hackathon 2026 (121 проектів)
+2026-06-28 19:58:52.385 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Beyond Tomorrow Summit (68 проектів)
+2026-06-28 19:58:53.095 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Design4Future (74 проектів)
+2026-06-28 19:58:53.799 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Hack4Her 2026 (77 проектів)
+2026-06-28 19:58:54.228 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: STEMINATE HACKS 2026 (44 проектів)
+2026-06-28 19:58:54.944 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Anthropic Hackathon @ IIT Delhi (78 проектів)
+2026-06-28 19:58:55.345 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Aurora Global Hackathon (52 проектів)
+2026-06-28 19:58:55.704 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Build with GLM 5.1 Challenge by Z.AI (24 проектів)
+2026-06-28 19:58:56.015 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Grizzly Hacks III (29 проектів)
+2026-06-28 19:58:56.590 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Hackspire Hackathon (72 проектів)
+2026-06-28 19:58:57.057 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: WeatherWise Hack (50 проектів)
+2026-06-28 19:58:57.275 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: EcoHacks (18 проектів)
+2026-06-28 19:58:57.681 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: RidgeHacks 2026 (46 проектів)
+2026-06-28 19:58:58.008 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: The Future Innovators Hackathon: A Road to START Hack (33 проектів)
+2026-06-28 19:58:58.404 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Devlance Hack (50 проектів)
+2026-06-28 19:58:58.737 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Digital Innovation Challenge 2025 - Finance Track (37 проектів)
+2026-06-28 19:58:59.277 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: AI for Civic Innovation Hackathon (60 проектів)
+2026-06-28 19:58:59.911 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: ESE 1900, Silicon Garage, Spring 2026 (80 проектів)
+2026-06-28 19:59:00.405 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: ImagineHack 2026 (54 проектів)
+2026-06-28 19:59:00.737 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: HackMars 3.0: NEON (29 проектів)
+2026-06-28 19:59:01.192 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: [case]Hacks 2026 (42 проектів)
+2026-06-28 19:59:01.450 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: CodeStorm (29 проектів)
+2026-06-28 19:59:01.980 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: She ships - 8M hackathon (56 проектів)
+2026-06-28 19:59:02.700 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: AcademiesHacks 2026 (66 проектів)
+2026-06-28 19:59:03.197 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: VibeHack London 2026 (61 проектів)
+2026-06-28 19:59:03.767 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Hack Kosice 2026 (48 проектів)
+2026-06-28 19:59:04.131 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: HackJPS 2026 (30 проектів)
+2026-06-28 19:59:04.458 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: BugBash (42 проектів)
+2026-06-28 19:59:05.084 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Claude Hackathon at Imperial College London | Claude Builder Club @ Imperial (63 проектів)
+2026-06-28 19:59:05.352 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Innovate for Impact - NGM Group (29 проектів)
+2026-06-28 19:59:05.707 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Luddy Hacks 2026 (29 проектів)
+2026-06-28 19:59:05.893 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: BUILD ZERO HACKATHON- NAIROBI (20 проектів)
+2026-06-28 19:59:06.044 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: ALI Builds Hackathon (15 проектів)
+2026-06-28 19:59:06.309 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: HackDKU 2026 (29 проектів)
+2026-06-28 19:59:06.612 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: 2026 MakeNJIT Hardware hackathon (30 проектів)
+2026-06-28 19:59:07.072 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: AI Forecasting Hackathon (42 проектів)
+2026-06-28 19:59:07.435 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: QuantiHack 2026 (39 проектів)
+2026-06-28 19:59:07.705 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Student Life Track Hackathon 2026 (26 проектів)
+2026-06-28 19:59:08.031 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: IntelliAI Arena (29 проектів)
+2026-06-28 19:59:08.348 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: VALSEA EdTech System Sprint (HCM) (27 проектів)
+2026-06-28 19:59:08.600 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: 2025-2026 Spring ESE Senior Design (21 проектів)
+2026-06-28 19:59:08.766 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: xStocks Hackathon EthCC: Market Open (18 проектів)
+2026-06-28 19:59:08.807 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: 05/22/2026 (3 проектів)
+2026-06-28 19:59:09.110 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: CodeQuantum 2026 (34 проектів)
+2026-06-28 19:59:09.407 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Be Hackathon (27 проектів)
+2026-06-28 19:59:09.560 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: NeuroHack Spring 2026 (7 проектів)
+2026-06-28 19:59:09.856 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: SoCal Claude Builder Club Hackathon (29 проектів)
+2026-06-28 19:59:10.143 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: UCI AWS Cloud Hacks - 2026 (31 проектів)
+2026-06-28 19:59:10.340 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Global Public Health Hackathon 2026 (24 проектів)
+2026-06-28 19:59:10.699 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Hack the Bay Launch 2026 (32 проектів)
+2026-06-28 19:59:11.051 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: MariHacks IX (29 проектів)
+2026-06-28 19:59:11.315 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: HackFox (23 проектів)
+2026-06-28 19:59:11.517 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: AgentVerse (18 проектів)
+2026-06-28 19:59:11.766 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: DawsHacks 2026 (19 проектів)
+2026-06-28 19:59:11.950 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Alan x Mistral: AI Health Hack (24 проектів)
+2026-06-28 19:59:12.044 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: ViTAL Hacks 2026 (9 проектів)
+2026-06-28 19:59:12.281 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:73 - ✅ Ознаки збережено для хакатону: Claude Builder Hackathon, UG (24 проектів)
+2026-06-28 19:59:12.474 | INFO     | src.analyzer.batch_features:run_batch_feature_extraction:83 - Процедуру генерації ознак завершено.
+2026-06-28 19:59:12.477 | INFO     | src.ml.train_xgboost:train_xgboost:17 - Початок підготовки даних для XGBoost...
+2026-06-28 19:59:12.478 | INFO     | src.ml.prepare_dataset:prepare_dataset:15 - Зчитування даних для тренувального датасету...
+2026-06-28 19:59:12.852 | INFO     | src.ml.train_xgboost:train_xgboost:25 - Обчислено коефіцієнт дисбалансу класів (Neg/Pos): 25.69
+2026-06-28 19:59:12.854 | INFO     | src.ml.train_xgboost:train_xgboost:38 - Тренування моделі XGBoost...
+2026-06-28 19:59:31.041 | INFO     | src.ml.train_xgboost:train_xgboost:40 - Тренування XGBoost завершено. Оцінюємо якість...
+2026-06-28 19:59:33.999 | INFO     | src.api.main:run_ml_pipeline:295 - 🧠 Пайплайн перенавчання успішно завершено.
+2026-06-28 20:06:53.680 | INFO     | __main__:analyze_system_performance:42 - ℹ️ Зворотний зв'язок ще не накопичено. Запуск проактивного режиму еволюції системи...
+2026-06-28 20:06:53.682 | INFO     | src.analyzer.ai_client:generate_json_with_failover:29 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-06-28 20:11:10.609 | INFO     | __main__:trigger_auto_evolution_check:86 - 🧠 Запуск автоматичної перевірки точності моделі...
+2026-06-28 20:11:11.219 | INFO     | __main__:analyze_system_performance:45 - ℹ️ Зворотний зв'язок ще не накопичено. Запуск проактивного режиму еволюції системи...
+2026-06-28 20:11:11.223 | INFO     | src.analyzer.ai_client:generate_json_with_failover:29 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-06-28 20:11:20.244 | INFO     | __main__:trigger_auto_evolution_check:103 - 📡 Надіслано звіт про еволюцію моделі в Sentry!

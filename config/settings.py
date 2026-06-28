@@ -21,3 +21,7 @@ GEMINI_MODEL = "gemini-2.5-flash"
 
 # Кешування запитів до AI
 CACHE_DIR = str(BASE_DIR / "data" / "cache")
+
+# Ліміти Gemini API (Free Tier)
+GEMINI_DAILY_LIMIT = 1500
+GEMINI_RPM_LIMIT = 15

@@ -3,30 +3,50 @@
 {% block title %} - Навчання{% endblock %}
 
 {% block content %}
-<div class="card" style="max-width: 600px; margin: 0 auto;">
+<div class="card" style="max-width: 600px; margin: 0 auto; background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 2rem;">
     <h2 style="color: var(--accent2); margin-bottom: 1rem;">🛠 Тренування моделі (Збір даних)</h2>
     <p style="color: var(--muted); margin-bottom: 1.5rem;">
         Запустіть фоновий збір даних з Devpost. Процес автоматично збагатить базу фічами та метриками GitHub.
     </p>
 
+    <!-- ФОРМА ЗАПУСКУ ЗБОРУ -->
     <form id="training-form" onsubmit="startTraining(event)">
-        <div style="margin-bottom: 1rem;">
-            <label style="display: block; margin-bottom: 0.5rem; color: var(--text);">Кількість сторінок для парсингу (1 стор. = 24 хакатони):</label>
-            <input type="number" name="pages" value="1" min="1" max="100" required>
+        <div style="margin-bottom: 1.5rem;">
+            <label style="display: block; margin-bottom: 0.5rem; color: var(--text); font-weight: 500;">Кількість сторінок для парсингу (1 стор. = 24 хакатони):</label>
+            <input type="number" name="pages" value="1" min="1" max="100" required
+                   style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid #30363d; background: #0d1117; color: #e6edf3; font-size: 1rem;">
         </div>
-        <button type="submit" class="btn btn-primary" id="start-btn" style="width: 100%; padding: 0.8rem; font-size: 1.1rem; font-weight: bold;">
+        <button type="submit" class="btn btn-primary" id="start-btn" style="width: 100%; padding: 0.9rem; font-size: 1.1rem; font-weight: bold; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer;">
             🚀 Запустити оркестратор
         </button>
     </form>
 
-    <div id="status-box" style="margin-top: 2rem; display: none; text-align: center; padding: 1.5rem; border: 1px solid var(--border); border-radius: 8px; background: #0d1117;">
-        <h3 id="status-msg" style="color: var(--success); margin-bottom: 1rem;">Збір даних розпочато!</h3>
-        <div style="font-size: 1.2rem; color: var(--muted);">
-            Зібрано хакатонів у базі: <br>
-            <span id="training-count" style="font-size: 3rem; color: var(--accent); font-weight: bold;">0</span>
+    <!-- БЛОК СТАТУСУ ЗБОРУ (Показується за замовчуванням) -->
+    <div id="status-box" style="margin-top: 2rem; display: block; text-align: center; padding: 1.5rem; border: 1px solid #30363d; border-radius: 8px; background: #0d1117;">
+        <div style="font-size: 1.2rem; color: var(--muted); margin-bottom: 0.5rem;">
+            Зібрано хакатонів у базі:
+        </div>
+        <div id="training-count" style="font-size: 3.5rem; color: var(--accent); font-weight: bold; line-height: 1;">
+            0
         </div>
         <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--muted);">
             Ви можете перейти на інші вкладки, збір продовжиться у фоні.
+        </p>
+    </div>
+
+    <!-- БЛОК ПЕРЕНАВЧАННЯ МОДЕЛІ (MLOps) -->
+    <div id="retrain-section" style="margin-top: 2rem; padding: 1.5rem; border: 1px solid var(--warning); border-radius: 8px; background: rgba(210, 153, 34, 0.1); display: none;">
+        <h3 style="color: var(--warning); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+            🧠 Доступне оновлення ML-моделі
+        </h3>
+        <p style="color: var(--text); font-size: 0.95rem; margin-bottom: 1rem; line-height: 1.4;">
+            У базі накопичилися нові дані. Рекомендуємо перенавчити штучний інтелект для підвищення точності прогнозів.
+        </p>
+        <button onclick="startRetraining()" id="retrain-btn" class="btn" style="background: var(--warning); color: #0d1117; font-weight: bold; width: 100%; border: none; padding: 0.8rem; border-radius: 6px; cursor: pointer; transition: opacity 0.2s;">
+            🔄 Запустити перенавчання (MLOps)
+        </button>
+        <p id="retrain-status" style="color: var(--success); margin-top: 1rem; font-size: 0.9rem; display: none; text-align: center; font-weight: bold;">
+            ✅ Перенавчання запущено у фоні (~30 сек). Ви можете закрити цю сторінку.
         </p>
     </div>
 </div>
@@ -47,30 +67,51 @@
     async function startTraining(e) {
         e.preventDefault();
         
-        // Блокуємо кнопку, щоб уникнути подвійних запусків
         const btn = document.getElementById('start-btn');
         btn.disabled = true;
         btn.innerText = "⏳ Процес виконується...";
         btn.style.opacity = "0.5";
-        
-        // Показуємо панель статусу
-        document.getElementById('status-box').style.display = 'block';
+        btn.style.cursor = "not-allowed";
 
         const formData = new FormData();
         formData.append('pages', e.target.pages.value);
 
-        // Відправляємо POST запит
         await fetch('/training/start', { method: 'POST', body: formData });
-        
-        // Миттєво оновлюємо поточну кількість
         await updateStatus();
         
-        // Запускаємо опитування кожні 3 секунди
         if (pollInterval) clearInterval(pollInterval);
         pollInterval = setInterval(updateStatus, 3000);
     }
+
+    async function checkRetrain() {
+        try {
+            const res = await fetch('/ml/retrain-check');
+            const data = await res.json();
+            if (data.suggest_retrain) {
+                document.getElementById('retrain-section').style.display = 'block';
+            } else {
+                document.getElementById('retrain-section').style.display = 'none';
+            }
+        } catch (e) {
+            console.error("Помилка перевірки MLOps:", e);
+        }
+    }
+
+    async function startRetraining() {
+        const btn = document.getElementById('retrain-btn');
+        btn.disabled = true;
+        btn.innerText = "⏳ Модель навчається у фоні...";
+        btn.style.opacity = "0.5";
+        btn.style.cursor = "not-allowed";
+        document.getElementById('retrain-status').style.display = 'block';
+
+        await fetch('/ml/retrain', { method: 'POST' });
+        
+        setTimeout(checkRetrain, 15000);
+    }
     
-    // Запускаємо перевірку одразу при завантаженні сторінки (якщо оркестратор вже працює)
+    // Ініціалізація сторінки
     updateStatus();
+    checkRetrain();
 </script>
 {% endblock %}

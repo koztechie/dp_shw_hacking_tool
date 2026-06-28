@@ -99,6 +99,17 @@ def init_db():
                 techspec VARCHAR  -- JSON повне ТЗ
             )
         """)
+
+        # 5. Таблиця зворотного зв'язку (MLOps Feedback)
+        con.execute("""
+            CREATE TABLE IF NOT EXISTS feedback (
+                prediction_id VARCHAR,
+                won BOOLEAN,
+                actual_place INTEGER,
+                created_at TIMESTAMP DEFAULT current_timestamp
+            )
+        """)
+
         print("Базу даних DuckDB успішно ініціалізовано.")
     except Exception as e:
         print(f"Помилка під час ініціалізації БД: {e}")

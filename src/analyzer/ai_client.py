@@ -8,6 +8,7 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.logger import logger
+from src.analyzer.rate_limiter import check_and_increment
 from config.settings import GEMINI_API_KEY, GEMINI_MODEL
 
 # Зчитуємо альтернативні безкоштовні ключі з оточення
@@ -23,7 +24,7 @@ def generate_json_with_failover(prompt: str) -> dict:
     """
     
     # --- СПРОБА 1: Google Gemini (Основна модель) ---
-    if GEMINI_API_KEY and GEMINI_API_KEY != "your_key_here":
+    if GEMINI_API_KEY and GEMINI_API_KEY != "your_key_here" and check_and_increment():
         try:
             logger.info(f"ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API ({GEMINI_MODEL})...")
             from google import genai
@@ -43,7 +44,7 @@ def generate_json_with_failover(prompt: str) -> dict:
             logger.warning(f"⚠️ Основна модель Gemini ({GEMINI_MODEL}) не повернула валідний JSON або недоступна: {e}")
 
     # --- СПРОБА 2: Google Gemini (Резервна модель PRO актуального покоління) ---
-    if GEMINI_API_KEY and GEMINI_API_KEY != "your_key_here":
+    if GEMINI_API_KEY and GEMINI_API_KEY != "your_key_here" and check_and_increment():
         # Переключаємося на gemini-2.5-pro (актуальна PRO модель замість застарілої 1.5-pro)
         fallback_model = "gemini-2.5-pro" if GEMINI_MODEL != "gemini-2.5-pro" else "gemini-2.5-flash"
         try:
