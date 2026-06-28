@@ -18,3 +18,6 @@ DEVPOST_BASE_URL = "https://devpost.com"
 SCRAPE_DELAY_SECONDS = 2  # затримка між запитами (анти-бан)
 MAX_PROJECTS_PER_HACKATHON = 500
 GEMINI_MODEL = "gemini-2.5-flash"
+
+# Кешування запитів до AI
+CACHE_DIR = str(BASE_DIR / "data" / "cache")

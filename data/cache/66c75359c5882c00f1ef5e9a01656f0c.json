@@ -1,0 +1,55 @@
+[
+  {
+    "title": "MediSimplify AI",
+    "tagline": "Your personal AI assistant for understanding complex medical information, simplified.",
+    "problem": "Patients and caregivers often struggle to comprehend medical jargon in lab results, diagnoses, or health articles, leading to confusion and anxiety.",
+    "solution": "An AI-powered web application that takes medical text (e.g., lab reports, doctor's notes, health articles) and translates it into easy-to-understand, jargon-free language, tailored to the user's literacy level.",
+    "killer_feature": "An 'Ask Me Anything' feature within the simplified report, allowing users to instantly query specific terms or concepts for further clarification.",
+    "sponsor_tech_used": [],
+    "tech_stack": [
+      "Python",
+      "Flask",
+      "OpenAI API (GPT-3.5/4 for text simplification)",
+      "HTML/CSS/JavaScript"
+    ],
+    "target_track": "Beginners' Hack",
+    "why_wins": "Directly addresses a common patient pain point with a clear, demonstrable AI solution. The core NLP task (text simplification) is achievable for beginners using readily available APIs, allowing for a functional MVP within the hackathon timeframe, aligning perfectly with the 'Beginners' Hack' criteria.",
+    "risk": "Over-simplification leading to loss of critical medical nuance, or potential 'hallucinations' from LLMs if not properly constrained and fact-checked."
+  },
+  {
+    "title": "HealthTrend AI",
+    "tagline": "Uncover hidden patterns in your daily health data for proactive wellness insights.",
+    "problem": "Individuals track various health metrics (sleep, steps, diet) but often lack the tools to synthesize this data into actionable insights for improving their health or identifying potential issues early.",
+    "solution": "A web application where users can manually input daily health data (or upload CSVs from wearables) and an AI analyzes trends, identifies correlations, and provides personalized, actionable recommendations or alerts for potential health risks.",
+    "killer_feature": "Predictive 'What If' scenarios, showing how changes in one metric (e.g., increasing sleep by 30 mins) might impact another based on historical data.",
+    "sponsor_tech_used": [],
+    "tech_stack": [
+      "Python",
+      "Pandas (for data processing)",
+      "Scikit-learn (for basic ML models)",
+      "Streamlit (for quick UI/dashboard)",
+      "SQLite (database)"
+    ],
+    "target_track": "Beginners' Hack",
+    "why_wins": "Focuses on preventative health, a key area in healthcare. The AI application is straightforward (data analysis, pattern recognition, simple predictions) and can be built with fundamental ML libraries, making it highly suitable for beginners. The output is tangible and directly beneficial to the user.",
+    "risk": "Limited accuracy with small datasets, difficulty in drawing medically sound conclusions from simple correlations, and potential data privacy concerns (though users input their own data)."
+  },
+  {
+    "title": "CareCompanion AI",
+    "tagline": "Your empathetic AI chatbot for immediate mental wellness support and health FAQs.",
+    "problem": "People often need immediate, non-urgent health information or a listening ear for mental wellness concerns but face barriers like appointment wait times, social stigma, or difficulty finding reliable resources.",
+    "solution": "An AI-powered conversational chatbot accessible via web or messaging app that provides evidence-based information for common health FAQs and offers guided mental wellness exercises or directs users to appropriate professional resources.",
+    "killer_feature": "A 'Mood Check-in' feature that uses sentiment analysis to understand the user's emotional state and offers tailored, supportive responses or activities.",
+    "sponsor_tech_used": [],
+    "tech_stack": [
+      "Python",
+      "Flask",
+      "NLTK/spaCy (for basic NLP, sentiment analysis)",
+      "OpenAI API (for conversational flow/content generation)",
+      "HTML/CSS/JavaScript (for chatbot interface)"
+    ],
+    "target_track": "Beginners' Hack",
+    "why_wins": "Addresses both physical health FAQs and mental wellness, which is highly relevant. A chatbot is a common and achievable hackathon project, especially for beginners using existing frameworks or APIs. The focus on empathy and resource direction adds significant value, aligning with the 'Beginners' Hack' criteria.",
+    "risk": "Providing inaccurate medical advice (must be clearly disclaimed as not a diagnostic tool), or the chatbot sounding generic/unhelpful without sufficient training data or sophisticated NLP."
+  }
+]

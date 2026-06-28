@@ -1,0 +1,80 @@
+{
+  "project_name": "MediClarity AI",
+  "tagline": "AI-powered clarity for complex medical information.",
+  "killer_feature": "An 'Ask Me Anything' feature within the simplified report, allowing users to instantly query specific terms or concepts for further clarification, grounded in the provided document.",
+  "architecture": {
+    "frontend": "Vanilla HTML, CSS, and JavaScript for maximum development speed and zero build-tool overhead. Focus on semantic HTML for accessibility and direct DOM manipulation for interactivity, ideal for a solo developer in a time-constrained environment.",
+    "backend": "Lightweight Flask microframework for rapid API development. Python's rich ecosystem and readability make it ideal for quick iteration, especially for integrating with AI APIs. Handles text processing and OpenAI API calls.",
+    "database": "None for MVP. All data processing is stateless and on-demand. If persistent storage is absolutely required for a specific feature (e.g., user history), a simple JSON file or in-memory dictionary can suffice, but it's out of scope for the core MVP.",
+    "ai_integration": "Leverage OpenAI's GPT-3.5 Turbo (or GPT-4 if budget/speed allows) for two primary functions: 1. Text Simplification: A carefully crafted system prompt instructs the LLM to act as a medical explainer, simplifying complex medical text into jargon-free language, tailored to a specified (or inferred) literacy level. 2. 'Ask Me Anything': A separate prompt chain that takes the original medical text, the simplified text, and the user's specific question, then uses the LLM to provide a concise, context-aware answer based on the provided documents. This ensures answers are grounded in the input rather than general knowledge.",
+    "deployment": "Render.com for Flask backend and static frontend. Render offers free tiers and extremely fast deployment from a Git repository, automatically detecting Python/Flask and serving static files. A simple 'requirements.txt' and 'Procfile' are all that's needed for a 5-minute setup."
+  },
+  "tech_stack": {
+    "must_have": [
+      "Python",
+      "Flask",
+      "OpenAI API (gpt-3.5-turbo)",
+      "HTML",
+      "CSS",
+      "JavaScript"
+    ],
+    "nice_to_have": [
+      "Pico.css (minimalist CSS framework via CDN for quick styling)",
+      "Markdown-it (JS library for rendering markdown from AI responses if needed)"
+    ],
+    "avoid": [
+      "React/Angular/Vue (introduces build complexity, component architecture overhead)",
+      "Docker/Kubernetes (overkill for solo dev, 48h)",
+      "SQL/NoSQL Databases (setup time, ORM complexity)",
+      "Complex Authentication (time sink)",
+      "Webpack/Vite (build tools are unnecessary overhead)"
+    ]
+  },
+  "mvp_scope": {
+    "hour_0_4": "Foundation & Setup: Project setup (Git, virtual env), basic Flask app with '/' route and 'index.html' template. Frontend structure with a large 'textarea', submit button, and output 'div'. Basic CSS reset. OpenAI API key configuration. Goal: Functional web page with input/submit.",
+    "hour_4_12": "Core Simplification Logic: Flask backend '/simplify' endpoint accepting POST requests. OpenAI API integration for text simplification using a carefully crafted system prompt (e.g., 'You are a medical assistant...'). Frontend JS to handle form submission, send text, and display raw AI response. Basic error handling. Goal: User can paste text, submit, and see simplified (raw) AI output.",
+    "hour_12_24": "Enhanced UI & Initial AMA Structure: Improve 'index.html' styling (e.g., using Pico.css CDN). Display simplified text clearly. Add 'Ask Me Anything' section with an input field and button below the simplified text. Frontend JS to capture AMA input. Flask backend placeholder for '/ask' endpoint. Goal: Polished UI for input/output, AMA input field ready for integration.",
+    "hour_24_36": "Killer Feature Implementation & Refinement: Flask backend '/ask' endpoint accepts 'original_text', 'simplified_text', and 'user_question'. Craft prompt for OpenAI to provide context-aware answers. Frontend JS to send AMA query and display AI response. Refine prompt engineering for both simplification and AMA. Add loading indicators. Goal: 'Ask Me Anything' feature fully functional.",
+    "hour_36_48": "Polish, Responsiveness, Demo Prep & Submission: UI/UX refinement, ensure responsiveness. Accessibility checks. Edge case handling (empty input, token limits). Add clear title, tagline, instructions. Create compelling 60-second demo video. Write 'README.md'. Final code review and cleanup. Deployment to Render.com. Goal: Fully functional, polished app, ready for judging with a killer demo."
+  },
+  "ux_design": {
+    "color_palette": [
+      "#E0F2F7",
+      "#B2EBF2",
+      "#80DEEA",
+      "#4DD0E1",
+      "#00BCD4",
+      "#0097A7",
+      "#006064",
+      "#212121",
+      "#FAFAFA"
+    ],
+    "typography": "Inter",
+    "key_screens": [
+      "Input Screen: Large textarea for medical text, clear 'Simplify' button, optional literacy level dropdown (e.g., '6th Grade', 'High School').",
+      "Simplified Output Screen: Original text (collapsible), simplified text clearly displayed, 'Ask Me Anything' input field, and a history of Q&A interactions."
+    ],
+    "wow_moment": "The judge pastes a highly complex medical report, the AI instantly simplifies it. Then, they highlight a specific jargon term within the simplified text (or type a question), hit 'Ask', and get an immediate, concise, and accurate explanation *grounded in the provided document*, demonstrating true contextual understanding."
+  },
+  "demo_script": "Hi judges! We're MediClarity AI, bringing AI-powered clarity to complex medical information.\n**Problem**: Medical jargon is overwhelming. Patients and caregivers struggle to understand diagnoses, lab results, and health articles, leading to anxiety and poor health outcomes.\n**Solution**: MediClarity AI is your personal AI assistant. (Show input screen) Simply paste any medical text here. Let's take this complex lab report. (Paste text, click Simplify)\n**Demo**: Instantly, our AI translates it into easy-to-understand, jargon-free language. Notice how 'hyperlipidemia' becomes 'high cholesterol' and 'CBC with differential' is explained clearly.\n**Killer Feature**: But what if you still have questions? (Point to AMA). Our 'Ask Me Anything' feature lets you query *anything* within the report. I'll ask, 'What does 'elevated creatinine' mean for me?' (Type question, click Ask). And boom! A concise, context-aware answer, directly from the report, appears.\n**Impact**: We empower patients with understanding, reduce anxiety, and improve health literacy.\n**Why we win**: We deliver a direct, impactful AI solution to a critical pain point, with a unique, context-aware Q&A feature, all built rapidly with a beginner-friendly stack. Thank you!",
+  "antifragile_features": [
+    "OpenAI API Failure: Implement 'try-except' blocks around API calls. If an API call fails, display a user-friendly error message (e.g., 'Our AI is feeling a bit under the weather! Please try again in a moment.') instead of crashing. Log the error on the backend.",
+    "Killer Feature (AMA) Breaks: If the AMA feature has issues, ensure the core text simplification still works perfectly. During the demo, pivot to emphasize the simplification's value and mention the AMA as a 'future enhancement' or 'beta feature' if it's too buggy. Have a pre-canned simplified output ready to show the core feature."
+  ],
+  "judging_alignment": {
+    "innovation": "Applies cutting-edge LLM technology (OpenAI GPT) to a critical, underserved problem in healthcare literacy. The 'Ask Me Anything' feature demonstrates innovative contextual understanding beyond simple summarization.",
+    "technical": "Robust backend integration with OpenAI API, careful prompt engineering for both simplification and contextual Q&A, clean separation of concerns (Flask backend, vanilla JS frontend), and efficient deployment strategy.",
+    "impact": "Directly addresses a significant social problem: improving health literacy and reducing patient anxiety. Empowers individuals to take control of their health by understanding their medical information.",
+    "presentation": "Clear, concise problem statement and solution. Live demo focuses on immediate value and the 'wow' factor of the AMA feature. Emphasizes user-centric design and ease of use."
+  },
+  "do_not": [
+    "Implement User Authentication/Accounts",
+    "Build a Database for persistent user data",
+    "Use Complex Frontend Frameworks (React/Vue/Angular)",
+    "Over-engineer the UI with elaborate animations or custom components",
+    "Handle File Uploads (stick to text input via textarea)",
+    "Implement Real-time Features (WebSockets)",
+    "Spend Time on Extensive Error Logging/Monitoring (basic try-except is sufficient)",
+    "Attempt to 'Fact-Check' LLM Output Programmatically (focus on prompt engineering to mitigate hallucinations)"
+  ]
+}

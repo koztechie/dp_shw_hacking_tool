@@ -11698,3 +11698,69 @@
 2026-06-27 16:01:16.042 | INFO     | __main__:train_xgboost:38 - Тренування моделі XGBoost...
 2026-06-27 16:01:16.950 | INFO     | __main__:train_xgboost:40 - Тренування XGBoost завершено. Оцінюємо якість...
 2026-06-27 16:03:19.166 | INFO     | __main__:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Innovative AI Hackathon Tool': 0.3860
+2026-06-28 09:47:12.328 | INFO     | __main__:parse_hackathon_from_url:115 - Завантаження хакатону: https://haignyc1.devpost.com/
+2026-06-28 09:49:28.995 | INFO     | __main__:fetch_and_clean_rules:26 - Завантаження правил хакатону: https://haignyc1.devpost.com/rules
+2026-06-28 09:49:29.847 | INFO     | __main__:extract_hard_constraints_with_ai:62 - AI-аналіз жорстких обмежень хакатону...
+2026-06-28 09:53:29.648 | INFO     | __main__:generate_winning_ideas:24 - AI-генерація ідей для хакатону: Web3 Future Hack
+2026-06-28 09:53:33.409 | ERROR    | __main__:generate_winning_ideas:76 - Помилка генерації ідей: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}
+2026-06-28 09:54:16.955 | INFO     | __main__:generate_winning_ideas:24 - AI-генерація ідей для хакатону: Web3 Future Hack
+2026-06-28 09:56:27.590 | INFO     | __main__:get_organizer_patterns:23 - OSINT-аналіз: шукаємо патерни для 'Cal Hacks'...
+2026-06-28 09:58:41.067 | INFO     | __main__:analyze_hackathon_with_gemini:28 - AI-аналіз профілю хакатону: Global AI Challenge 2026
+2026-06-28 10:00:41.287 | INFO     | __main__:generate_winning_ideas:24 - AI-генерація ідей для хакатону: Web3 Future Hack
+2026-06-28 10:00:42.508 | ERROR    | __main__:generate_winning_ideas:76 - Помилка генерації ідей: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}
+2026-06-28 10:21:23.061 | INFO     | __main__:generate_winning_ideas:24 - AI-генерація ідей для хакатону: Web3 Future Hack
+2026-06-28 10:23:49.694 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Слабка Ідея (Клон)': 0.0695
+2026-06-28 10:23:49.695 | INFO     | __main__:score_idea:63 - Оцінка ідеї 'Слабка Ідея (Клон)': ML_prob=0.070, Semantic_bonus=0.00 -> Final=0.070
+2026-06-28 10:23:49.940 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Сильна Ідея (Інновація)': 0.1250
+2026-06-28 10:23:49.941 | INFO     | __main__:score_idea:63 - Оцінка ідеї 'Сильна Ідея (Інновація)': ML_prob=0.125, Semantic_bonus=0.15 -> Final=0.185
+2026-06-28 10:25:59.625 | INFO     | __main__:generate_techspec:13 - AI-генерація детального ТЗ для ідеї: HealthSync AI
+2026-06-28 10:25:59.626 | INFO     | src.analyzer.ai_client:generate_json_with_failover:28 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-06-28 10:26:26.113 | WARNING  | src.analyzer.ai_client:generate_json_with_failover:43 - ⚠️ Основна модель Gemini (gemini-2.5-flash) перевантажена або недоступна: Extra data: line 60 column 4 (char 6582)
+2026-06-28 10:26:26.113 | INFO     | src.analyzer.ai_client:generate_json_with_failover:50 - ШІ-Маршрутизатор [Спроба 2]: Переключення на альтернативну модель (gemini-1.5-pro)...
+2026-06-28 10:26:26.311 | WARNING  | src.analyzer.ai_client:generate_json_with_failover:65 - ⚠️ Резервна модель Gemini (gemini-1.5-pro) також недоступна: 404 NOT_FOUND. {'error': {'code': 404, 'message': 'models/gemini-1.5-pro is not found for API version v1beta, or is not supported for generateContent. Call ModelService.ListModels to see the list of available models and their supported methods.', 'status': 'NOT_FOUND'}}
+2026-06-28 10:26:26.312 | INFO     | src.analyzer.ai_client:generate_json_with_failover:78 - ШІ-Маршрутизатор [Спроба 3]: Виклик OpenRouter (qwen/qwen3-coder:free)...
+2026-06-28 10:26:26.937 | WARNING  | src.analyzer.ai_client:generate_json_with_failover:102 - ⚠️ OpenRouter (qwen/qwen3-coder:free) повернув статус 429: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"qwen/qwen3-coder:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Venice","is_byok":false,"retry_after_seconds":19,"retry_after_seconds_raw":18.854,"headers":{"Retry-After":"19"}}},"user_id":"org_30t0tuTVATkGYc3VoWRq9Jghce4"}
+2026-06-28 10:26:26.937 | INFO     | src.analyzer.ai_client:generate_json_with_failover:78 - ШІ-Маршрутизатор [Спроба 3]: Виклик OpenRouter (meta-llama/llama-3.1-8b-instruct:free)...
+2026-06-28 10:26:27.190 | WARNING  | src.analyzer.ai_client:generate_json_with_failover:102 - ⚠️ OpenRouter (meta-llama/llama-3.1-8b-instruct:free) повернув статус 404: {"error":{"message":"This model is unavailable for free. The paid version is available now - use this slug instead: meta-llama/llama-3.1-8b-instruct","code":404},"user_id":"org_30t0tuTVATkGYc3VoWRq9Jghce4"}
+2026-06-28 10:26:27.190 | INFO     | src.analyzer.ai_client:generate_json_with_failover:78 - ШІ-Маршрутизатор [Спроба 3]: Виклик OpenRouter (google/gemma-3-27b-it:free)...
+2026-06-28 10:26:27.299 | WARNING  | src.analyzer.ai_client:generate_json_with_failover:102 - ⚠️ OpenRouter (google/gemma-3-27b-it:free) повернув статус 404: {"error":{"message":"This model is unavailable for free. The paid version is available now - use this slug instead: google/gemma-3-27b-it","code":404},"user_id":"org_30t0tuTVATkGYc3VoWRq9Jghce4"}
+2026-06-28 10:26:27.299 | ERROR    | src.analyzer.ai_client:generate_json_with_failover:107 - ❌ Усі безкоштовні ШІ-провайдери недоступні! Запуск локального алгоритму.
+2026-06-28 10:26:27.300 | WARNING  | __main__:generate_techspec:78 - Застосування детермінованої офлайн-заглушки для ТЗ...
+2026-06-28 10:29:15.405 | WARNING  | __main__:get_cached:40 - Кеш-файл 64dcd62378e351cac2734c59052c677a.json пошкоджено. Видаляємо для створення нового. Помилка: Expecting property name enclosed in double quotes: line 1 column 2 (char 1)
+2026-06-28 10:31:52.888 | INFO     | __main__:analyze_hackathon:22 - 🚀 Запуск повного AI-аналізу для хакатону: https://haignyc1.devpost.com/
+2026-06-28 10:31:52.888 | INFO     | src.analyzer.hackathon_parser:parse_hackathon_from_url:115 - Завантаження хакатону: https://haignyc1.devpost.com/
+2026-06-28 10:31:54.041 | WARNING  | __main__:analyze_hackathon:31 - ⚠️ Увага: Цей хакатон має жорсткі обмеження (Invite Only або Students Only)!
+2026-06-28 10:31:54.042 | INFO     | src.analyzer.rules_extractor:fetch_and_clean_rules:26 - Завантаження правил хакатону: https://haignyc1.devpost.com/rules
+2026-06-28 10:31:54.759 | INFO     | src.analyzer.rules_extractor:extract_hard_constraints_with_ai:62 - AI-аналіз жорстких обмежень хакатону...
+2026-06-28 10:31:59.123 | INFO     | src.analyzer.gemini_analyzer:analyze_hackathon_with_gemini:28 - AI-аналіз профілю хакатону: Healthcare x AI Hackathon | HAIG Media
+2026-06-28 10:32:09.001 | ERROR    | src.analyzer.gemini_analyzer:analyze_hackathon_with_gemini:84 - Помилка під час виклику Gemini API: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}
+2026-06-28 10:32:09.002 | INFO     | src.analyzer.idea_generator:generate_winning_ideas:24 - AI-генерація ідей для хакатону: Healthcare x AI Hackathon | HAIG Media
+2026-06-28 10:32:11.417 | ERROR    | src.analyzer.idea_generator:generate_winning_ideas:76 - Помилка генерації ідей: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}
+2026-06-28 10:32:11.477 | INFO     | __main__:analyze_hackathon:87 - ✅ Результати аналізу успішно збережено в БД. Prediction ID: 41c088f4-63b3-4178-920f-4474046438e9
+2026-06-28 10:34:46.690 | INFO     | __main__:analyze_hackathon:22 - 🚀 Запуск повного AI-аналізу для хакатону: https://haignyc1.devpost.com/
+2026-06-28 10:34:46.691 | INFO     | src.analyzer.hackathon_parser:parse_hackathon_from_url:115 - Завантаження хакатону: https://haignyc1.devpost.com/
+2026-06-28 10:34:47.776 | WARNING  | __main__:analyze_hackathon:31 - ⚠️ Увага: Цей хакатон має жорсткі обмеження (Invite Only або Students Only)!
+2026-06-28 10:34:47.777 | INFO     | src.analyzer.idea_generator:generate_winning_ideas:12 - AI-генерація ідей для хакатону: Healthcare x AI Hackathon | HAIG Media
+2026-06-28 10:34:47.777 | INFO     | src.analyzer.ai_client:generate_json_with_failover:28 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-06-28 10:35:06.250 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'MediSimplify AI': 0.1221
+2026-06-28 10:35:06.251 | INFO     | src.analyzer.scorer:score_idea:63 - Оцінка ідеї 'MediSimplify AI': ML_prob=0.122, Semantic_bonus=0.15 -> Final=0.182
+2026-06-28 10:35:06.394 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'HealthTrend AI': 0.1221
+2026-06-28 10:35:06.395 | INFO     | src.analyzer.scorer:score_idea:63 - Оцінка ідеї 'HealthTrend AI': ML_prob=0.122, Semantic_bonus=0.15 -> Final=0.182
+2026-06-28 10:35:06.552 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'CareCompanion AI': 0.1221
+2026-06-28 10:35:06.553 | INFO     | src.analyzer.scorer:score_idea:63 - Оцінка ідеї 'CareCompanion AI': ML_prob=0.122, Semantic_bonus=0.15 -> Final=0.182
+2026-06-28 10:35:06.630 | INFO     | __main__:analyze_hackathon:87 - ✅ Результати аналізу успішно збережено в БД. Prediction ID: 7472e71f-58e6-42fa-8db9-3cdde5441d5b
+2026-06-28 10:36:57.386 | INFO     | __main__:generate_and_save_techspec:18 - Запуск генерації ТЗ для передбачення 7472e71f-58e6-42fa-8db9-3cdde5441d5b (Ідея #1)
+2026-06-28 10:36:57.956 | INFO     | __main__:generate_and_save_techspec:47 - Кеш не знайдено. Звернення до AI-генератора ТЗ...
+2026-06-28 10:36:57.956 | INFO     | src.analyzer.techspec_generator:generate_techspec:13 - AI-генерація детального ТЗ для ідеї: MediSimplify AI
+2026-06-28 10:36:57.957 | INFO     | src.analyzer.ai_client:generate_json_with_failover:28 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-06-28 10:37:28.340 | INFO     | __main__:generate_and_save_techspec:60 - ТЗ успішно збережено в базі даних.
+2026-06-28 11:13:27.168 | INFO     | src.analyzer.pipeline:analyze_hackathon:22 - 🚀 Запуск повного AI-аналізу для хакатону: https://haignyc1.devpost.com/
+2026-06-28 11:13:27.169 | INFO     | src.analyzer.hackathon_parser:parse_hackathon_from_url:115 - Завантаження хакатону: https://haignyc1.devpost.com/
+2026-06-28 11:13:28.695 | WARNING  | src.analyzer.pipeline:analyze_hackathon:31 - ⚠️ Увага: Цей хакатон має жорсткі обмеження (Invite Only або Students Only)!
+2026-06-28 11:13:30.481 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'MediSimplify AI': 0.1221
+2026-06-28 11:13:30.483 | INFO     | src.analyzer.scorer:score_idea:63 - Оцінка ідеї 'MediSimplify AI': ML_prob=0.122, Semantic_bonus=0.15 -> Final=0.182
+2026-06-28 11:13:30.621 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'HealthTrend AI': 0.1221
+2026-06-28 11:13:30.622 | INFO     | src.analyzer.scorer:score_idea:63 - Оцінка ідеї 'HealthTrend AI': ML_prob=0.122, Semantic_bonus=0.15 -> Final=0.182
+2026-06-28 11:13:30.745 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'CareCompanion AI': 0.1221
+2026-06-28 11:13:30.746 | INFO     | src.analyzer.scorer:score_idea:63 - Оцінка ідеї 'CareCompanion AI': ML_prob=0.122, Semantic_bonus=0.15 -> Final=0.182
+2026-06-28 11:13:30.813 | INFO     | src.analyzer.pipeline:analyze_hackathon:87 - ✅ Результати аналізу успішно збережено в БД. Prediction ID: 6d0923c0-40fb-4f9b-b3ed-7baa7956c299
