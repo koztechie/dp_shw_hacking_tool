@@ -2,8 +2,9 @@ import sys
 from pathlib import Path
 import pandas as pd
 import numpy as np
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.decomposition import TruncatedSVD
 
-# Гарантуємо правильні шляхи імпорту
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
@@ -13,74 +14,66 @@ from src.logger import logger
 
 def run_batch_feature_extraction():
     con = get_connection()
-    
     try:
-        # Зчитуємо хакатони та безпечно перетворюємо Pandas NaN на None
-        hackathons_df = con.execute("SELECT * FROM hackathons").fetchdf()
-        hackathons_df = hackathons_df.replace({np.nan: None})
-        
-        logger.info(f"Починаємо генерацію ознак для {len(hackathons_df)} хакатонів...")
+        hackathons_df = con.execute("SELECT * FROM hackathons").fetchdf().replace({np.nan: None})
+        logger.info(f"Починаємо генерацію розширених ознак для {len(hackathons_df)} хакатонів...")
 
         for _, h in hackathons_df.iterrows():
             h_dict = h.to_dict()
-            h_id = h_dict.get("id")
-            
-            projects_df = con.execute(
-                "SELECT * FROM projects WHERE hackathon_id = ?", [h_id]
-            ).fetchdf()
+            projects_df = con.execute("SELECT * FROM projects WHERE hackathon_id = ?", [h_dict["id"]]).fetchdf()
 
             if projects_df.empty:
                 continue
 
-            # Захист від NaN у текстових полях
             projects_df = projects_df.replace({np.nan: None})
-            
-            # Підготовка описів для TF-IDF (Novelty Score)
             descriptions = [str(d) if d else "" for d in projects_df["description"].tolist()]
+            
             novelty_scores = compute_novelty_scores(descriptions)
+
+            # --- АНТИКРИХКІ ЕМБЕДДИНГИ (LSA замість BERT) ---
+            semantic_features = [[0.0, 0.0, 0.0] for _ in range(len(descriptions))]
+            if len(descriptions) > 3:
+                try:
+                    vec = TfidfVectorizer(max_features=300, stop_words="english")
+                    tfidf_matrix = vec.fit_transform(descriptions)
+                    # Стискаємо текст у 3 числові координати
+                    svd = TruncatedSVD(n_components=3, random_state=42)
+                    semantic_features = svd.fit_transform(tfidf_matrix).tolist()
+                except Exception:
+                    pass
 
             try:
                 con.execute("BEGIN")
+                total_projects = len(projects_df)
                 
                 for i, (_, p) in enumerate(projects_df.iterrows()):
                     p_dict = p.to_dict()
+                    f = extract_features(p_dict, h_dict, total_projects)
                     
-                    # Витягуємо ознаки за допомогою нашого стійкого екстрактора
-                    features = extract_features(p_dict, h_dict)
-                    
-                    # Формуємо безпечний запит із явним вказанням стовпців
                     con.execute("""
                         INSERT OR REPLACE INTO features (
                             project_id, uses_sponsor_tech, tech_count, has_social_angle,
                             description_length, novelty_score, has_github, readme_length,
-                            commit_count_48h, final_score, sponsor_challenge_match
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            commit_count_48h, final_score, sponsor_challenge_match,
+                            has_video_demo, competition_density, prize_numeric,
+                            semantic_pca_1, semantic_pca_2, semantic_pca_3, github_stars
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """, [
-                        p_dict["id"],
-                        features.get("uses_sponsor_tech", False),
-                        features.get("tech_count", 0),
-                        features.get("has_social_angle", False),
-                        features.get("description_length", 0),
-                        novelty_scores[i],
-                        features.get("has_github", False),
-                        features.get("readme_length", 0),
-                        features.get("commit_count_48h", 0),
-                        None,  # final_score (буде розраховано моделлю)
-                        features.get("sponsor_challenge_match", False)
+                        p_dict["id"], f["uses_sponsor_tech"], f["tech_count"], f["has_social_angle"],
+                        f["description_length"], novelty_scores[i], f["has_github"], f["readme_length"],
+                        f["commit_count_48h"], None, f["sponsor_challenge_match"],
+                        f["has_video_demo"], f["competition_density"], f["prize_numeric"],
+                        float(semantic_features[i][0]), float(semantic_features[i][1]), float(semantic_features[i][2]),
+                        f["github_stars"]
                     ])
-
                 con.commit()
-                logger.info(f"✅ Ознаки збережено для хакатону: {h_dict.get('title')} ({len(projects_df)} проектів)")
-                
             except Exception as e:
                 con.execute("ROLLBACK")
-                logger.error(f"❌ Помилка обробки хакатону {h_dict.get('title')}: {e}")
+                logger.error(f"❌ Помилка обробки хакатону: {e}")
 
-    except Exception as e:
-        logger.error(f"Критична помилка пакетної генерації: {e}")
     finally:
         con.close()
-        logger.info("Процедуру генерації ознак завершено.")
+        logger.info("Генерацію розширених ознак завершено.")
 
 if __name__ == "__main__":
     run_batch_feature_extraction()

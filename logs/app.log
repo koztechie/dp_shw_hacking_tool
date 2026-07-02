@@ -12445,3 +12445,1026 @@ ZeroDivisionError: division by zero
 2026-06-28 20:11:20.244 | INFO     | __main__:trigger_auto_evolution_check:103 - 📡 Надіслано звіт про еволюцію моделі в Sentry!
 2026-06-28 22:05:43.810 | INFO     | __main__:<module>:313 - Запуск локального сервера FastAPI...
 2026-06-28 22:12:06.280 | INFO     | __main__:<module>:313 - Запуск локального сервера FastAPI...
+2026-06-28 23:18:37.392 | INFO     | __main__:<module>:313 - Запуск локального сервера FastAPI...
+2026-06-28 23:47:48.942 | INFO     | __main__:run_batch_feature_extraction:19 - Починаємо генерацію розширених ознак для 142 хакатонів...
+2026-06-28 23:48:56.393 | INFO     | __main__:run_batch_feature_extraction:76 - Генерацію розширених ознак завершено.
+2026-06-28 23:52:06.919 | INFO     | __main__:train_xgboost:17 - Початок підготовки даних для XGBoost...
+2026-06-28 23:52:06.920 | INFO     | src.ml.prepare_dataset:prepare_dataset:15 - Зчитування розширених ознак для тренувального датасету...
+2026-06-28 23:52:07.129 | INFO     | __main__:train_xgboost:25 - Обчислено коефіцієнт дисбалансу класів (Neg/Pos): 25.69
+2026-06-28 23:52:07.129 | INFO     | __main__:train_xgboost:38 - Тренування моделі XGBoost...
+2026-06-28 23:52:08.165 | INFO     | __main__:train_xgboost:40 - Тренування XGBoost завершено. Оцінюємо якість...
+2026-06-28 23:52:08.581 | WARNING  | __main__:train_xgboost:79 - Не вдалося порівняти з Random Forest: The feature names should match those that were passed during fit.
+Feature names unseen at fit time:
+- competition_density
+- github_stars
+- has_video_demo
+- prize_numeric
+- semantic_pca_1
+- ...
+
+2026-06-28 23:57:25.713 | INFO     | __main__:train_xgboost:18 - Початок підготовки даних для XGBoost...
+2026-06-28 23:57:25.714 | INFO     | src.ml.prepare_dataset:prepare_dataset:15 - Зчитування розширених ознак для тренувального датасету...
+2026-06-28 23:57:25.845 | INFO     | __main__:train_xgboost:26 - Обчислено коефіцієнт дисбалансу класів (Neg/Pos): 25.69
+2026-06-28 23:57:25.846 | INFO     | __main__:train_xgboost:39 - Тренування моделі XGBoost...
+2026-06-28 23:57:26.433 | INFO     | __main__:train_xgboost:41 - Тренування XGBoost завершено. Оцінюємо якість...
+2026-06-28 23:57:26.629 | WARNING  | __main__:train_xgboost:80 - ⚠️ Збережена модель Random Forest має застарілий набір ознак. Перенавчаємо її...
+2026-06-28 23:57:26.633 | INFO     | __main__:train_xgboost:88 - 🧠 Автоматичне перенавчання Random Forest на нових ознаках...
+2026-06-28 23:57:27.993 | INFO     | __main__:train_xgboost:101 - ✅ Оновлену модель Random Forest успішно збережено.
+2026-06-30 08:29:20.498 | INFO     | __main__:train_ensemble:21 - Початок підготовки даних для Ансамблю (Stacking)...
+2026-06-30 08:29:20.499 | INFO     | src.ml.prepare_dataset:prepare_dataset:15 - Зчитування розширених ознак для тренувального датасету...
+2026-06-30 08:29:20.719 | INFO     | __main__:train_ensemble:62 - 🚀 Тренування ансамблю моделей (це займе 20-40 секунд на AMD A4)...
+2026-06-30 08:29:30.697 | INFO     | __main__:train_ensemble:66 - Тренування завершено! Оцінюємо якість на небачених даних...
+2026-06-30 08:29:31.032 | INFO     | __main__:train_ensemble:91 - ✅ Ансамблеву модель успішно збережено як головну (best_model.pkl).
+2026-06-30 08:38:21.919 | INFO     | __main__:train_ensemble:21 - Початок підготовки даних для Ансамблю (Stacking)...
+2026-06-30 08:38:21.920 | INFO     | src.ml.prepare_dataset:prepare_dataset:15 - Зчитування розширених ознак для тренувального датасету...
+2026-06-30 08:38:22.034 | INFO     | __main__:train_ensemble:59 - 🚀 Тренування ансамблю моделей...
+2026-06-30 08:38:31.663 | INFO     | __main__:train_ensemble:61 - Тренування завершено! Оцінюємо якість...
+2026-06-30 08:40:04.349 | INFO     | __main__:train_xgboost:18 - Початок підготовки даних для XGBoost...
+2026-06-30 08:40:04.350 | INFO     | src.ml.prepare_dataset:prepare_dataset:15 - Зчитування розширених ознак для тренувального датасету...
+2026-06-30 08:40:04.487 | INFO     | __main__:train_xgboost:26 - Обчислено коефіцієнт дисбалансу класів (Neg/Pos): 25.69
+2026-06-30 08:40:04.488 | INFO     | __main__:train_xgboost:39 - Тренування моделі XGBoost...
+2026-06-30 08:40:06.618 | INFO     | __main__:train_xgboost:41 - Тренування XGBoost завершено. Оцінюємо якість...
+2026-06-30 08:43:57.738 | INFO     | __main__:train_xgboost:20 - Початок підготовки даних для XGBoost (Advanced Imbalance Handling)...
+2026-06-30 08:43:57.740 | INFO     | src.ml.prepare_dataset:prepare_dataset:15 - Зчитування розширених ознак для тренувального датасету...
+2026-06-30 08:43:57.874 | INFO     | __main__:train_xgboost:23 - Оригінальний баланс класів (Train): Counter({0: 3802, 1: 148})
+2026-06-30 08:43:57.874 | INFO     | __main__:train_xgboost:27 - Генерація синтетичних даних (SMOTETomek)... Це може зайняти ~10-20 секунд.
+2026-06-30 08:43:58.490 | INFO     | __main__:train_xgboost:31 - Новий баланс класів після SMOTETomek: Counter({0: 3582, 1: 3582})
+2026-06-30 08:43:58.494 | INFO     | __main__:train_xgboost:49 - Тренування моделі XGBoost...
+2026-06-30 08:43:59.238 | INFO     | __main__:train_xgboost:51 - Тренування завершено. Оцінюємо якість...
+2026-06-30 08:43:59.294 | INFO     | __main__:train_xgboost:71 - Оптимальний поріг класифікації: 0.2326 (F1: 0.1400)
+2026-06-30 08:43:59.412 | INFO     | __main__:train_xgboost:95 - ✅ Найдосконалішу модель успішно збережено.
+2026-06-30 08:48:31.227 | WARNING  | __main__:detect_drift:56 - 🚨 Виявлено Data Drift у фічах: ['description_length', 'tech_count', 'novelty_score', 'likes']. Потрібне перенавчання!
+2026-06-30 08:48:52.616 | INFO     | __main__:train_xgboost:20 - Початок підготовки даних для XGBoost (Advanced Imbalance Handling)...
+2026-06-30 08:48:52.616 | INFO     | src.ml.prepare_dataset:prepare_dataset:14 - Зчитування даних для Temporal Validation (Out-of-Time Split)...
+2026-06-30 08:48:52.701 | INFO     | __main__:train_xgboost:23 - Оригінальний баланс класів (Train): Counter({0: 3782, 1: 168})
+2026-06-30 08:48:52.702 | INFO     | __main__:train_xgboost:27 - Генерація синтетичних даних (SMOTETomek)... Це може зайняти ~10-20 секунд.
+2026-06-30 08:48:53.332 | INFO     | __main__:train_xgboost:31 - Новий баланс класів після SMOTETomek: Counter({0: 3553, 1: 3553})
+2026-06-30 08:48:53.333 | INFO     | __main__:train_xgboost:49 - Тренування моделі XGBoost...
+2026-06-30 08:48:53.968 | INFO     | __main__:train_xgboost:51 - Тренування завершено. Оцінюємо якість...
+2026-06-30 08:48:54.006 | INFO     | __main__:train_xgboost:71 - Оптимальний поріг класифікації: 0.0981 (F1: 0.0362)
+2026-06-30 08:48:54.086 | INFO     | __main__:train_xgboost:95 - ✅ Найдосконалішу модель успішно збережено.
+2026-06-30 08:53:17.666 | INFO     | __main__:get_organizer_patterns:19 - OSINT-аналіз для 'Cal Hacks'...
+2026-06-30 09:01:27.107 | INFO     | __main__:<module>:303 - Запуск локального сервера FastAPI...
+2026-06-30 09:03:03.196 | ERROR    | src.api.main:analyze_url:98 - Помилка в ендпоінті /analyze/url: invalid syntax. Perhaps you forgot a comma? (ai_client.py, line 36)
+Traceback (most recent call last):
+
+  File "<string>", line 1, in <module>
+  File "/usr/lib/python3.14/multiprocessing/spawn.py", line 122, in spawn_main
+    exitcode = _main(fd, parent_sentinel)
+               │     │   └ 3
+               │     └ 9
+               └ <function _main at 0x74362257b740>
+  File "/usr/lib/python3.14/multiprocessing/spawn.py", line 135, in _main
+    return self._bootstrap(parent_sentinel)
+           │    │          └ 3
+           │    └ <function BaseProcess._bootstrap at 0x7436226238a0>
+           └ <SpawnProcess name='SpawnProcess-1' parent=8318 started>
+  File "/usr/lib/python3.14/multiprocessing/process.py", line 320, in _bootstrap
+    self.run()
+    │    └ <function BaseProcess.run at 0x743622622c40>
+    └ <SpawnProcess name='SpawnProcess-1' parent=8318 started>
+  File "/usr/lib/python3.14/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+    │    │        │    │        │    └ {'config': <uvicorn.config.Config object at 0x743622515fd0>, 'target': <bound method Server.run of <uvicorn.server.Server obj...
+    │    │        │    │        └ <SpawnProcess name='SpawnProcess-1' parent=8318 started>
+    │    │        │    └ ()
+    │    │        └ <SpawnProcess name='SpawnProcess-1' parent=8318 started>
+    │    └ <function subprocess_started at 0x74360fd78930>
+    └ <SpawnProcess name='SpawnProcess-1' parent=8318 started>
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/uvicorn/_subprocess.py", line 80, in subprocess_started
+    target(sockets=sockets)
+    │              └ [<socket.socket fd=5, family=2, type=1, proto=0, laddr=('127.0.0.1', 8000)>]
+    └ <bound method Server.run of <uvicorn.server.Server object at 0x743600dd7a10>>
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/uvicorn/server.py", line 75, in run
+    return asyncio_run(self.serve(sockets=sockets), loop_factory=self.config.get_loop_factory())
+           │           │    │             │                      │    │      └ <function Config.get_loop_factory at 0x74360fd3b690>
+           │           │    │             │                      │    └ <uvicorn.config.Config object at 0x743622515fd0>
+           │           │    │             │                      └ <uvicorn.server.Server object at 0x743600dd7a10>
+           │           │    │             └ [<socket.socket fd=5, family=2, type=1, proto=0, laddr=('127.0.0.1', 8000)>]
+           │           │    └ <function Server.serve at 0x74360fd503b0>
+           │           └ <uvicorn.server.Server object at 0x743600dd7a10>
+           └ <function run at 0x74360ff68bf0>
+  File "/usr/lib/python3.14/asyncio/runners.py", line 204, in run
+    return runner.run(main)
+           │      │   └ <coroutine object Server.serve at 0x743600cdc9a0>
+           │      └ <function Runner.run at 0x74360ff69010>
+           └ <asyncio.runners.Runner object at 0x743600d18440>
+  File "/usr/lib/python3.14/asyncio/runners.py", line 127, in run
+    return self._loop.run_until_complete(task)
+           │    │     │                  └ <Task pending name='Task-1' coro=<Server.serve() running at /home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-...
+           │    │     └ <function BaseEventLoop.run_until_complete at 0x74360ff59430>
+           │    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+           └ <asyncio.runners.Runner object at 0x743600d18440>
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 706, in run_until_complete
+    self.run_forever()
+    │    └ <function BaseEventLoop.run_forever at 0x74360ff59380>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 677, in run_forever
+    self._run_once()
+    │    └ <function BaseEventLoop._run_once at 0x74360ff5b480>
+    └ <_UnixSelectorEventLoop running=True closed=False debug=False>
+  File "/usr/lib/python3.14/asyncio/base_events.py", line 2057, in _run_once
+    handle._run()
+    │      └ <function Handle._run at 0x7436140b3740>
+    └ <Handle <_asyncio.TaskStepMethWrapper object at 0x7436002c66e0>()>
+  File "/usr/lib/python3.14/asyncio/events.py", line 94, in _run
+    self._context.run(self._callback, *self._args)
+    │    │            │    │           │    └ <member '_args' of 'Handle' objects>
+    │    │            │    │           └ <Handle <_asyncio.TaskStepMethWrapper object at 0x7436002c66e0>()>
+    │    │            │    └ <member '_callback' of 'Handle' objects>
+    │    │            └ <Handle <_asyncio.TaskStepMethWrapper object at 0x7436002c66e0>()>
+    │    └ <member '_context' of 'Handle' objects>
+    └ <Handle <_asyncio.TaskStepMethWrapper object at 0x7436002c66e0>()>
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/uvicorn/protocols/http/h11_impl.py", line 415, in run_asgi
+    result = await app(  # type: ignore[func-returns-value]
+                   └ <uvicorn.middleware.proxy_headers.ProxyHeadersMiddleware object at 0x743600d1a270>
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/uvicorn/middleware/proxy_headers.py", line 62, in __call__
+    return await self.app(scope, receive, send)
+                 │    │   │      │        └ <bound method RequestResponseCycle.send of <uvicorn.protocols.http.h11_impl.RequestResponseCycle object at 0x743600d229e0>>
+                 │    │   │      └ <bound method RequestResponseCycle.receive of <uvicorn.protocols.http.h11_impl.RequestResponseCycle object at 0x743600d229e0>>
+                 │    │   └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('127.0.0.1', 8000), 'cl...
+                 │    └ <fastapi.applications.FastAPI object at 0x743600d19fd0>
+                 └ <uvicorn.middleware.proxy_headers.ProxyHeadersMiddleware object at 0x743600d1a270>
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/fastapi/applications.py", line 1163, in __call__
+    await super().__call__(scope, receive, send)
+                           │      │        └ <bound method RequestResponseCycle.send of <uvicorn.protocols.http.h11_impl.RequestResponseCycle object at 0x743600d229e0>>
+                           │      └ <bound method RequestResponseCycle.receive of <uvicorn.protocols.http.h11_impl.RequestResponseCycle object at 0x743600d229e0>>
+                           └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('127.0.0.1', 8000), 'cl...
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/sentry_sdk/integrations/starlette.py", line 456, in _sentry_patched_asgi_app
+    return await middleware(scope, receive, send)
+                 │          │      │        └ <bound method RequestResponseCycle.send of <uvicorn.protocols.http.h11_impl.RequestResponseCycle object at 0x743600d229e0>>
+                 │          │      └ <bound method RequestResponseCycle.receive of <uvicorn.protocols.http.h11_impl.RequestResponseCycle object at 0x743600d229e0>>
+                 │          └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('127.0.0.1', 8000), 'cl...
+                 └ <sentry_sdk.integrations.asgi.SentryAsgiMiddleware object at 0x743600fc2d90>
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/sentry_sdk/integrations/asgi.py", line 188, in _run_asgi3
+    return await self._run_app(scope, receive, send, asgi_version=3)
+                 │    │        │      │        └ <bound method RequestResponseCycle.send of <uvicorn.protocols.http.h11_impl.RequestResponseCycle object at 0x743600d229e0>>
+                 │    │        │      └ <bound method RequestResponseCycle.receive of <uvicorn.protocols.http.h11_impl.RequestResponseCycle object at 0x743600d229e0>>
+                 │    │        └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('127.0.0.1', 8000), 'cl...
+                 │    └ <function SentryAsgiMiddleware._run_app at 0x74360f8cb530>
+                 └ <sentry_sdk.integrations.asgi.SentryAsgiMiddleware object at 0x743600fc2d90>
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/sentry_sdk/integrations/asgi.py", line 357, in _run_app
+    return await self.app(
+                 │    └ <member 'app' of 'SentryAsgiMiddleware' objects>
+                 └ <sentry_sdk.integrations.asgi.SentryAsgiMiddleware object at 0x743600fc2d90>
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/starlette/applications.py", line 90, in __call__
+    await self.middleware_stack(scope, receive, send)
+          │    │                │      │        └ <function SentryAsgiMiddleware._run_app.<locals>._sentry_wrapped_send at 0x743600bbbb60>
+          │    │                │      └ <bound method RequestResponseCycle.receive of <uvicorn.protocols.http.h11_impl.RequestResponseCycle object at 0x743600d229e0>>
+          │    │                └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('127.0.0.1', 8000), 'cl...
+          │    └ <starlette.middleware.errors.ServerErrorMiddleware object at 0x743600d1acf0>
+          └ <fastapi.applications.FastAPI object at 0x743600d19fd0>
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/sentry_sdk/integrations/starlette.py", line 178, in _create_span_call
+    return await old_call(app, scope, receive, send, **kwargs)
+                 │        │    │      │        │       └ {}
+                 │        │    │      │        └ <function SentryAsgiMiddleware._run_app.<locals>._sentry_wrapped_send at 0x743600bbbb60>
+                 │        │    │      └ <bound method RequestResponseCycle.receive of <uvicorn.protocols.http.h11_impl.RequestResponseCycle object at 0x743600d229e0>>
+                 │        │    └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('127.0.0.1', 8000), 'cl...
+                 │        └ <starlette.middleware.errors.ServerErrorMiddleware object at 0x743600d1acf0>
+                 └ <function ServerErrorMiddleware.__call__ at 0x7436142e40f0>
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/starlette/middleware/errors.py", line 164, in __call__
+    await self.app(scope, receive, _send)
+          │    │   │      │        └ <function ServerErrorMiddleware.__call__.<locals>._send at 0x743600bbb1c0>
+          │    │   │      └ <bound method RequestResponseCycle.receive of <uvicorn.protocols.http.h11_impl.RequestResponseCycle object at 0x743600d229e0>>
+          │    │   └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('127.0.0.1', 8000), 'cl...
+          │    └ <starlette.middleware.exceptions.ExceptionMiddleware object at 0x743600d1aba0>
+          └ <starlette.middleware.errors.ServerErrorMiddleware object at 0x743600d1acf0>
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/sentry_sdk/integrations/starlette.py", line 343, in _sentry_exceptionmiddleware_call
+    await old_call(self, scope, receive, send)
+          │        │     │      │        └ <function ServerErrorMiddleware.__call__.<locals>._send at 0x743600bbb1c0>
+          │        │     │      └ <bound method RequestResponseCycle.receive of <uvicorn.protocols.http.h11_impl.RequestResponseCycle object at 0x743600d229e0>>
+          │        │     └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('127.0.0.1', 8000), 'cl...
+          │        └ <starlette.middleware.exceptions.ExceptionMiddleware object at 0x743600d1aba0>
+          └ <function _enable_span_for_middleware.<locals>._create_span_call at 0x743600bba140>
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/sentry_sdk/integrations/starlette.py", line 178, in _create_span_call
+    return await old_call(app, scope, receive, send, **kwargs)
+                 │        │    │      │        │       └ {}
+                 │        │    │      │        └ <function ServerErrorMiddleware.__call__.<locals>._send at 0x743600bbb1c0>
+                 │        │    │      └ <bound method RequestResponseCycle.receive of <uvicorn.protocols.http.h11_impl.RequestResponseCycle object at 0x743600d229e0>>
+                 │        │    └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('127.0.0.1', 8000), 'cl...
+                 │        └ <starlette.middleware.exceptions.ExceptionMiddleware object at 0x743600d1aba0>
+                 └ <function ExceptionMiddleware.__call__ at 0x7436142e4e00>
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/starlette/middleware/exceptions.py", line 63, in __call__
+    await wrap_app_handling_exceptions(self.app, conn)(scope, receive, send)
+          │                            │    │    │     │      │        └ <function ServerErrorMiddleware.__call__.<locals>._send at 0x743600bbb1c0>
+          │                            │    │    │     │      └ <bound method RequestResponseCycle.receive of <uvicorn.protocols.http.h11_impl.RequestResponseCycle object at 0x743600d229e0>>
+          │                            │    │    │     └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('127.0.0.1', 8000), 'cl...
+          │                            │    │    └ <starlette.requests.Request object at 0x743600d23bb0>
+          │                            │    └ <fastapi.middleware.asyncexitstack.AsyncExitStackMiddleware object at 0x743600d1aa50>
+          │                            └ <starlette.middleware.exceptions.ExceptionMiddleware object at 0x743600d1aba0>
+          └ <function wrap_app_handling_exceptions at 0x74361420a6c0>
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+          │   │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x743600bd0300>
+          │   │      └ <bound method RequestResponseCycle.receive of <uvicorn.protocols.http.h11_impl.RequestResponseCycle object at 0x743600d229e0>>
+          │   └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('127.0.0.1', 8000), 'cl...
+          └ <fastapi.middleware.asyncexitstack.AsyncExitStackMiddleware object at 0x743600d1aa50>
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/sentry_sdk/integrations/starlette.py", line 178, in _create_span_call
+    return await old_call(app, scope, receive, send, **kwargs)
+                 │        │    │      │        │       └ {}
+                 │        │    │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x743600bd0300>
+                 │        │    │      └ <bound method RequestResponseCycle.receive of <uvicorn.protocols.http.h11_impl.RequestResponseCycle object at 0x743600d229e0>>
+                 │        │    └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('127.0.0.1', 8000), 'cl...
+                 │        └ <fastapi.middleware.asyncexitstack.AsyncExitStackMiddleware object at 0x743600d1aa50>
+                 └ <function AsyncExitStackMiddleware.__call__ at 0x743614281c70>
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/fastapi/middleware/asyncexitstack.py", line 18, in __call__
+    await self.app(scope, receive, send)
+          │    │   │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x743600bd0300>
+          │    │   │      └ <bound method RequestResponseCycle.receive of <uvicorn.protocols.http.h11_impl.RequestResponseCycle object at 0x743600d229e0>>
+          │    │   └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('127.0.0.1', 8000), 'cl...
+          │    └ <fastapi.routing.APIRouter object at 0x743600d21940>
+          └ <fastapi.middleware.asyncexitstack.AsyncExitStackMiddleware object at 0x743600d1aa50>
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/starlette/routing.py", line 660, in __call__
+    await self.middleware_stack(scope, receive, send)
+          │    │                │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x743600bd0300>
+          │    │                │      └ <bound method RequestResponseCycle.receive of <uvicorn.protocols.http.h11_impl.RequestResponseCycle object at 0x743600d229e0>>
+          │    │                └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('127.0.0.1', 8000), 'cl...
+          │    └ <bound method APIRouter.app of <fastapi.routing.APIRouter object at 0x743600d21940>>
+          └ <fastapi.routing.APIRouter object at 0x743600d21940>
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/fastapi/routing.py", line 2531, in app
+    await route.handle(scope, receive, send)
+          │     │      │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x743600bd0300>
+          │     │      │      └ <bound method RequestResponseCycle.receive of <uvicorn.protocols.http.h11_impl.RequestResponseCycle object at 0x743600d229e0>>
+          │     │      └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('127.0.0.1', 8000), 'cl...
+          │     └ <function APIRoute.handle at 0x743614250510>
+          └ APIRoute(path='/analyze/url', name='analyze_url', methods=['POST'])
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/fastapi/routing.py", line 1241, in handle
+    await super().handle(scope, receive, send)
+                         │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x743600bd0300>
+                         │      └ <bound method RequestResponseCycle.receive of <uvicorn.protocols.http.h11_impl.RequestResponseCycle object at 0x743600d229e0>>
+                         └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('127.0.0.1', 8000), 'cl...
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/starlette/routing.py", line 276, in handle
+    await self.app(scope, receive, send)
+          │    │   │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x743600bd0300>
+          │    │   │      └ <bound method RequestResponseCycle.receive of <uvicorn.protocols.http.h11_impl.RequestResponseCycle object at 0x743600d229e0>>
+          │    │   └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('127.0.0.1', 8000), 'cl...
+          │    └ <function request_response.<locals>.app at 0x743600d92cf0>
+          └ APIRoute(path='/analyze/url', name='analyze_url', methods=['POST'])
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/fastapi/routing.py", line 150, in app
+    await wrap_app_handling_exceptions(app, request)(scope, receive, send)
+          │                            │    │        │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x743600bd0300>
+          │                            │    │        │      └ <bound method RequestResponseCycle.receive of <uvicorn.protocols.http.h11_impl.RequestResponseCycle object at 0x743600d229e0>>
+          │                            │    │        └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('127.0.0.1', 8000), 'cl...
+          │                            │    └ <starlette.requests.Request object at 0x743600d16e70>
+          │                            └ <function request_response.<locals>.app.<locals>.app at 0x743600bd0f60>
+          └ <function wrap_app_handling_exceptions at 0x74361420a6c0>
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/starlette/_exception_handler.py", line 42, in wrapped_app
+    await app(scope, receive, sender)
+          │   │      │        └ <function wrap_app_handling_exceptions.<locals>.wrapped_app.<locals>.sender at 0x743600c80720>
+          │   │      └ <bound method RequestResponseCycle.receive of <uvicorn.protocols.http.h11_impl.RequestResponseCycle object at 0x743600d229e0>>
+          │   └ {'type': 'http', 'asgi': {'version': '3.0', 'spec_version': '2.3'}, 'http_version': '1.1', 'server': ('127.0.0.1', 8000), 'cl...
+          └ <function request_response.<locals>.app.<locals>.app at 0x743600bd0f60>
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/fastapi/routing.py", line 136, in app
+    response = await f(request)
+                     │ └ <starlette.requests.Request object at 0x743600d16e70>
+                     └ <function patch_get_request_handler.<locals>._sentry_get_request_handler.<locals>._sentry_app at 0x743600d92ae0>
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/sentry_sdk/integrations/fastapi.py", line 197, in _sentry_app
+    return await _wrap_async_handler(old_app, *args, **kwargs)
+                 │                   │         │       └ {}
+                 │                   │         └ (<starlette.requests.Request object at 0x743600d16e70>,)
+                 │                   └ <function get_request_handler.<locals>.app at 0x743600d92980>
+                 └ <function _wrap_async_handler at 0x74360f8f7530>
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/sentry_sdk/integrations/fastapi.py", line 137, in _wrap_async_handler
+    return await handler(*args, **kwargs)
+                 │        │       └ {}
+                 │        └ (<starlette.requests.Request object at 0x743600d16e70>,)
+                 └ <function get_request_handler.<locals>.app at 0x743600d92980>
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/fastapi/routing.py", line 690, in app
+    raw_response = await run_endpoint_function(
+                         └ <function run_endpoint_function at 0x743614246da0>
+  File "/home/koztechie/dev/dp_shw_hacking_tool/venv/lib/python3.14/site-packages/fastapi/routing.py", line 344, in run_endpoint_function
+    return await dependant.call(**values)
+                 │         │      └ {'url': 'https://xprize.devpost.com/'}
+                 │         └ <function analyze_url at 0x743600d928d0>
+                 └ Dependant(path_params=[], query_params=[], header_params=[], cookie_params=[], body_params=[ModelField(field_info=Form(Pydant...
+
+> File "/home/koztechie/dev/dp_shw_hacking_tool/src/api/main.py", line 92, in analyze_url
+    from src.analyzer.pipeline import analyze_hackathon
+
+  File "/home/koztechie/dev/dp_shw_hacking_tool/src/analyzer/pipeline.py", line 11, in <module>
+    from src.analyzer.rules_extractor import fetch_and_clean_rules, extract_hard_constraints_with_ai
+
+  File "/home/koztechie/dev/dp_shw_hacking_tool/src/analyzer/rules_extractor.py", line 11, in <module>
+    from src.analyzer.ai_client import generate_json_with_failover
+
+  File "/home/koztechie/dev/dp_shw_hacking_tool/src/analyzer/ai_client.py", line 36
+    contents_list = [types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg"), prompt] if image_bytes else prompt
+                                                                                                                  ^^^^^^
+
+SyntaxError: invalid syntax. Perhaps you forgot a comma?
+2026-06-30 09:07:01.195 | INFO     | __main__:<module>:303 - Запуск локального сервера FastAPI...
+2026-06-30 09:07:16.353 | INFO     | src.analyzer.pipeline:analyze_hackathon:100 - 🚀 Запуск AI-аналізу для URL: https://xprize.devpost.com/
+2026-06-30 09:07:16.357 | INFO     | src.analyzer.hackathon_parser:parse_hackathon_from_url:115 - Завантаження хакатону: https://xprize.devpost.com/
+2026-06-30 09:07:17.795 | INFO     | src.analyzer.rules_extractor:fetch_and_clean_rules:16 - Завантаження правил хакатону: https://xprize.devpost.com/rules
+2026-06-30 09:07:18.773 | INFO     | src.analyzer.rules_extractor:extract_hard_constraints_with_ai:32 - AI-аналіз жорстких обмежень хакатону...
+2026-06-30 09:07:18.781 | INFO     | src.analyzer.ai_client:generate_json_with_failover:30 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-06-30 09:07:38.477 | INFO     | src.analyzer.gemini_analyzer:analyze_hackathon_with_gemini:12 - AI-аналіз профілю хакатону: 
+2026-06-30 09:07:38.487 | INFO     | src.analyzer.ai_client:generate_json_with_failover:30 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-06-30 09:07:46.927 | INFO     | src.analyzer.idea_generator:generate_winning_ideas:12 - AI-генерація ідей для хакатону: 
+2026-06-30 09:07:46.929 | INFO     | src.analyzer.ai_client:generate_json_with_failover:30 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-06-30 09:08:12.464 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'AutoPilot Marketing AI': 0.0212
+2026-06-30 09:08:12.467 | INFO     | src.analyzer.scorer:score_idea:75 - Оцінка ідеї 'AutoPilot Marketing AI': ML_prob=0.021, Semantic_bonus=0.15 -> Final=0.081
+2026-06-30 09:08:12.549 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'OmniLearn AI Tutor': 0.0224
+2026-06-30 09:08:12.551 | INFO     | src.analyzer.scorer:score_idea:75 - Оцінка ідеї 'OmniLearn AI Tutor': ML_prob=0.022, Semantic_bonus=0.15 -> Final=0.082
+2026-06-30 09:08:12.617 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Synapse AI Knowledge': 0.0212
+2026-06-30 09:08:12.618 | INFO     | src.analyzer.scorer:score_idea:75 - Оцінка ідеї 'Synapse AI Knowledge': ML_prob=0.021, Semantic_bonus=0.15 -> Final=0.081
+2026-06-30 09:08:12.750 | INFO     | src.analyzer.pipeline:_run_analysis_pipeline:83 - ✅ Результати аналізу успішно збережено в БД. Prediction ID: d22d3c6a-585d-43e6-a247-9e82446f9a6b
+2026-06-30 09:16:27.536 | INFO     | __main__:parse_hackathon_from_url:126 - Завантаження хакатону: https://xprize.devpost.com/
+2026-06-30 09:18:03.951 | INFO     | __main__:<module>:303 - Запуск локального сервера FastAPI...
+2026-06-30 09:18:23.699 | INFO     | src.analyzer.pipeline:analyze_hackathon:100 - 🚀 Запуск AI-аналізу для URL: https://easygo-mini-hackathon.devpost.com/
+2026-06-30 09:18:23.701 | INFO     | src.analyzer.hackathon_parser:parse_hackathon_from_url:126 - Завантаження хакатону: https://easygo-mini-hackathon.devpost.com/
+2026-06-30 09:18:24.887 | INFO     | src.analyzer.rules_extractor:fetch_and_clean_rules:16 - Завантаження правил хакатону: https://easygo-mini-hackathon.devpost.com/rules
+2026-06-30 09:18:25.711 | INFO     | src.analyzer.rules_extractor:extract_hard_constraints_with_ai:32 - AI-аналіз жорстких обмежень хакатону...
+2026-06-30 09:18:25.716 | INFO     | src.analyzer.ai_client:generate_json_with_failover:30 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-06-30 09:18:46.463 | INFO     | src.analyzer.pipeline:_run_analysis_pipeline:46 - 📸 Банер успішно завантажено для AI Vision аналізу.
+2026-06-30 09:18:46.466 | INFO     | src.analyzer.gemini_analyzer:analyze_hackathon_with_gemini:12 - AI-аналіз профілю хакатону: 
+2026-06-30 09:18:46.469 | INFO     | src.analyzer.ai_client:generate_json_with_failover:30 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-06-30 09:18:58.912 | INFO     | src.analyzer.idea_generator:generate_winning_ideas:12 - AI-генерація ідей для хакатону: 
+2026-06-30 09:18:58.913 | INFO     | src.analyzer.ai_client:generate_json_with_failover:30 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-06-30 09:19:24.954 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'KickPulse AI: Dynamic Streamer & Viewer Engagement': 0.0314
+2026-06-30 09:19:24.956 | INFO     | src.analyzer.scorer:score_idea:75 - Оцінка ідеї 'KickPulse AI: Dynamic Streamer & Viewer Engagement': ML_prob=0.031, Semantic_bonus=0.15 -> Final=0.091
+2026-06-30 09:19:25.056 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'KickQuest: Gamified Streamer Loyalty & Interactive Challenges': 0.0314
+2026-06-30 09:19:25.057 | INFO     | src.analyzer.scorer:score_idea:75 - Оцінка ідеї 'KickQuest: Gamified Streamer Loyalty & Interactive Challenges': ML_prob=0.031, Semantic_bonus=0.15 -> Final=0.091
+2026-06-30 09:19:25.145 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'KickOps Dashboard: Streamer Content & Infrastructure Management': 0.0314
+2026-06-30 09:19:25.146 | INFO     | src.analyzer.scorer:score_idea:75 - Оцінка ідеї 'KickOps Dashboard: Streamer Content & Infrastructure Management': ML_prob=0.031, Semantic_bonus=0.15 -> Final=0.091
+2026-06-30 09:19:25.283 | INFO     | src.analyzer.pipeline:_run_analysis_pipeline:83 - ✅ Результати аналізу успішно збережено в БД. Prediction ID: a344b2ff-92de-4cb5-8a8d-196605ff7bc1
+2026-06-30 09:20:04.493 | INFO     | src.analyzer.techspec_pipeline:generate_and_save_techspec:18 - Запуск генерації ТЗ для передбачення a344b2ff-92de-4cb5-8a8d-196605ff7bc1 (Ідея #1)
+2026-06-30 09:20:04.575 | INFO     | src.analyzer.techspec_pipeline:generate_and_save_techspec:47 - Кеш не знайдено. Звернення до AI-генератора ТЗ...
+2026-06-30 09:20:04.576 | INFO     | src.analyzer.techspec_generator:generate_techspec:13 - AI-генерація детального ТЗ для ідеї: KickPulse AI: Dynamic Streamer & Viewer Engagement
+2026-06-30 09:20:04.578 | INFO     | src.analyzer.ai_client:generate_json_with_failover:30 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-06-30 09:20:23.930 | INFO     | src.analyzer.techspec_pipeline:generate_and_save_techspec:60 - ТЗ успішно збережено в базі даних.
+2026-06-30 09:24:16.060 | INFO     | src.analyzer.pipeline:analyze_hackathon:100 - 🚀 Запуск AI-аналізу для URL: https://backblaze-generative-media.devpost.com/
+2026-06-30 09:24:16.062 | INFO     | src.analyzer.hackathon_parser:parse_hackathon_from_url:126 - Завантаження хакатону: https://backblaze-generative-media.devpost.com/
+2026-06-30 09:24:17.216 | INFO     | src.analyzer.rules_extractor:fetch_and_clean_rules:16 - Завантаження правил хакатону: https://backblaze-generative-media.devpost.com/rules
+2026-06-30 09:24:18.161 | INFO     | src.analyzer.rules_extractor:extract_hard_constraints_with_ai:32 - AI-аналіз жорстких обмежень хакатону...
+2026-06-30 09:24:18.163 | INFO     | src.analyzer.ai_client:generate_json_with_failover:30 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-06-30 09:24:39.127 | INFO     | src.analyzer.pipeline:_run_analysis_pipeline:46 - 📸 Банер успішно завантажено для AI Vision аналізу.
+2026-06-30 09:24:39.128 | INFO     | src.analyzer.gemini_analyzer:analyze_hackathon_with_gemini:12 - AI-аналіз профілю хакатону: 
+2026-06-30 09:24:39.130 | INFO     | src.analyzer.ai_client:generate_json_with_failover:30 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-06-30 09:24:41.003 | WARNING  | src.analyzer.ai_client:generate_json_with_failover:49 - ⚠️ Основна модель Gemini (gemini-2.5-flash) недоступна або повернула невалідний JSON: 503 UNAVAILABLE. {'error': {'code': 503, 'message': 'This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.', 'status': 'UNAVAILABLE'}}
+2026-06-30 09:24:41.024 | INFO     | src.analyzer.ai_client:generate_json_with_failover:55 - ШІ-Маршрутизатор [Спроба 2]: Переключення на резервну модель (gemini-2.5-pro)...
+2026-06-30 09:24:41.561 | WARNING  | src.analyzer.ai_client:generate_json_with_failover:73 - ⚠️ Резервна модель Gemini (gemini-2.5-pro) також недоступна: 429 RESOURCE_EXHAUSTED. {'error': {'code': 429, 'message': 'You exceeded your current quota, please check your plan and billing details. For more information on this error, head to: https://ai.google.dev/gemini-api/docs/rate-limits. To monitor your current usage, head to: https://ai.dev/rate-limit. \n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.5-pro\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_requests, limit: 0, model: gemini-2.5-pro\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-2.5-pro\n* Quota exceeded for metric: generativelanguage.googleapis.com/generate_content_free_tier_input_token_count, limit: 0, model: gemini-2.5-pro\nPlease retry in 18.541638563s.', 'status': 'RESOURCE_EXHAUSTED', 'details': [{'@type': 'type.googleapis.com/google.rpc.Help', 'links': [{'description': 'Learn more about Gemini API quotas', 'url': 'https://ai.google.dev/gemini-api/docs/rate-limits'}]}, {'@type': 'type.googleapis.com/google.rpc.QuotaFailure', 'violations': [{'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerDayPerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-pro'}}, {'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_requests', 'quotaId': 'GenerateRequestsPerMinutePerProjectPerModel-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-pro'}}, {'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_input_token_count', 'quotaId': 'GenerateContentInputTokensPerModelPerMinute-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-pro'}}, {'quotaMetric': 'generativelanguage.googleapis.com/generate_content_free_tier_input_token_count', 'quotaId': 'GenerateContentInputTokensPerModelPerDay-FreeTier', 'quotaDimensions': {'location': 'global', 'model': 'gemini-2.5-pro'}}]}, {'@type': 'type.googleapis.com/google.rpc.RetryInfo', 'retryDelay': '18s'}]}}. Перехід до OpenRouter...
+2026-06-30 09:24:41.600 | INFO     | src.analyzer.ai_client:generate_json_with_failover:87 - ШІ-Маршрутизатор [Спроба 3]: Виклик OpenRouter (meta-llama/llama-3.3-70b-instruct:free)...
+2026-06-30 09:24:42.365 | WARNING  | src.analyzer.ai_client:generate_json_with_failover:110 - ⚠️ OpenRouter (meta-llama/llama-3.3-70b-instruct:free) повернув статус 429: {"error":{"message":"Provider returned error","code":429,"metadata":{"raw":"meta-llama/llama-3.3-70b-instruct:free is temporarily rate-limited upstream. Please retry shortly, or add your own key to accumulate your rate limits: https://openrouter.ai/settings/integrations","provider_name":"Venice","is_byok":false,"retry_after_seconds":16,"retry_after_seconds_raw":15.484,"headers":{"Retry-After":"16"}}},"user_id":"org_30t0tuTVATkGYc3VoWRq9Jghce4"}
+2026-06-30 09:24:42.365 | INFO     | src.analyzer.ai_client:generate_json_with_failover:87 - ШІ-Маршрутизатор [Спроба 3]: Виклик OpenRouter (deepseek/deepseek-r1:free)...
+2026-06-30 09:24:42.535 | WARNING  | src.analyzer.ai_client:generate_json_with_failover:110 - ⚠️ OpenRouter (deepseek/deepseek-r1:free) повернув статус 404: {"error":{"message":"This model is unavailable for free. The paid version is available now - use this slug instead: deepseek/deepseek-r1","code":404},"user_id":"org_30t0tuTVATkGYc3VoWRq9Jghce4"}
+2026-06-30 09:24:42.537 | INFO     | src.analyzer.ai_client:generate_json_with_failover:87 - ШІ-Маршрутизатор [Спроба 3]: Виклик OpenRouter (qwen/qwen-2.5-coder-32b-instruct:free)...
+2026-06-30 09:24:42.933 | WARNING  | src.analyzer.ai_client:generate_json_with_failover:110 - ⚠️ OpenRouter (qwen/qwen-2.5-coder-32b-instruct:free) повернув статус 404: {"error":{"message":"This model is unavailable for free. The paid version is available now - use this slug instead: qwen/qwen-2.5-coder-32b-instruct","code":404},"user_id":"org_30t0tuTVATkGYc3VoWRq9Jghce4"}
+2026-06-30 09:24:42.936 | INFO     | src.analyzer.ai_client:generate_json_with_failover:87 - ШІ-Маршрутизатор [Спроба 3]: Виклик OpenRouter (google/gemini-2.0-flash-exp:free)...
+2026-06-30 09:24:43.384 | WARNING  | src.analyzer.ai_client:generate_json_with_failover:110 - ⚠️ OpenRouter (google/gemini-2.0-flash-exp:free) повернув статус 404: {"error":{"message":"No endpoints found for google/gemini-2.0-flash-exp:free.","code":404},"user_id":"org_30t0tuTVATkGYc3VoWRq9Jghce4"}
+2026-06-30 09:24:43.384 | ERROR    | src.analyzer.ai_client:generate_json_with_failover:116 - ❌ Усі безкоштовні ШІ-провайдери недоступні! Запуск локального алгоритму.
+2026-06-30 09:24:43.619 | WARNING  | src.analyzer.gemini_analyzer:analyze_hackathon_with_gemini:51 - Застосування детермінованого офлайн-аналізу...
+2026-06-30 09:24:43.630 | INFO     | src.analyzer.idea_generator:generate_winning_ideas:12 - AI-генерація ідей для хакатону: 
+2026-06-30 09:24:43.677 | INFO     | src.analyzer.ai_client:generate_json_with_failover:30 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-06-30 09:25:01.275 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Sonic Canvas AI': 0.0307
+2026-06-30 09:25:01.276 | INFO     | src.analyzer.scorer:score_idea:75 - Оцінка ідеї 'Sonic Canvas AI': ML_prob=0.031, Semantic_bonus=0.15 -> Final=0.091
+2026-06-30 09:25:01.353 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Provenance Palette': 0.0212
+2026-06-30 09:25:01.354 | INFO     | src.analyzer.scorer:score_idea:75 - Оцінка ідеї 'Provenance Palette': ML_prob=0.021, Semantic_bonus=0.15 -> Final=0.081
+2026-06-30 09:25:01.422 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'VoiceFlow Studio': 0.0186
+2026-06-30 09:25:01.425 | INFO     | src.analyzer.scorer:score_idea:75 - Оцінка ідеї 'VoiceFlow Studio': ML_prob=0.019, Semantic_bonus=0.15 -> Final=0.079
+2026-06-30 09:25:01.541 | INFO     | src.analyzer.pipeline:_run_analysis_pipeline:83 - ✅ Результати аналізу успішно збережено в БД. Prediction ID: 0c8e4bdc-0d31-4e26-98bb-b8b62f7614b2
+2026-07-01 08:32:28.572 | INFO     | __main__:generate_winning_ideas:41 - 🧠 Запуск Agentic AI для генерації ідей: Web3 Future Hack
+2026-07-01 08:32:29.495 | INFO     | __main__:generate_winning_ideas:49 - Агент 1: Аналіз RAG-контексту та генерація пулу ідей...
+2026-07-01 08:32:29.497 | INFO     | src.analyzer.ai_client:generate_json_with_failover:30 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-07-01 08:32:38.733 | INFO     | __main__:generate_winning_ideas:71 - Агент 2: Робота Суворого Критика (фільтрація обмежень та фіналізація)...
+2026-07-01 08:32:38.734 | INFO     | src.analyzer.ai_client:generate_json_with_failover:30 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-07-01 08:35:08.447 | INFO     | __main__:score_idea:53 - ⚖️ Початок оцінювання ідеї: 'Transparent Charity Ledger'
+2026-07-01 08:35:11.242 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Transparent Charity Ledger': 0.0287
+2026-07-01 08:35:11.245 | INFO     | src.analyzer.ai_client:generate_json_with_failover:30 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-07-01 08:35:14.564 | INFO     | __main__:score_idea:82 -    🧑‍⚖️ Вердикт судді: 0.95 (This project directly addresses a critical social problem of charity transparency using the inherent features of transparent ledgers, making it a strong contender for solving a real-world issue with blockchain technology.)
+2026-07-01 08:35:14.567 | INFO     | __main__:score_idea:97 -    ⚖️ Застосовано збалансовані ваги (ML: 60%, Журі: 40%)
+2026-07-01 08:35:14.569 | INFO     | __main__:score_idea:107 -    📊 ФІНАЛ: ML=0.029 | Judge=0.950 | Впевненість=94.3% -> Підсумок=0.397
+2026-07-01 08:42:18.630 | INFO     | __main__:fetch_hacker_news:18 - Збір трендів з Hacker News...
+2026-07-01 08:42:19.906 | INFO     | __main__:fetch_arxiv_ai:33 - Збір інновацій з ArXiv (cs.AI)...
+2026-07-01 08:42:20.221 | WARNING  | src.scraper.http_client:safe_get:46 - Спроба 1/3 не вдалася (HTTP 301) для http://export.arxiv.org/api/query?search_query=cat:cs.AI&sortBy=submittedDate&sortOrder=descending&max_results=3
+2026-07-01 08:42:25.324 | WARNING  | src.scraper.http_client:safe_get:46 - Спроба 2/3 не вдалася (HTTP 301) для http://export.arxiv.org/api/query?search_query=cat:cs.AI&sortBy=submittedDate&sortOrder=descending&max_results=3
+2026-07-01 08:42:35.471 | WARNING  | src.scraper.http_client:safe_get:46 - Спроба 3/3 не вдалася (HTTP 301) для http://export.arxiv.org/api/query?search_query=cat:cs.AI&sortBy=submittedDate&sortOrder=descending&max_results=3
+2026-07-01 08:42:50.472 | ERROR    | src.scraper.http_client:safe_get:55 - Усі спроби (3) для http://export.arxiv.org/api/query?search_query=cat:cs.AI&sortBy=submittedDate&sortOrder=descending&max_results=3 вичерпано. Повертаємо None.
+2026-07-01 08:42:50.934 | INFO     | __main__:update_global_trends:60 - ✅ Глобальні технологічні тренди успішно оновлено!
+2026-07-01 08:45:17.925 | INFO     | __main__:fetch_hacker_news:18 - Збір трендів з Hacker News...
+2026-07-01 08:45:19.024 | INFO     | __main__:fetch_arxiv_ai:33 - Збір інновацій з ArXiv (cs.AI)...
+2026-07-01 08:45:19.420 | INFO     | __main__:update_global_trends:60 - ✅ Глобальні технологічні тренди успішно оновлено!
+2026-07-01 08:47:14.345 | INFO     | src.scraper.orchestrator:run_full_ingestion:27 - Запуск ініціалізації бази даних...
+2026-07-01 08:47:14.392 | INFO     | src.scraper.hackathon_list_scraper:fetch_ended_hackathons:16 - Запуск збору списку хакатонів. Заплановано сторінок: 2
+2026-07-01 08:47:14.393 | INFO     | src.scraper.hackathon_list_scraper:fetch_ended_hackathons:20 - Збір сторінки 1...
+2026-07-01 08:47:15.152 | INFO     | src.scraper.hackathon_list_scraper:fetch_ended_hackathons:31 - Сторінку 1 успішно оброблено. Зчитано записів: 24
+2026-07-01 08:47:17.152 | INFO     | src.scraper.hackathon_list_scraper:fetch_ended_hackathons:20 - Збір сторінки 2...
+2026-07-01 08:47:18.116 | INFO     | src.scraper.hackathon_list_scraper:fetch_ended_hackathons:31 - Сторінку 2 успішно оброблено. Зчитано записів: 24
+2026-07-01 08:47:20.117 | INFO     | src.scraper.orchestrator:run_full_ingestion:31 - Отримано список із 48 хакатонів. Починаємо оркестрацію...
+2026-07-01 08:47:21.118 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [1/48] Пропущено (вже є в БД): Youth Code x AI
+2026-07-01 08:47:21.151 | INFO     | src.scraper.orchestrator:run_full_ingestion:58 - [2/48] Початок збору даних для: GLITCHED GAMES...
+2026-07-01 08:47:21.152 | INFO     | src.scraper.hackathon_detail_scraper:scrape_hackathon_detail:16 - Збір деталей для хакатону за адресою: https://glitch-to-win-games.devpost.com/
+2026-07-01 08:47:22.311 | INFO     | src.scraper.orchestrator:run_full_ingestion:67 - 🚫 Відфільтровано (Немає спонсорів): GLITCHED GAMES.
+2026-07-01 08:47:22.356 | INFO     | src.scraper.orchestrator:run_full_ingestion:58 - [3/48] Початок збору даних для: 1st Nature's Blueprint Ideathon 2026 !!...
+2026-07-01 08:47:22.357 | INFO     | src.scraper.hackathon_detail_scraper:scrape_hackathon_detail:16 - Збір деталей для хакатону за адресою: https://naturesblueprint.devpost.com/
+2026-07-01 08:47:23.451 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:31 - Запуск збору проектів для субдомену: naturesblueprint
+2026-07-01 08:47:23.452 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:35 - Збір проектів, сторінка 1...
+2026-07-01 08:47:24.220 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:52 - На сторінці 1 більше немає карток проектів. Завершуємо збір.
+2026-07-01 08:47:24.220 | INFO     | src.scraper.orchestrator:run_full_ingestion:72 - Знайдено проектів для обробки: 0
+2026-07-01 08:47:24.308 | INFO     | src.scraper.orchestrator:run_full_ingestion:145 - ✅ Успішно збережено в БД: 1st Nature's Blueprint Ideathon 2026 !! (0 проектів)
+2026-07-01 08:47:26.405 | INFO     | src.scraper.orchestrator:run_full_ingestion:58 - [4/48] Початок збору даних для: Zero to Live: Website Challenge...
+2026-07-01 08:47:26.406 | INFO     | src.scraper.hackathon_detail_scraper:scrape_hackathon_detail:16 - Збір деталей для хакатону за адресою: https://zero-to-live-website-challenge.devpost.com/
+2026-07-01 08:47:27.377 | INFO     | src.scraper.orchestrator:run_full_ingestion:67 - 🚫 Відфільтровано (Немає спонсорів): Zero to Live: Website Challenge.
+2026-07-01 08:47:27.407 | INFO     | src.scraper.orchestrator:run_full_ingestion:58 - [5/48] Початок збору даних для: Chutes Hack Malaysia 2026...
+2026-07-01 08:47:27.408 | INFO     | src.scraper.hackathon_detail_scraper:scrape_hackathon_detail:16 - Збір деталей для хакатону за адресою: https://chutes-hack-malaysia-2026.devpost.com/
+2026-07-01 08:47:28.545 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:31 - Запуск збору проектів для субдомену: chutes-hack-malaysia-2026
+2026-07-01 08:47:28.546 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:35 - Збір проектів, сторінка 1...
+2026-07-01 08:47:29.656 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:107 - Сторінка 1: успішно зчитано 18 проектів.
+2026-07-01 08:47:31.657 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:35 - Збір проектів, сторінка 2...
+2026-07-01 08:47:32.363 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:52 - На сторінці 2 більше немає карток проектів. Завершуємо збір.
+2026-07-01 08:47:32.363 | INFO     | src.scraper.orchestrator:run_full_ingestion:72 - Знайдено проектів для обробки: 18
+2026-07-01 08:47:32.364 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/inneros-cloud-copilot-sovereign-agentic-operations
+2026-07-01 08:47:34.289 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/fortressdoc-ai
+2026-07-01 08:47:36.210 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/solarquote-agent-n01rdw
+2026-07-01 08:47:38.108 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/tunjuk
+2026-07-01 08:47:40.079 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/axomed-prototype-1
+2026-07-01 08:47:42.184 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/smart-study-exam-preparation
+2026-07-01 08:47:44.123 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/kawan
+2026-07-01 08:47:46.064 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/ranga
+2026-07-01 08:47:47.976 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/deepfake-detection-1wgli6
+2026-07-01 08:47:50.032 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/healthtwin-guardian-ai-5fgp0i
+2026-07-01 08:47:51.969 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/netguardian-ai-omcugw
+2026-07-01 08:47:53.616 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/aether-nexus-ai
+2026-07-01 08:47:55.772 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/aagro-sco
+2026-07-01 08:47:57.686 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/chutescontract
+2026-07-01 08:47:58.986 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/citadel-hotel
+2026-07-01 08:48:00.942 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/civora
+2026-07-01 08:48:02.920 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/siap
+2026-07-01 08:48:03.971 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/flowmind-t24fai
+2026-07-01 08:48:06.074 | INFO     | src.scraper.orchestrator:run_full_ingestion:145 - ✅ Успішно збережено в БД: Chutes Hack Malaysia 2026 (18 проектів)
+2026-07-01 08:48:08.248 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [6/48] Пропущено (вже є в БД): Google Cloud Rapid Agent Hackathon
+2026-07-01 08:48:08.277 | INFO     | src.scraper.orchestrator:run_full_ingestion:58 - [7/48] Початок збору даних для: H0: Hack the Zero Stack with Vercel v0 and AWS Databases...
+2026-07-01 08:48:08.277 | INFO     | src.scraper.hackathon_detail_scraper:scrape_hackathon_detail:16 - Збір деталей для хакатону за адресою: https://h01.devpost.com/
+2026-07-01 08:48:09.352 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:31 - Запуск збору проектів для субдомену: h01
+2026-07-01 08:48:09.353 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:35 - Збір проектів, сторінка 1...
+2026-07-01 08:48:10.145 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:52 - На сторінці 1 більше немає карток проектів. Завершуємо збір.
+2026-07-01 08:48:10.145 | INFO     | src.scraper.orchestrator:run_full_ingestion:72 - Знайдено проектів для обробки: 0
+2026-07-01 08:48:10.186 | INFO     | src.scraper.orchestrator:run_full_ingestion:145 - ✅ Успішно збережено в БД: H0: Hack the Zero Stack with Vercel v0 and AWS Databases (0 проектів)
+2026-07-01 08:48:12.263 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [8/48] Пропущено (вже є в БД): FIND EVIL!
+2026-07-01 08:48:12.292 | INFO     | src.scraper.orchestrator:run_full_ingestion:58 - [9/48] Початок збору даних для: UiPath AgentHack...
+2026-07-01 08:48:12.292 | INFO     | src.scraper.hackathon_detail_scraper:scrape_hackathon_detail:16 - Збір деталей для хакатону за адресою: https://uipath-agenthack.devpost.com/
+2026-07-01 08:48:13.435 | INFO     | src.scraper.orchestrator:run_full_ingestion:67 - 🚫 Відфільтровано (Немає спонсорів): UiPath AgentHack.
+2026-07-01 08:48:13.467 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [10/48] Пропущено (вже є в БД): Splunk Agentic Ops Hackathon
+2026-07-01 08:48:13.501 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [11/48] Пропущено (вже є в БД): GitLab Transcend Hackathon
+2026-07-01 08:48:13.532 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [12/48] Пропущено (вже є в БД): Mind the Product presents World Product Day: Everyone Ships Now
+2026-07-01 08:48:13.562 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [13/48] Пропущено (вже є в БД): NextGenHacks
+2026-07-01 08:48:13.592 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [14/48] Пропущено (вже є в БД): DSH Hacks V1
+2026-07-01 08:48:13.622 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [15/48] Пропущено (вже є в БД): Learning Hackathon: Spec Driven Development
+2026-07-01 08:48:13.650 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [16/48] Пропущено (вже є в БД): UC Berkeley AI Hackathon 2026
+2026-07-01 08:48:13.681 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [17/48] Пропущено (вже є в БД): Africa Digital ID Hackathon 2026
+2026-07-01 08:48:13.682 | INFO     | src.scraper.orchestrator:run_full_ingestion:42 - [18/48] 🚫 Відфільтровано (Студентський/Закритий): BluePrint 2026 - Hackthon for freshers and Students
+2026-07-01 08:48:13.710 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [19/48] Пропущено (вже є в БД): Beyond Tomorrow Summit
+2026-07-01 08:48:13.741 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [20/48] Пропущено (вже є в БД): INNOSpark Pitch Competition
+2026-07-01 08:48:13.741 | INFO     | src.scraper.orchestrator:run_full_ingestion:42 - [21/48] 🚫 Відфільтровано (Студентський/Закритий): Creator Colosseum Startup Competition: Student Founders. Real Startups. 
+2026-07-01 08:48:13.771 | INFO     | src.scraper.orchestrator:run_full_ingestion:58 - [22/48] Початок збору даних для: Build the Future with AI — From Code to No-Code...
+2026-07-01 08:48:13.771 | INFO     | src.scraper.hackathon_detail_scraper:scrape_hackathon_detail:16 - Збір деталей для хакатону за адресою: https://build-the-future-with-ai.devpost.com/
+2026-07-01 08:48:14.880 | INFO     | src.scraper.orchestrator:run_full_ingestion:67 - 🚫 Відфільтровано (Немає спонсорів): Build the Future with AI — From Code to No-Code.
+2026-07-01 08:48:14.921 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [23/48] Пропущено (вже є в БД): Quantum Sprint
+2026-07-01 08:48:14.969 | INFO     | src.scraper.orchestrator:run_full_ingestion:58 - [24/48] Початок збору даних для: Moonshot Hackathon...
+2026-07-01 08:48:14.969 | INFO     | src.scraper.hackathon_detail_scraper:scrape_hackathon_detail:16 - Збір деталей для хакатону за адресою: https://moonshot-aethra.devpost.com/
+2026-07-01 08:48:16.107 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:31 - Запуск збору проектів для субдомену: moonshot-aethra
+2026-07-01 08:48:16.108 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:35 - Збір проектів, сторінка 1...
+2026-07-01 08:48:17.567 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:107 - Сторінка 1: успішно зчитано 24 проектів.
+2026-07-01 08:48:19.569 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:35 - Збір проектів, сторінка 2...
+2026-07-01 08:48:20.883 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:107 - Сторінка 2: успішно зчитано 24 проектів.
+2026-07-01 08:48:22.885 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:35 - Збір проектів, сторінка 3...
+2026-07-01 08:48:24.249 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:107 - Сторінка 3: успішно зчитано 24 проектів.
+2026-07-01 08:48:26.250 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:35 - Збір проектів, сторінка 4...
+2026-07-01 08:48:27.704 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:107 - Сторінка 4: успішно зчитано 24 проектів.
+2026-07-01 08:48:29.705 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:35 - Збір проектів, сторінка 5...
+2026-07-01 08:48:31.183 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:107 - Сторінка 5: успішно зчитано 24 проектів.
+2026-07-01 08:48:33.185 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:35 - Збір проектів, сторінка 6...
+2026-07-01 08:48:34.182 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:107 - Сторінка 6: успішно зчитано 14 проектів.
+2026-07-01 08:48:36.183 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:35 - Збір проектів, сторінка 7...
+2026-07-01 08:48:37.064 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:52 - На сторінці 7 більше немає карток проектів. Завершуємо збір.
+2026-07-01 08:48:37.067 | INFO     | src.scraper.orchestrator:run_full_ingestion:72 - Знайдено проектів для обробки: 134
+2026-07-01 08:48:37.069 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/careeros-private-carrer-workspace
+2026-07-01 08:48:39.533 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/omegaos
+2026-07-01 08:48:41.901 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/stellar-insight-labs-jvki8t
+2026-07-01 08:48:43.866 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/smartroute-srmist-jrofqy
+2026-07-01 08:48:44.993 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/engram-s0tlh2
+2026-07-01 08:48:46.910 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/deepfake-detection-1wgli6
+2026-07-01 08:48:48.859 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/the-new-you-lfu17v
+2026-07-01 08:48:50.059 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/digicloset-24o5qz
+2026-07-01 08:48:52.744 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/axomed-prototype-1
+2026-07-01 08:48:54.848 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/ai-cyberguard-45dwa9
+2026-07-01 08:48:55.959 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/senseai-l2n0xe
+2026-07-01 08:48:57.835 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/outsurance
+2026-07-01 08:48:59.052 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/aegis-rl-smart-cyber-security-protective-shield-yh69n8
+2026-07-01 08:49:00.969 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/finsage-v417o2
+2026-07-01 08:49:03.070 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/healthtwin-guardian-ai-qgnxzj
+2026-07-01 08:49:04.928 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/sentinelsift-x
+2026-07-01 08:49:06.816 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/ai-multiverse-v3-0-life-simulation-engine
+2026-07-01 08:49:08.635 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/medimind-ai-do6bul
+2026-07-01 08:49:10.635 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/rekxare-dami-a-multilingual-study-time-organizer
+2026-07-01 08:49:12.926 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/solarquote
+2026-07-01 08:49:15.042 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/episteme-3afh87
+2026-07-01 08:49:16.097 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/ai-scientist-crkf9u
+2026-07-01 08:49:17.962 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/moonshot-robotics
+2026-07-01 08:49:19.848 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/mateq
+2026-07-01 08:49:20.890 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/tradewizard-hn39ro
+2026-07-01 08:49:22.920 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/brackett-37brha
+2026-07-01 08:49:24.954 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/contagionshield-wqo8ay
+2026-07-01 08:49:26.843 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/sustain-a-thon
+2026-07-01 08:49:30.120 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/equilibrium-engine
+2026-07-01 08:49:31.212 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/lfa
+2026-07-01 08:49:32.417 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/horizon-ai-2a4tp7
+2026-07-01 08:49:34.540 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/dream-studio-ai-game-creation-for-everyone
+2026-07-01 08:49:35.647 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/dgbt
+2026-07-01 08:49:36.704 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/fambai-cv-btnw54
+2026-07-01 08:49:38.075 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/annapurna-ro7pi5
+2026-07-01 08:49:40.107 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/robotixfunnel
+2026-07-01 08:49:42.445 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/sat-sage-2uf579
+2026-07-01 08:49:43.502 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/streetiq
+2026-07-01 08:49:45.562 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/pulseearth-gyhvf9
+2026-07-01 08:49:47.586 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/greenlight-d4n9gh
+2026-07-01 08:49:50.168 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/crownd-zl4rag
+2026-07-01 08:49:52.573 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/second-brain-a-heterogeneous-ai-ensemble-for-life-decisions-t6l2ma
+2026-07-01 08:49:54.745 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/behavioral-provenance
+2026-07-01 08:49:56.599 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/swanforge
+2026-07-01 08:49:58.389 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/safebite-ai-n7l0za
+2026-07-01 08:50:00.082 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/careeros-ai-8xh20v
+2026-07-01 08:50:01.224 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/healthy-health-v9myj8
+2026-07-01 08:50:03.300 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/physioos
+2026-07-01 08:50:05.220 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/bioguard-ai-jfxwd1
+2026-07-01 08:50:07.156 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/visuallearn-ai-nbujsw
+2026-07-01 08:50:09.120 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/finguard-copilot-y64t9r
+2026-07-01 08:50:11.158 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/trynext-ai-the-self-healing-software-factory-glnw40
+2026-07-01 08:50:13.179 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/sciforge-ai
+2026-07-01 08:50:15.651 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/nexusscribe
+2026-07-01 08:50:17.655 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/armmemora-demonstrates-the-power-of-on-device-ai-fast-pr-6v57xs
+2026-07-01 08:50:19.502 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/inboxpilot-fvzct5
+2026-07-01 08:50:21.487 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/agrisynapse-ai-based-agri-multimodal-25qn4s
+2026-07-01 08:50:23.790 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/agentos-jf3u2b
+2026-07-01 08:50:26.576 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/kusoma-ai-d4r5fj
+2026-07-01 08:50:28.520 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/spatial-biology-for-the-price-of-a-stain
+2026-07-01 08:50:30.860 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/arkive-4vji36
+2026-07-01 08:50:33.039 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/mind-2wadzk
+2026-07-01 08:50:35.243 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/vidphrase-5f9ohz
+2026-07-01 08:50:38.143 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/lantern-14w50u
+2026-07-01 08:50:40.606 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/the-gap-engine
+2026-07-01 08:50:42.678 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/signbridge-6rwi7e
+2026-07-01 08:50:44.619 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/ai-pharmax
+2026-07-01 08:50:46.958 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/tabble-it-6l5bcz
+2026-07-01 08:50:49.077 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/botriq-t69hyp
+2026-07-01 08:50:50.146 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/harsh-s-ai
+2026-07-01 08:50:51.230 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/aethranet
+2026-07-01 08:50:53.177 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/perpetua
+2026-07-01 08:50:55.264 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/nextstep-care-1zbhat
+2026-07-01 08:50:57.699 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/saqi
+2026-07-01 08:51:00.134 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/cosmic-sonification-o3teik
+2026-07-01 08:51:02.121 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/arbiter-akni5u
+2026-07-01 08:51:04.425 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/project-earth-1-o3wsy2
+2026-07-01 08:51:05.557 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/arise-ymap97
+2026-07-01 08:51:07.729 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/healix-ai-high-fidelity-clinical-intelligence-for-inclusion-qb23xd
+2026-07-01 08:51:09.898 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/future-self
+2026-07-01 08:51:11.022 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/clawintel
+2026-07-01 08:51:13.113 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/oculus-iq-3e6zpa
+2026-07-01 08:51:15.723 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/student-gpa-predictor
+2026-07-01 08:51:16.982 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/episteme-ai
+2026-07-01 08:51:19.370 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/hbp100-usaii
+2026-07-01 08:51:22.022 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/navicare
+2026-07-01 08:51:24.595 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/signal-ark
+2026-07-01 08:51:26.679 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/rconnectx-0gz2yr
+2026-07-01 08:51:28.741 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/resq-ai-emergency-assistant
+2026-07-01 08:51:30.091 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/ambuguard-ai-powered-smart-ambulance-corridor-system-cgbwaf
+2026-07-01 08:51:32.207 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/synapse-8sj062
+2026-07-01 08:51:34.254 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/futureself-ai-6lxhbq
+2026-07-01 08:51:35.429 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/causalforge
+2026-07-01 08:51:36.509 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/echo-ai-a-digital-memory-layer-for-humanity
+2026-07-01 08:51:39.130 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/terraprobe-ai-cloud-fix-evaluator
+2026-07-01 08:51:41.517 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/usaid-emj8vr
+2026-07-01 08:51:43.764 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/ranga
+2026-07-01 08:51:45.734 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/neurolayer-ai
+2026-07-01 08:51:47.811 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/bio-speaks
+2026-07-01 08:51:48.979 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/factory-os-ai
+2026-07-01 08:51:51.035 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/greenwave-2k8ovb
+2026-07-01 08:51:53.172 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/clipforge-6k093e
+2026-07-01 08:51:55.058 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/colobrief-ai-gb86kt
+2026-07-01 08:51:57.323 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/signspeak-kceyum
+2026-07-01 08:51:59.505 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/findteamo-yh1ti7
+2026-07-01 08:52:01.573 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/flowhale-ai-powered-korean-listening-vocabulary-game
+2026-07-01 08:52:02.708 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/mobilitymate-ai-powered-hub-for-borderless-opportunities
+2026-07-01 08:52:04.739 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/cardiogen-ai-n2vzeh
+2026-07-01 08:52:06.872 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/clarum-xzjalo
+2026-07-01 08:52:09.282 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/syntra-ai-a1sdge
+2026-07-01 08:52:10.474 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/caseclear-pevind
+2026-07-01 08:52:11.521 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/solace-ai-native-ed-intake-triage
+2026-07-01 08:52:13.673 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/leakcheck
+2026-07-01 08:52:15.729 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/axiom-the-cognitive-stress-test-engine
+2026-07-01 08:52:17.881 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/cyberverse
+2026-07-01 08:52:19.033 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/decisionos-an-autonomous-cognitive-layer-for-organizations
+2026-07-01 08:52:20.780 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/clearpath-ai-j1y2md
+2026-07-01 08:52:23.134 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/aqua-studio
+2026-07-01 08:52:25.436 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/quantum-shelid-2rnoq1
+2026-07-01 08:52:27.551 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/blueprint-nexus
+2026-07-01 08:52:28.674 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/cognitive-fossil-record
+2026-07-01 08:52:29.870 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/bravequest
+2026-07-01 08:52:31.733 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/ledger-ai-e1k542
+2026-07-01 08:52:33.811 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/adaptive-world-generative-system-u-7ixh6d
+2026-07-01 08:52:35.513 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/biological-robustness-as-network-topology
+2026-07-01 08:52:38.025 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/ecoreceipt-hjnour
+2026-07-01 08:52:40.707 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/aletheia-a-falsification-engine-for-human-knowledge
+2026-07-01 08:52:42.998 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/morphos-7to0hw
+2026-07-01 08:52:44.834 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/nagarnetra-as35gy
+2026-07-01 08:52:46.692 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/trandia-4hq9ou
+2026-07-01 08:52:47.912 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/digital-lobster-the-last-wp-plugin
+2026-07-01 08:52:49.066 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/swarm-circuit
+2026-07-01 08:52:51.055 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/ranqora-open-dataset-discovery-for-researchers
+2026-07-01 08:52:52.211 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/kiranaai-graph-ai-agent-for-india-s-12m-kirana-stores
+2026-07-01 08:52:55.257 | INFO     | src.scraper.orchestrator:run_full_ingestion:145 - ✅ Успішно збережено в БД: Moonshot Hackathon (134 проектів)
+2026-07-01 08:52:57.434 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [25/48] Пропущено (вже є в БД): VALSEA Edtech Sprint (HCM)
+2026-07-01 08:52:57.464 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [26/48] Пропущено (вже є в БД):  Production Engineering Hackathon
+2026-07-01 08:52:57.494 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [27/48] Пропущено (вже є в БД): International AI Agents Hackathon
+2026-07-01 08:52:57.531 | INFO     | src.scraper.orchestrator:run_full_ingestion:58 - [28/48] Початок збору даних для: NACOS X GDG AI Hackathon...
+2026-07-01 08:52:57.531 | INFO     | src.scraper.hackathon_detail_scraper:scrape_hackathon_detail:16 - Збір деталей для хакатону за адресою: https://nacos-x-gdg-ai-hackathon.devpost.com/
+2026-07-01 08:52:58.517 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:31 - Запуск збору проектів для субдомену: nacos-x-gdg-ai-hackathon
+2026-07-01 08:52:58.518 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:35 - Збір проектів, сторінка 1...
+2026-07-01 08:52:59.275 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:52 - На сторінці 1 більше немає карток проектів. Завершуємо збір.
+2026-07-01 08:52:59.277 | INFO     | src.scraper.orchestrator:run_full_ingestion:72 - Знайдено проектів для обробки: 0
+2026-07-01 08:52:59.328 | INFO     | src.scraper.orchestrator:run_full_ingestion:145 - ✅ Успішно збережено в БД: NACOS X GDG AI Hackathon (0 проектів)
+2026-07-01 08:53:01.470 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [29/48] Пропущено (вже є в БД): Beyond Tomorrow Summit
+2026-07-01 08:53:01.516 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [30/48] Пропущено (вже є в БД): QWEN AI BUILD DAY
+2026-07-01 08:53:01.565 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [31/48] Пропущено (вже є в БД): Hack4Her 2026
+2026-07-01 08:53:01.676 | INFO     | src.scraper.orchestrator:run_full_ingestion:58 - [32/48] Початок збору даних для: Global Tech Innovation 2026...
+2026-07-01 08:53:01.680 | INFO     | src.scraper.hackathon_detail_scraper:scrape_hackathon_detail:16 - Збір деталей для хакатону за адресою: https://global-tech-innovation-2026.devpost.com/
+2026-07-01 08:53:02.896 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:31 - Запуск збору проектів для субдомену: global-tech-innovation-2026
+2026-07-01 08:53:02.897 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:35 - Збір проектів, сторінка 1...
+2026-07-01 08:53:04.167 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:107 - Сторінка 1: успішно зчитано 24 проектів.
+2026-07-01 08:53:06.168 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:35 - Збір проектів, сторінка 2...
+2026-07-01 08:53:07.857 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:107 - Сторінка 2: успішно зчитано 24 проектів.
+2026-07-01 08:53:09.858 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:35 - Збір проектів, сторінка 3...
+2026-07-01 08:53:10.879 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:107 - Сторінка 3: успішно зчитано 13 проектів.
+2026-07-01 08:53:12.879 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:35 - Збір проектів, сторінка 4...
+2026-07-01 08:53:13.664 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:52 - На сторінці 4 більше немає карток проектів. Завершуємо збір.
+2026-07-01 08:53:13.665 | INFO     | src.scraper.orchestrator:run_full_ingestion:72 - Знайдено проектів для обробки: 61
+2026-07-01 08:53:13.666 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/proofsift
+2026-07-01 08:53:16.470 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/the-new-you-lfu17v
+2026-07-01 08:53:17.759 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/agentdesk-ai-agent-workspace
+2026-07-01 08:53:20.243 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/mymed-ai-t2d7so
+2026-07-01 08:53:21.419 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/swolo
+2026-07-01 08:53:22.502 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/tellmom
+2026-07-01 08:53:24.397 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/numshift
+2026-07-01 08:53:25.639 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/omegaos
+2026-07-01 08:53:27.908 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/citadel-hotel
+2026-07-01 08:53:29.870 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/axomed-prototype-1
+2026-07-01 08:53:32.067 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/digital-patient-care-system-5-0-dpcs-5-0
+2026-07-01 08:53:33.524 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/agrimon-pro-ai-powered-smart-farming
+2026-07-01 08:53:35.772 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/outsurance
+2026-07-01 08:53:37.115 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/disastertwin-ai-digital-twin-for-disaster-resilience-k6f40w
+2026-07-01 08:53:39.200 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/decisioniq-ai-decision-intelligence-platform-g5471p
+2026-07-01 08:53:41.168 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/echoverse-ai
+2026-07-01 08:53:42.248 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/ghosttrace-jh5ws8
+2026-07-01 08:53:44.399 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/agrisynapse-ai-based-agri-multimodal-25qn4s
+2026-07-01 08:53:46.956 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/studypilot-ai-fu046z
+2026-07-01 08:53:48.940 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/sustain-a-thon
+2026-07-01 08:53:52.155 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/antispammer
+2026-07-01 08:53:54.472 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/fambai-cv-btnw54
+2026-07-01 08:53:56.202 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/areapulse-kel509
+2026-07-01 08:53:57.641 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/bybridguard
+2026-07-01 08:54:00.242 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/phishguard-secure
+2026-07-01 08:54:02.496 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/kavach-upi-remote-fraud-security-shield
+2026-07-01 08:54:04.630 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/a-dap-t
+2026-07-01 08:54:06.737 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/websafe
+2026-07-01 08:54:08.769 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/ai-powered-crop-price-demand-forecasting-system-rsphji
+2026-07-01 08:54:09.853 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/fineprint-t2dgpx
+2026-07-01 08:54:11.878 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/agro-inttelligence
+2026-07-01 08:54:13.127 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/vitrina-ai
+2026-07-01 08:54:14.281 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/rconnectx-h97q0j
+2026-07-01 08:54:16.647 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/vidphrase-t0q56m
+2026-07-01 08:54:18.693 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/meta-cognitive-signbridge-137jqd
+2026-07-01 08:54:21.920 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/greenlight-d4n9gh
+2026-07-01 08:54:24.267 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/arbiter-akni5u
+2026-07-01 08:54:26.399 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/zangetsu-ivrh9e
+2026-07-01 08:54:29.435 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/debate-ai-4g6ip9
+2026-07-01 08:54:31.930 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/cybercode-sel83o
+2026-07-01 08:54:34.452 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/meet2action-turn-messy-meeting-notes-into-action
+2026-07-01 08:54:36.975 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/career-copilot-ai-aqfsmv
+2026-07-01 08:54:39.336 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/deskguard-smart-library-seat-allocation-system
+2026-07-01 08:54:40.609 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/environmental-monitoring
+2026-07-01 08:54:41.886 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/agentic-security-zne8fm
+2026-07-01 08:54:44.198 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/usaid-nt38ro
+2026-07-01 08:54:46.191 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/synk-f-cybermind
+2026-07-01 08:54:48.684 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/aqx
+2026-07-01 08:54:51.908 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/kudox
+2026-07-01 08:54:54.286 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/alldone-6ifyqz
+2026-07-01 08:54:56.589 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/medistock-ai-214gj6
+2026-07-01 08:55:00.038 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/secureops-mcp
+2026-07-01 08:55:02.721 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/windsurf-ai
+2026-07-01 08:55:05.136 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/blackbox-ai-s71az5
+2026-07-01 08:55:07.486 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/smart-health-ai-s0z7ro
+2026-07-01 08:55:09.701 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/snackglobe
+2026-07-01 08:55:11.829 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/not-sure-yet-k46jpf
+2026-07-01 08:55:14.323 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/agroshield
+2026-07-01 08:55:15.495 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/github-autopilot
+2026-07-01 08:55:17.638 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/pawverse-mittens-ai
+2026-07-01 08:55:19.751 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/survival_signal
+2026-07-01 08:55:22.709 | INFO     | src.scraper.orchestrator:run_full_ingestion:145 - ✅ Успішно збережено в БД: Global Tech Innovation 2026 (61 проектів)
+2026-07-01 08:55:25.005 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [33/48] Пропущено (вже є в БД): STEMINATE HACKS 2026
+2026-07-01 08:55:25.143 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [34/48] Пропущено (вже є в БД): Bharat Bricks Hacks 2026: IIT Indore
+2026-07-01 08:55:25.271 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [35/48] Пропущено (вже є в БД): Anthropic Hackathon @ IIT Delhi
+2026-07-01 08:55:25.325 | INFO     | src.scraper.orchestrator:run_full_ingestion:58 - [36/48] Початок збору даних для: FutureHacks...
+2026-07-01 08:55:25.326 | INFO     | src.scraper.hackathon_detail_scraper:scrape_hackathon_detail:16 - Збір деталей для хакатону за адресою: https://futurehacks.devpost.com/
+2026-07-01 08:55:26.513 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:31 - Запуск збору проектів для субдомену: futurehacks
+2026-07-01 08:55:26.516 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:35 - Збір проектів, сторінка 1...
+2026-07-01 08:55:27.726 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:107 - Сторінка 1: успішно зчитано 24 проектів.
+2026-07-01 08:55:29.727 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:35 - Збір проектів, сторінка 2...
+2026-07-01 08:55:31.214 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:107 - Сторінка 2: успішно зчитано 24 проектів.
+2026-07-01 08:55:33.219 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:35 - Збір проектів, сторінка 3...
+2026-07-01 08:55:34.548 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:107 - Сторінка 3: успішно зчитано 24 проектів.
+2026-07-01 08:55:36.550 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:35 - Збір проектів, сторінка 4...
+2026-07-01 08:55:37.636 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:107 - Сторінка 4: успішно зчитано 11 проектів.
+2026-07-01 08:55:39.644 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:35 - Збір проектів, сторінка 5...
+2026-07-01 08:55:40.469 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:52 - На сторінці 5 більше немає карток проектів. Завершуємо збір.
+2026-07-01 08:55:40.470 | INFO     | src.scraper.orchestrator:run_full_ingestion:72 - Знайдено проектів для обробки: 83
+2026-07-01 08:55:40.471 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/optimous-ai
+2026-07-01 08:55:41.591 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/element-utilities-hub
+2026-07-01 08:55:43.953 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/heatwise-ai
+2026-07-01 08:55:46.162 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/bookbridge-5r47ns
+2026-07-01 08:55:48.188 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/nora-47aqgi
+2026-07-01 08:55:50.262 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/rescue-chain-cml8fh
+2026-07-01 08:55:51.431 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/urban-health-pulse
+2026-07-01 08:55:53.590 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/neighborhood-now
+2026-07-01 08:55:55.667 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/healthy-health-v9myj8
+2026-07-01 08:55:58.607 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/agrisynapse-ai-based-agri-multimodal-25qn4s
+2026-07-01 08:56:00.494 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/iris-zu8y1q
+2026-07-01 08:56:02.617 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/rconnectx
+2026-07-01 08:56:04.480 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/lore-097qwp
+2026-07-01 08:56:06.610 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/aina-jlw2ya
+2026-07-01 08:56:08.675 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/sat-sage-bxy0w1
+2026-07-01 08:56:09.982 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/hearth-cwigxv
+2026-07-01 08:56:11.946 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/vidphrase-pr0dfs
+2026-07-01 08:56:14.017 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/city-watch-57s0nq
+2026-07-01 08:56:16.162 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/urbanbloom
+2026-07-01 08:56:17.232 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/citypulse-grbn38
+2026-07-01 08:56:19.252 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/neurosketch
+2026-07-01 08:56:21.740 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/omnipulse
+2026-07-01 08:56:23.954 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/citypulse-ai
+2026-07-01 08:56:25.133 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/greenlight-d4n9gh
+2026-07-01 08:56:27.535 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/govlink
+2026-07-01 08:56:29.704 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/kozai-itmrqn
+2026-07-01 08:56:32.646 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/urbanplus-ai
+2026-07-01 08:56:34.774 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/cybertree-net
+2026-07-01 08:56:36.798 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/botriq-2j864k
+2026-07-01 08:56:37.953 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/verxio
+2026-07-01 08:56:40.130 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/generativesat-ai-powered-real-time-sat-practice
+2026-07-01 08:56:42.277 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/natural-buddy-sustainable-future-city-robot
+2026-07-01 08:56:43.341 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/safecity-43yrgt
+2026-07-01 08:56:45.446 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/lantern-kxfzld
+2026-07-01 08:56:47.648 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/sentinelnet-ai-defended-secure-communication-platform
+2026-07-01 08:56:50.614 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/medical-bill-analyzer-8uzsi2
+2026-07-01 08:56:53.348 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/arbiter-akni5u
+2026-07-01 08:56:55.561 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/common-ground-2jqtbr
+2026-07-01 08:56:57.678 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/eidos-file-search-system-7vho4f
+2026-07-01 08:57:00.362 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/greenwave-2k8ovb
+2026-07-01 08:57:02.437 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/clonbrow
+2026-07-01 08:57:04.050 | INFO     | __main__:get_realtime_sponsor_news:18 - 🔎 Real-Time Ingestion: пошук свіжих новин для спонсорів ['OpenAI', 'Supabase']...
+2026-07-01 08:57:04.891 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/pulsegrid-qfp4lk
+2026-07-01 08:57:07.012 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/polis-do689g
+2026-07-01 08:57:08.908 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/meta-cognitive-signbridge-e18v3j
+2026-07-01 08:57:11.010 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/healix-ai-high-fidelity-clinical-intelligence-for-inclusion-kl3tng
+2026-07-01 08:57:13.047 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/clarum-xzjalo
+2026-07-01 08:57:14.988 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/safespace-csi
+2026-07-01 08:57:16.979 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/oculus-iq-3e6zpa
+2026-07-01 08:57:18.940 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/community-hero-hyperlocal-ai-safety-network-b10v9s
+2026-07-01 08:57:20.909 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/citysense-a
+2026-07-01 08:57:21.998 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/citymind-ai-k60cpe
+2026-07-01 08:57:23.977 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/tomorrowgrid
+2026-07-01 08:57:25.878 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/vigilai-fr284a
+2026-07-01 08:57:27.846 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/gridveda-lzsnbq
+2026-07-01 08:57:29.755 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/boothsync-e0oqbu
+2026-07-01 08:57:30.877 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/crowdliner-xrya41
+2026-07-01 08:57:32.710 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/daedalus-0ei4ro
+2026-07-01 08:57:34.978 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/scoop-t9ia1b
+2026-07-01 08:57:37.195 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/expenso-8b1uve
+2026-07-01 08:57:39.223 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/snackglobe
+2026-07-01 08:57:41.056 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/patchit-tscjbd
+2026-07-01 08:57:43.074 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/continuity-your-personal-memory-productivity-system
+2026-07-01 08:57:45.083 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/docurec-ai-intelligent-indian-document-processing-oawnxe
+2026-07-01 08:57:47.225 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/bookmaster-qezaof
+2026-07-01 08:57:49.428 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/sparsh-mukthi-5opdn0
+2026-07-01 08:57:51.390 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/geoguard-ai
+2026-07-01 08:57:52.471 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/umbracity
+2026-07-01 08:57:54.459 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/sentinel-ai-powered-stroke-predictor
+2026-07-01 08:57:56.902 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/the-machine-land
+2026-07-01 08:57:58.879 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/usaid-2dczm0
+2026-07-01 08:58:00.801 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/canopy-vsz927
+2026-07-01 08:58:02.891 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/ripple_engine
+2026-07-01 08:58:04.972 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/2050
+2026-07-01 08:58:06.083 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/historitea
+2026-07-01 08:58:08.673 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/borrow-c9y5nh
+2026-07-01 08:58:10.762 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/pulse-city
+2026-07-01 08:58:12.917 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/cloville
+2026-07-01 08:58:13.981 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/focusbuddy-75u8de
+2026-07-01 08:58:15.982 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/replenish-lxu37q
+2026-07-01 08:58:17.220 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/pavement
+2026-07-01 08:58:19.965 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/re-trade
+2026-07-01 08:58:22.036 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/ranga
+2026-07-01 08:58:24.023 | INFO     | src.scraper.project_detail_scraper:scrape_project_detail:23 - Збір деталей проекту за адресою: https://devpost.com/software/citylog-real-time-noise-complaint-logger
+2026-07-01 08:58:28.774 | INFO     | src.scraper.orchestrator:run_full_ingestion:145 - ✅ Успішно збережено в БД: FutureHacks (83 проектів)
+2026-07-01 08:58:31.187 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [37/48] Пропущено (вже є в БД): Aurora Global Hackathon
+2026-07-01 08:58:31.349 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [38/48] Пропущено (вже є в БД): Built with Python Hackathon
+2026-07-01 08:58:31.391 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [39/48] Пропущено (вже є в БД): COMM STEM X SUDATA HACKATHON
+2026-07-01 08:58:31.446 | INFO     | src.scraper.orchestrator:run_full_ingestion:58 - [40/48] Початок збору даних для: Hyperbloom Summer Hackathon...
+2026-07-01 08:58:31.446 | INFO     | src.scraper.hackathon_detail_scraper:scrape_hackathon_detail:16 - Збір деталей для хакатону за адресою: https://hyperbloom-summer-hackathon.devpost.com/
+2026-07-01 08:58:32.763 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:31 - Запуск збору проектів для субдомену: hyperbloom-summer-hackathon
+2026-07-01 08:58:32.764 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:35 - Збір проектів, сторінка 1...
+2026-07-01 08:58:33.530 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:52 - На сторінці 1 більше немає карток проектів. Завершуємо збір.
+2026-07-01 08:58:33.532 | INFO     | src.scraper.orchestrator:run_full_ingestion:72 - Знайдено проектів для обробки: 0
+2026-07-01 08:58:33.616 | INFO     | src.scraper.orchestrator:run_full_ingestion:145 - ✅ Успішно збережено в БД: Hyperbloom Summer Hackathon (0 проектів)
+2026-07-01 08:58:35.785 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [41/48] Пропущено (вже є в БД): APOGEE GameJam 2026
+2026-07-01 08:58:35.846 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [42/48] Пропущено (вже є в БД): Build with GLM 5.1 Challenge by Z.AI
+2026-07-01 08:58:35.931 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [43/48] Пропущено (вже є в БД): Grizzly Hacks III
+2026-07-01 08:58:36.146 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [44/48] Пропущено (вже є в БД): Optimization Grand Challenge 2026
+2026-07-01 08:58:36.374 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [45/48] Пропущено (вже є в БД): WeatherWise Hack
+2026-07-01 08:58:36.458 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [46/48] Пропущено (вже є в БД): Your idea vs 1,000 other marketers. Let’s see where you actually stand. 
+2026-07-01 08:58:36.507 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [47/48] Пропущено (вже є в БД): EcoHacks
+2026-07-01 08:58:36.557 | INFO     | src.scraper.orchestrator:run_full_ingestion:55 - [48/48] Пропущено (вже є в БД): RidgeHacks 2026
+2026-07-01 08:58:36.558 | INFO     | src.scraper.orchestrator:run_full_ingestion:159 - Процедуру повної оркестрації збору завершено.
+2026-07-01 08:58:45.736 | INFO     | __main__:fetch_hacker_news:18 - Збір трендів з Hacker News...
+2026-07-01 08:58:47.090 | INFO     | __main__:fetch_arxiv_ai:33 - Збір інновацій з ArXiv (cs.AI)...
+2026-07-01 08:58:47.551 | INFO     | __main__:update_global_trends:60 - ✅ Глобальні технологічні тренди успішно оновлено!
+2026-07-01 08:59:00.223 | INFO     | __main__:run_batch_feature_extraction:19 - Починаємо генерацію розширених ознак для 150 хакатонів...
+2026-07-01 09:00:42.006 | INFO     | __main__:run_batch_feature_extraction:76 - Генерацію розширених ознак завершено.
+2026-07-01 09:00:50.142 | INFO     | __main__:train_ensemble:21 - Початок підготовки даних для Ансамблю (Stacking)...
+2026-07-01 09:00:50.143 | INFO     | src.ml.prepare_dataset:prepare_dataset:14 - Зчитування даних для Temporal Validation (Out-of-Time Split)...
+2026-07-01 09:00:50.350 | INFO     | __main__:train_ensemble:59 - 🚀 Тренування ансамблю моделей...
+2026-07-01 09:01:13.518 | INFO     | __main__:train_ensemble:61 - Тренування завершено! Оцінюємо якість...
+2026-07-01 09:01:27.051 | INFO     | __main__:snapshot_features:44 - 📦 Feature Snapshot створено: features_v_20260701_090126.parquet
+2026-07-01 09:05:47.309 | INFO     | __main__:train_xgboost:21 - Початок підготовки даних для XGBoost (Advanced Imbalance Handling)...
+2026-07-01 09:05:47.309 | INFO     | src.ml.prepare_dataset:prepare_dataset:15 - Зчитування даних для Temporal Validation (Out-of-Time Split)...
+2026-07-01 09:05:47.380 | INFO     | src.ml.feature_store:snapshot_features:44 - 📦 Feature Snapshot створено: features_v_20260701_090547.parquet
+2026-07-01 09:05:47.469 | INFO     | __main__:train_xgboost:24 - Оригінальний баланс класів (Train): Counter({0: 3968, 1: 171})
+2026-07-01 09:05:47.470 | INFO     | __main__:train_xgboost:28 - Генерація синтетичних даних (SMOTETomek)... Це може зайняти ~10-20 секунд.
+2026-07-01 09:05:48.144 | INFO     | __main__:train_xgboost:32 - Новий баланс класів після SMOTETomek: Counter({0: 3739, 1: 3739})
+2026-07-01 09:05:48.145 | INFO     | __main__:train_xgboost:50 - Тренування моделі XGBoost...
+2026-07-01 09:05:48.804 | INFO     | __main__:train_xgboost:52 - Тренування завершено. Оцінюємо якість...
+2026-07-01 09:05:48.860 | INFO     | __main__:train_xgboost:72 - Оптимальний поріг класифікації: 0.1299 (F1: 0.0331)
+2026-07-01 09:05:48.970 | INFO     | src.ml.experiment_tracker:log_experiment:46 - 📊 Експеримент залоговано! Run ID: d8e1064c-9ed8-4af5-aef5-f17542f11169 | Metrics: {'pr_auc': 0.0134, 'f1_score': 0.0331, 'best_threshold': 0.1299}
+2026-07-01 09:05:49.025 | INFO     | __main__:train_xgboost:110 - ✅ Найдосконалішу модель успішно збережено.
+2026-07-01 09:06:08.694 | INFO     | __main__:generate_weekly_report:79 - 📈 Щотижневий звіт якості моделей (MLOps)
+Проведено експериментів: 1
+
+[2026-07-01 09:05:48.956636] XGBoost_SMOTETomek -> {"pr_auc": 0.0134, "f1_score": 0.0331, "best_threshold": 0.1299}
+
+2026-07-01 09:06:08.969 | INFO     | __main__:generate_weekly_report:82 - Звіт успішно надіслано в Sentry.
+2026-07-02 16:23:52.402 | INFO     | __main__:<module>:303 - Запуск локального сервера FastAPI...
+2026-07-02 16:25:18.514 | INFO     | src.analyzer.pipeline:analyze_hackathon:100 - 🚀 Запуск AI-аналізу для URL: https://xprize.devpost.com/
+2026-07-02 16:25:18.519 | INFO     | src.analyzer.hackathon_parser:parse_hackathon_from_url:126 - Завантаження хакатону: https://xprize.devpost.com/
+2026-07-02 16:25:19.937 | INFO     | src.analyzer.pipeline:_run_analysis_pipeline:46 - 📸 Банер успішно завантажено для AI Vision аналізу.
+2026-07-02 16:25:19.954 | INFO     | src.analyzer.scorer:rank_ideas:113 - Починаємо динамічний скоринг для 3 ідей...
+2026-07-02 16:25:19.954 | INFO     | src.analyzer.scorer:score_idea:53 - ⚖️ Початок оцінювання ідеї: 'AutoPilot Marketing AI'
+2026-07-02 16:25:21.799 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'AutoPilot Marketing AI': 0.0119
+2026-07-02 16:25:21.814 | INFO     | src.analyzer.ai_client:generate_json_with_failover:30 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-07-02 16:25:31.877 | INFO     | src.analyzer.scorer:score_idea:82 -    🧑‍⚖️ Вердикт судді: 0.80 (While the project presents a highly impactful and AI-native solution, its submission lacks concrete evidence of actual revenue generation and user acquisition during the hackathon, which is crucial for the Business Viability criterion.)
+2026-07-02 16:25:31.879 | INFO     | src.analyzer.scorer:score_idea:97 -    ⚖️ Застосовано збалансовані ваги (ML: 60%, Журі: 40%)
+2026-07-02 16:25:31.879 | INFO     | src.analyzer.scorer:score_idea:107 -    📊 ФІНАЛ: ML=0.012 | Judge=0.800 | Впевненість=97.6% -> Підсумок=0.327
+2026-07-02 16:25:31.880 | INFO     | src.analyzer.scorer:score_idea:53 - ⚖️ Початок оцінювання ідеї: 'OmniLearn AI Tutor'
+2026-07-02 16:25:31.935 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'OmniLearn AI Tutor': 0.0150
+2026-07-02 16:25:31.936 | INFO     | src.analyzer.ai_client:generate_json_with_failover:30 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-07-02 16:25:39.003 | INFO     | src.analyzer.scorer:score_idea:82 -    🧑‍⚖️ Вердикт судді: 0.45 (Despite its strong AI-native operations and potential for category impact, the project will likely lose due to the complete absence of evidence for launching a real business, acquiring real users, and generating real revenue as strictly required by the hackathon's business viability criteria.)
+2026-07-02 16:25:39.004 | INFO     | src.analyzer.scorer:score_idea:97 -    ⚖️ Застосовано збалансовані ваги (ML: 60%, Журі: 40%)
+2026-07-02 16:25:39.004 | INFO     | src.analyzer.scorer:score_idea:107 -    📊 ФІНАЛ: ML=0.015 | Judge=0.450 | Впевненість=97.0% -> Підсумок=0.189
+2026-07-02 16:25:39.008 | INFO     | src.analyzer.scorer:score_idea:53 - ⚖️ Початок оцінювання ідеї: 'Synapse AI Knowledge'
+2026-07-02 16:25:39.078 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Synapse AI Knowledge': 0.0119
+2026-07-02 16:25:39.080 | INFO     | src.analyzer.ai_client:generate_json_with_failover:30 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-07-02 16:25:46.090 | INFO     | src.analyzer.scorer:score_idea:82 -    🧑‍⚖️ Вердикт судді: 0.35 (Despite a strong AI-native solution with high potential for category impact, the project critically fails to provide any evidence of launching a real business, acquiring real users, or generating real revenue during the hackathon window, which is a mandatory criterion for business viability.)
+2026-07-02 16:25:46.093 | INFO     | src.analyzer.scorer:score_idea:97 -    ⚖️ Застосовано збалансовані ваги (ML: 60%, Журі: 40%)
+2026-07-02 16:25:46.094 | INFO     | src.analyzer.scorer:score_idea:107 -    📊 ФІНАЛ: ML=0.012 | Judge=0.350 | Впевненість=97.6% -> Підсумок=0.147
+2026-07-02 16:25:46.224 | INFO     | src.analyzer.pipeline:_run_analysis_pipeline:83 - ✅ Результати аналізу успішно збережено в БД. Prediction ID: b6b15a2e-5105-41e7-aab1-c9b11fb68907
+2026-07-02 16:27:32.297 | INFO     | src.analyzer.pipeline:analyze_hackathon:100 - 🚀 Запуск AI-аналізу для URL: https://qwencloud-hackathon.devpost.com/
+2026-07-02 16:27:32.303 | INFO     | src.analyzer.hackathon_parser:parse_hackathon_from_url:126 - Завантаження хакатону: https://qwencloud-hackathon.devpost.com/
+2026-07-02 16:27:34.070 | INFO     | src.analyzer.rules_extractor:fetch_and_clean_rules:16 - Завантаження правил хакатону: https://qwencloud-hackathon.devpost.com/rules
+2026-07-02 16:27:35.465 | INFO     | src.analyzer.rules_extractor:extract_hard_constraints_with_ai:32 - AI-аналіз жорстких обмежень хакатону...
+2026-07-02 16:27:35.467 | INFO     | src.analyzer.ai_client:generate_json_with_failover:30 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-07-02 16:27:51.848 | INFO     | src.analyzer.pipeline:_run_analysis_pipeline:46 - 📸 Банер успішно завантажено для AI Vision аналізу.
+2026-07-02 16:27:51.849 | INFO     | src.analyzer.gemini_analyzer:analyze_hackathon_with_gemini:12 - AI-аналіз профілю хакатону: 
+2026-07-02 16:27:51.850 | INFO     | src.analyzer.ai_client:generate_json_with_failover:30 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-07-02 16:28:07.110 | INFO     | src.analyzer.idea_generator:generate_winning_ideas:42 - 🧠 Запуск Agentic AI для генерації ідей: 
+2026-07-02 16:28:07.233 | INFO     | src.analyzer.idea_generator:generate_winning_ideas:59 - Агент 1: Аналіз RAG-контексту та генерація пулу ідей...
+2026-07-02 16:28:07.238 | INFO     | src.analyzer.ai_client:generate_json_with_failover:30 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-07-02 16:28:17.382 | INFO     | src.analyzer.idea_generator:generate_winning_ideas:84 - Агент 2: Робота Суворого Критика (фільтрація обмежень та фіналізація)...
+2026-07-02 16:28:17.385 | INFO     | src.analyzer.ai_client:generate_json_with_failover:30 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-07-02 16:28:40.238 | INFO     | src.analyzer.scorer:rank_ideas:113 - Починаємо динамічний скоринг для 3 ідей...
+2026-07-02 16:28:40.241 | INFO     | src.analyzer.scorer:score_idea:53 - ⚖️ Початок оцінювання ідеї: 'QwenCognito: Introspective Agent for Trustworthy AI'
+2026-07-02 16:28:40.317 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'QwenCognito: Introspective Agent for Trustworthy AI': 0.0230
+2026-07-02 16:28:40.325 | INFO     | src.analyzer.ai_client:generate_json_with_failover:30 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-07-02 16:28:54.403 | INFO     | src.analyzer.scorer:score_idea:82 -    🧑‍⚖️ Вердикт судді: 0.71 (While the project addresses a highly relevant problem of AI trustworthiness with a clever introspective agent concept, it is unlikely to win due to a lack of demonstrated sophisticated QwenCloud API integration and limited algorithmic novelty compared to potentially more innovative submissions.)
+2026-07-02 16:28:54.404 | INFO     | src.analyzer.scorer:score_idea:97 -    ⚖️ Застосовано збалансовані ваги (ML: 60%, Журі: 40%)
+2026-07-02 16:28:54.404 | INFO     | src.analyzer.scorer:score_idea:107 -    📊 ФІНАЛ: ML=0.023 | Judge=0.710 | Впевненість=95.4% -> Підсумок=0.298
+2026-07-02 16:28:54.405 | INFO     | src.analyzer.scorer:score_idea:53 - ⚖️ Початок оцінювання ідеї: 'SteganoCode: Verifiable Provenance for AI-Generated Content'
+2026-07-02 16:28:54.468 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'SteganoCode: Verifiable Provenance for AI-Generated Content': 0.0230
+2026-07-02 16:28:54.470 | INFO     | src.analyzer.ai_client:generate_json_with_failover:30 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-07-02 16:29:00.477 | INFO     | src.analyzer.scorer:score_idea:82 -    🧑‍⚖️ Вердикт судді: 0.92 (This project offers a highly innovative and technically sophisticated solution to a critical real-world problem of AI content provenance, demonstrating strong potential for impact and productization.)
+2026-07-02 16:29:00.477 | INFO     | src.analyzer.scorer:score_idea:97 -    ⚖️ Застосовано збалансовані ваги (ML: 60%, Журі: 40%)
+2026-07-02 16:29:00.481 | INFO     | src.analyzer.scorer:score_idea:107 -    📊 ФІНАЛ: ML=0.023 | Judge=0.920 | Впевненість=95.4% -> Підсумок=0.382
+2026-07-02 16:29:00.482 | INFO     | src.analyzer.scorer:score_idea:53 - ⚖️ Початок оцінювання ідеї: 'QwenFlow Evaluator: Autonomous Quality Gate for LLM Workflows'
+2026-07-02 16:29:00.536 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'QwenFlow Evaluator: Autonomous Quality Gate for LLM Workflows': 0.0230
+2026-07-02 16:29:00.540 | INFO     | src.analyzer.ai_client:generate_json_with_failover:30 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...
+2026-07-02 16:29:08.473 | INFO     | src.analyzer.scorer:score_idea:82 -    🧑‍⚖️ Вердикт судді: 0.87 (The project demonstrates exceptional innovation and real-world value by leveraging a QwenCloud agent as an autonomous quality gate, directly addressing a critical pain point in multi-stage LLM workflows with high potential for impact and productization.)
+2026-07-02 16:29:08.473 | INFO     | src.analyzer.scorer:score_idea:97 -    ⚖️ Застосовано збалансовані ваги (ML: 60%, Журі: 40%)
+2026-07-02 16:29:08.474 | INFO     | src.analyzer.scorer:score_idea:107 -    📊 ФІНАЛ: ML=0.023 | Judge=0.870 | Впевненість=95.4% -> Підсумок=0.362
+2026-07-02 16:29:08.596 | INFO     | src.analyzer.pipeline:_run_analysis_pipeline:83 - ✅ Результати аналізу успішно збережено в БД. Prediction ID: 714137f6-15cb-405e-a5ec-0d3717529f7f
+2026-07-02 16:31:03.780 | INFO     | src.analyzer.techspec_pipeline:generate_and_save_techspec:21 - Запуск генерації ТЗ для передбачення 714137f6-15cb-405e-a5ec-0d3717529f7f (Ідея #1)
+2026-07-02 16:31:03.870 | ERROR    | src.analyzer.techspec_pipeline:generate_and_save_techspec:41 - Опис ідеї або передбачення не знайдено в БД.
+2026-07-02 16:31:10.143 | INFO     | src.analyzer.techspec_pipeline:generate_and_save_techspec:21 - Запуск генерації ТЗ для передбачення 714137f6-15cb-405e-a5ec-0d3717529f7f (Ідея #1)
+2026-07-02 16:31:10.229 | ERROR    | src.analyzer.techspec_pipeline:generate_and_save_techspec:41 - Опис ідеї або передбачення не знайдено в БД.
+2026-07-02 16:31:16.128 | INFO     | src.analyzer.techspec_pipeline:generate_and_save_techspec:21 - Запуск генерації ТЗ для передбачення 714137f6-15cb-405e-a5ec-0d3717529f7f (Ідея #2)
+2026-07-02 16:31:16.190 | ERROR    | src.analyzer.techspec_pipeline:generate_and_save_techspec:41 - Опис ідеї або передбачення не знайдено в БД.
+2026-07-02 16:31:18.769 | INFO     | src.analyzer.techspec_pipeline:generate_and_save_techspec:21 - Запуск генерації ТЗ для передбачення 714137f6-15cb-405e-a5ec-0d3717529f7f (Ідея #3)
+2026-07-02 16:31:18.819 | ERROR    | src.analyzer.techspec_pipeline:generate_and_save_techspec:41 - Опис ідеї або передбачення не знайдено в БД.
+2026-07-02 21:48:03.677 | INFO     | __main__:run_full_ingestion:56 - Запуск ініціалізації бази даних...
+2026-07-02 21:48:03.761 | INFO     | src.scraper.hackathon_list_scraper:fetch_ended_hackathons:16 - Запуск збору списку хакатонів. Заплановано сторінок: 1
+2026-07-02 21:48:03.761 | INFO     | src.scraper.hackathon_list_scraper:fetch_ended_hackathons:20 - Збір сторінки 1...
+2026-07-02 21:48:04.863 | INFO     | src.scraper.hackathon_list_scraper:fetch_ended_hackathons:31 - Сторінку 1 успішно оброблено. Зчитано записів: 24
+2026-07-02 21:48:06.863 | INFO     | __main__:run_full_ingestion:60 - Отримано список із 24 хакатонів. Починаємо оркестрацію...
+2026-07-02 21:48:07.642 | INFO     | __main__:run_full_ingestion:82 - [1/24] Пропущено (вже є в БД): Youth Code x AI
+2026-07-02 21:48:07.684 | INFO     | __main__:run_full_ingestion:85 - [2/24] Збір даних: GLITCHED GAMES...
+2026-07-02 21:48:07.685 | INFO     | src.scraper.hackathon_detail_scraper:scrape_hackathon_detail:16 - Збір деталей для хакатону за адресою: https://glitch-to-win-games.devpost.com/
+2026-07-02 21:48:08.778 | INFO     | __main__:run_full_ingestion:82 - [3/24] Пропущено (вже є в БД): 1st Nature's Blueprint Ideathon 2026 !!
+2026-07-02 21:48:08.816 | INFO     | __main__:run_full_ingestion:85 - [4/24] Збір даних: Zero to Live: Website Challenge...
+2026-07-02 21:48:08.817 | INFO     | src.scraper.hackathon_detail_scraper:scrape_hackathon_detail:16 - Збір деталей для хакатону за адресою: https://zero-to-live-website-challenge.devpost.com/
+2026-07-02 21:48:09.787 | INFO     | __main__:run_full_ingestion:82 - [5/24] Пропущено (вже є в БД): Chutes Hack Malaysia 2026
+2026-07-02 21:48:09.826 | INFO     | __main__:run_full_ingestion:85 - [6/24] Збір даних: SunnyHacks June 2026...
+2026-07-02 21:48:09.827 | INFO     | src.scraper.hackathon_detail_scraper:scrape_hackathon_detail:16 - Збір деталей для хакатону за адресою: https://sunnyhacks-june-2026.devpost.com/
+2026-07-02 21:48:10.814 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:31 - Запуск збору проектів для субдомену: sunnyhacks-june-2026
+2026-07-02 21:48:10.815 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:35 - Збір проектів, сторінка 1...
+2026-07-02 21:48:11.591 | INFO     | src.scraper.projects_scraper:fetch_hackathon_projects:52 - На сторінці 1 більше немає карток проектів. Завершуємо збір.
+2026-07-02 21:48:11.591 | INFO     | __main__:run_full_ingestion:95 - Знайдено проектів для обробки: 0
+2026-07-02 21:48:11.674 | INFO     | __main__:run_full_ingestion:144 - ✅ Збережено в БД: SunnyHacks June 2026 (0 проектів)
+2026-07-02 21:48:13.783 | INFO     | __main__:run_full_ingestion:82 - [7/24] Пропущено (вже є в БД): Google Cloud Rapid Agent Hackathon
+2026-07-02 21:48:13.825 | INFO     | __main__:run_full_ingestion:82 - [8/24] Пропущено (вже є в БД): H0: Hack the Zero Stack with Vercel v0 and AWS Databases
+2026-07-02 21:48:13.891 | INFO     | __main__:run_full_ingestion:82 - [9/24] Пропущено (вже є в БД): FIND EVIL!
+2026-07-02 21:48:13.940 | INFO     | __main__:run_full_ingestion:85 - [10/24] Збір даних: UiPath AgentHack...
+2026-07-02 21:48:13.941 | INFO     | src.scraper.hackathon_detail_scraper:scrape_hackathon_detail:16 - Збір деталей для хакатону за адресою: https://uipath-agenthack.devpost.com/
+2026-07-02 21:48:14.986 | INFO     | __main__:run_full_ingestion:82 - [11/24] Пропущено (вже є в БД): Splunk Agentic Ops Hackathon
+2026-07-02 21:48:15.025 | INFO     | __main__:run_full_ingestion:82 - [12/24] Пропущено (вже є в БД): GitLab Transcend Hackathon
+2026-07-02 21:48:15.078 | INFO     | __main__:run_full_ingestion:82 - [13/24] Пропущено (вже є в БД): Mind the Product presents World Product Day: Everyone Ships Now
+2026-07-02 21:48:15.142 | INFO     | __main__:run_full_ingestion:82 - [14/24] Пропущено (вже є в БД): DSH Hacks V1
+2026-07-02 21:48:15.217 | INFO     | __main__:run_full_ingestion:82 - [15/24] Пропущено (вже є в БД): Learning Hackathon: Spec Driven Development
+2026-07-02 21:48:15.275 | INFO     | __main__:run_full_ingestion:82 - [16/24] Пропущено (вже є в БД): UC Berkeley AI Hackathon 2026
+2026-07-02 21:48:15.348 | INFO     | __main__:run_full_ingestion:82 - [17/24] Пропущено (вже є в БД): Africa Digital ID Hackathon 2026
+2026-07-02 21:48:15.349 | INFO     | __main__:run_full_ingestion:70 - [18/24] 🚫 Відфільтровано: BluePrint 2026 - Hackthon for freshers and Students
+2026-07-02 21:48:15.402 | INFO     | __main__:run_full_ingestion:82 - [19/24] Пропущено (вже є в БД): Beyond Tomorrow Summit
+2026-07-02 21:48:15.471 | INFO     | __main__:run_full_ingestion:82 - [20/24] Пропущено (вже є в БД): INNOSpark Pitch Competition
+2026-07-02 21:48:15.473 | INFO     | __main__:run_full_ingestion:70 - [21/24] 🚫 Відфільтровано: Creator Colosseum Startup Competition: Student Founders. Real Startups. 
+2026-07-02 21:48:15.541 | INFO     | __main__:run_full_ingestion:85 - [22/24] Збір даних: Build the Future with AI — From Code to No-Code...
+2026-07-02 21:48:15.542 | INFO     | src.scraper.hackathon_detail_scraper:scrape_hackathon_detail:16 - Збір деталей для хакатону за адресою: https://build-the-future-with-ai.devpost.com/
+2026-07-02 21:48:16.651 | INFO     | __main__:run_full_ingestion:82 - [23/24] Пропущено (вже є в БД): Quantum Sprint
+2026-07-02 21:48:16.697 | INFO     | __main__:run_full_ingestion:82 - [24/24] Пропущено (вже є в БД): VALSEA Edtech Sprint (HCM)
+2026-07-02 21:48:16.699 | INFO     | __main__:run_full_ingestion:157 - Оркестрацію успішно завершено.
+2026-07-02 21:50:38.563 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0151
+2026-07-02 21:50:38.628 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0095
+2026-07-02 21:50:38.685 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0151
+2026-07-02 21:50:38.751 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0142
+2026-07-02 21:52:13.007 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0292
+2026-07-02 21:52:13.042 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0157
+2026-07-02 21:52:13.071 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0292
+2026-07-02 21:52:13.138 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0346
+2026-07-02 21:53:58.874 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0292
+2026-07-02 21:53:58.893 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0157
+2026-07-02 21:53:58.947 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0292
+2026-07-02 21:53:59.021 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0346
+2026-07-02 21:56:32.641 | INFO     | __main__:epsilon_greedy_tech_selector:26 - 🎰 Multi-Armed Bandit: EXPLOITATION (використовуємо перевірений стек)
+2026-07-02 21:56:32.642 | INFO     | __main__:epsilon_greedy_tech_selector:21 - 🎰 Multi-Armed Bandit: EXPLORATION (додаємо новий тренд)
+2026-07-02 21:56:32.643 | INFO     | __main__:epsilon_greedy_tech_selector:26 - 🎰 Multi-Armed Bandit: EXPLOITATION (використовуємо перевірений стек)
+2026-07-02 21:56:32.643 | INFO     | __main__:epsilon_greedy_tech_selector:26 - 🎰 Multi-Armed Bandit: EXPLOITATION (використовуємо перевірений стек)
+2026-07-02 21:56:32.644 | INFO     | __main__:epsilon_greedy_tech_selector:21 - 🎰 Multi-Armed Bandit: EXPLORATION (додаємо новий тренд)
+2026-07-02 21:56:32.645 | INFO     | __main__:epsilon_greedy_tech_selector:26 - 🎰 Multi-Armed Bandit: EXPLOITATION (використовуємо перевірений стек)
+2026-07-02 21:56:32.646 | INFO     | __main__:epsilon_greedy_tech_selector:26 - 🎰 Multi-Armed Bandit: EXPLOITATION (використовуємо перевірений стек)
+2026-07-02 21:56:32.647 | INFO     | __main__:epsilon_greedy_tech_selector:26 - 🎰 Multi-Armed Bandit: EXPLOITATION (використовуємо перевірений стек)
+2026-07-02 21:56:32.647 | INFO     | __main__:epsilon_greedy_tech_selector:26 - 🎰 Multi-Armed Bandit: EXPLOITATION (використовуємо перевірений стек)
+2026-07-02 21:56:32.649 | INFO     | __main__:epsilon_greedy_tech_selector:21 - 🎰 Multi-Armed Bandit: EXPLORATION (додаємо новий тренд)
+2026-07-02 22:01:27.008 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0252
+2026-07-02 22:01:27.043 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0252
+2026-07-02 22:01:27.101 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0339
+2026-07-02 22:01:27.147 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0252
+2026-07-02 22:01:27.203 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0242
+2026-07-02 22:01:27.262 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0249
+2026-07-02 22:01:27.307 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0252
+2026-07-02 22:03:20.137 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0141
+2026-07-02 22:03:20.158 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0141
+2026-07-02 22:03:20.200 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0199
+2026-07-02 22:03:20.262 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0141
+2026-07-02 22:03:20.305 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0119
+2026-07-02 22:03:20.350 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0113
+2026-07-02 22:03:20.394 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0141
+2026-07-02 22:04:39.436 | INFO     | src.ml.prepare_dataset:prepare_dataset:15 - Зчитування даних для Temporal Validation (Out-of-Time Split)...
+2026-07-02 22:04:39.526 | INFO     | src.ml.feature_store:snapshot_features:44 - 📦 Feature Snapshot створено: features_v_20260702_220439.parquet
+2026-07-02 22:06:02.416 | INFO     | src.ml.prepare_dataset:prepare_dataset:15 - Зчитування даних для Temporal Validation (Out-of-Time Split)...
+2026-07-02 22:06:02.480 | INFO     | src.ml.feature_store:snapshot_features:44 - 📦 Feature Snapshot створено: features_v_20260702_220602.parquet
+2026-07-02 22:07:20.280 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0165
+2026-07-02 22:07:20.303 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0165
+2026-07-02 22:07:20.324 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0297
+2026-07-02 22:07:20.363 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0165
+2026-07-02 22:07:20.411 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0182
+2026-07-02 22:07:20.450 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0185
+2026-07-02 22:07:20.487 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.0165
+2026-07-02 22:11:53.592 | INFO     | src.ml.prepare_dataset:prepare_dataset:15 - Зчитування даних для Temporal Validation (Out-of-Time Split)...
+2026-07-02 22:11:53.658 | INFO     | src.ml.feature_store:snapshot_features:44 - 📦 Feature Snapshot створено: features_v_20260702_221153.parquet
+2026-07-02 22:13:42.712 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.3495
+2026-07-02 22:13:42.740 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.3620
+2026-07-02 22:13:42.795 | INFO     | src.ml.predictor:predict_win_probability:58 - Передбачено ймовірність перемоги для 'Проекту': 0.2332
+2026-07-02 22:17:07.063 | INFO     | __main__:<module>:324 - Запуск локального сервера FastAPI...
+2026-07-02 22:20:47.528 | INFO     | src.analyzer.assets_generator:generate_project_assets:13 - 💻 Запуск генерації коду та медіа-промптів для: KickPulse AI: MomentMarker
+2026-07-02 22:20:47.534 | INFO     | src.analyzer.ai_client:generate_json_with_failover:30 - ШІ-Маршрутизатор [Спроба 1]: Виклик Gemini API (gemini-2.5-flash)...

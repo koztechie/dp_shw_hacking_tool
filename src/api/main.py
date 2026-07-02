@@ -1,18 +1,21 @@
 import sys
 from pathlib import Path
+
+# КРИТИЧНО ДЛЯ АНТИКРИХКОСТІ: Системні шляхи налаштовуються у першу чергу!
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
 import duckdb
+import numpy as np
 from fastapi import FastAPI, Request, Form, BackgroundTasks, UploadFile, File
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse
 import uvicorn
 
-# Гарантуємо абсолютні шляхи
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
 from src.logger import logger
 from config.settings import DB_PATH
+from src.ml.drift_detector import detect_drift
 
 TEMPLATES_DIR = PROJECT_ROOT / "src" / "ui" / "templates"
 STATIC_DIR = PROJECT_ROOT / "src" / "ui" / "static"
@@ -97,7 +100,6 @@ async def analyze_url(url: str = Form(...)):
 
 @app.post("/analyze/html")
 async def analyze_html(file: UploadFile = File(...)):
-    """Приймає вивантажений HTML файл та запускає повний AI-пайплайн."""
     try:
         content = await file.read()
         html_str = content.decode("utf-8", errors="ignore")
@@ -192,7 +194,6 @@ async def techspec_page(request: Request, prediction_id: str):
 # 6. Ендпоінт Панелі історії передбачень
 @app.get("/history", response_class=HTMLResponse)
 async def history_page(request: Request):
-    import numpy as np
     predictions = []
     try:
         con = duckdb.connect(DB_PATH, read_only=True)
@@ -208,13 +209,30 @@ async def history_page(request: Request):
         if 'con' in locals(): con.close()
     return templates.TemplateResponse(request=request, name="history.html", context={"predictions": predictions})
 
+
+@app.post("/generate_assets/{prediction_id}")
+async def generate_assets(prediction_id: str):
+    import json
+    try:
+        con = duckdb.connect(DB_PATH, read_only=True)
+        row = con.execute("SELECT techspec FROM predictions WHERE id = ?", [prediction_id]).fetchone()
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
+    finally:
+        if "con" in locals(): con.close()
+
+    if not row or not row[0]:
+        return JSONResponse({"error": "TechSpec not found"}, status_code=404)
+
+    techspec = json.loads(row[0])
+    from src.analyzer.assets_generator import generate_project_assets
+    assets = generate_project_assets(techspec)
+    
+    return JSONResponse(assets)
+
 # 7. Ендпоінт системи самодіагностики (Health Check)
 @app.get("/health")
 async def health():
-    """
-    Комплексна перевірка здоров'я системи (БД + наявність ML-моделі).
-    Безпечно працює в умовах паралельного доступу фонового збору.
-    """
     health_status = {"status": "ok", "hackathons": 0, "projects": 0, "model_ready": False, "error": None}
     try:
         con = duckdb.connect(DB_PATH, read_only=True)
@@ -235,12 +253,9 @@ async def health():
         
     return JSONResponse(health_status)
 
-
-# --- НОВІ ЕНДПОІНТИ ЕТАПУ 58 (MLOps) ---
-
+# 8. Ендпоінти для перенавчання ML-моделі (MLOps)
 @app.get("/ml/retrain-check")
 async def retrain_check():
-    """Перевіряє, чи накопичилося достатньо нових даних для перенавчання моделі."""
     suggest_retrain = False
     current_count = 0
     try:
@@ -249,7 +264,7 @@ async def retrain_check():
     except Exception:
         pass
     finally:
-        if "con" in locals(): con.close()
+        if 'con' in locals(): con.close()
 
     count_file = PROJECT_ROOT / "data" / "models" / "last_train_count.txt"
     last_count = 0
@@ -259,8 +274,8 @@ async def retrain_check():
         except:
             pass
 
-    # Математично стійка умова (різниця >= 20)
-    if (current_count - last_count) >= 20:
+    # Якщо різниця більше 20 - пропонуємо перенавчання або виявлено дрейф даних
+    if (current_count - last_count) >= 20 or detect_drift():
         suggest_retrain = True
 
     # Якщо моделі взагалі ще немає
@@ -274,16 +289,14 @@ async def retrain_check():
     })
 
 def run_ml_pipeline():
-    """Фоновий процес MLOps: генерація фіч + змагання моделей."""
     try:
         from src.analyzer.batch_features import run_batch_feature_extraction
-        from src.ml.train_xgboost import train_xgboost
+        from src.ml.train_ensemble import train_ensemble
         
         logger.info("🧠 Запуск фонового MLOps пайплайну...")
         run_batch_feature_extraction()
-        train_xgboost()
+        train_ensemble()
         
-        # Фіксуємо кількість даних, на якій навчилася модель
         con = duckdb.connect(DB_PATH, read_only=True)
         current_count = con.execute("SELECT COUNT(*) FROM hackathons").fetchone()[0]
         con.close()
@@ -298,13 +311,11 @@ def run_ml_pipeline():
 
 @app.post("/ml/retrain")
 async def retrain_model(background_tasks: BackgroundTasks):
-    """Запускає MLOps пайплайн у безпечному пулі FastAPI."""
     background_tasks.add_task(run_ml_pipeline)
     return JSONResponse({"status": "retraining started"})
 
 @app.get("/ml/evolution")
 async def ml_evolution():
-    """Повертає автоматично згенеровані промпти для покращення коду на основі MLOps-аналізу."""
     from src.analyzer.evolution_engine import analyze_system_performance
     result = analyze_system_performance()
     return JSONResponse(result)

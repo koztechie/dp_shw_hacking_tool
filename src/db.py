@@ -37,6 +37,7 @@ def init_db():
                 themes VARCHAR,  -- JSON array
                 sponsors VARCHAR,  -- JSON array
                 judging_criteria VARCHAR,  -- raw text
+                judges_info VARCHAR,       -- ДОДАНО: Інформація про суддів
                 scraped_at TIMESTAMP DEFAULT current_timestamp
             )
         """)
@@ -110,6 +111,18 @@ def init_db():
             )
         """)
 
+        
+        # 6. Таблиця відстеження експериментів (MLOps Model Registry)
+        con.execute("""
+            CREATE TABLE IF NOT EXISTS experiments (
+                run_id VARCHAR PRIMARY KEY,
+                timestamp TIMESTAMP DEFAULT current_timestamp,
+                model_name VARCHAR,
+                hyperparameters VARCHAR,  -- JSON
+                metrics VARCHAR,          -- JSON
+                model_path VARCHAR
+            )
+        """)
         print("Базу даних DuckDB успішно ініціалізовано.")
     except Exception as e:
         print(f"Помилка під час ініціалізації БД: {e}")

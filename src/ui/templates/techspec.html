@@ -71,6 +71,33 @@
         </div>
     </div>
 
+    <!-- 💻 Генерація Коду та Медіа (Новий стійкий блок без вкладених лапок) -->
+    <div style="margin-bottom: 2.5rem; padding-top: 2rem; border-top: 2px dashed #30363d;">
+        <h3 style="color: #bc8cff; margin-bottom: 1rem;">💻 Генерація стартового коду та Медіа-промптів</h3>
+        <p style="color: #8b949e; margin-bottom: 1rem;">AI створить готову структуру проекту (Bash-скрипт) та промпти для Midjourney/RunwayML.</p>
+        
+        <button id="gen-assets-btn" onclick="generateAssets()" class="btn btn-primary" style="background: #bc8cff; color: #0d1117; font-weight: bold; padding: 0.8rem 1.5rem; border: none; border-radius: 6px; cursor: pointer;">
+            ⚡ Згенерувати кодовий стек
+        </button>
+        
+        <div id="status-box" style="margin-top: 1.5rem; display: none; text-align: center; padding: 1rem; border: 1px solid #30363d; border-radius: 6px; background: #0d1117;">
+            <span id="assets-loading" style="color: #bc8cff; animation: pulse 1.5s infinite; font-weight: bold; font-size: 1.05rem;">
+                ⏳ AI пише стартовий код (це забере ~15-20 сек)...
+            </span>
+        </div>
+
+        <div id="assets-result" style="display: none; margin-top: 2rem;">
+            <h4 style="color: #58a6ff; margin-bottom: 0.5rem;">⚙️ Bash Setup Script (Копіюйте в термінал):</h4>
+            <pre style="background: #0d1117; padding: 1rem; border-radius: 6px; border: 1px solid #30363d; overflow-x: auto; color: #79c0ff; font-family: monospace; margin-bottom: 1.5rem;"><code id="bash-code"></code></pre>
+
+            <h4 style="color: #3fb950; margin-bottom: 0.5rem;">🎨 Midjourney Prompts (UI/UX):</h4>
+            <ul id="ui-prompts" style="color: #c9d1d9; padding-left: 1.5rem; margin-bottom: 1.5rem; line-height: 1.6;"></ul>
+
+            <h4 style="color: #f78166; margin-bottom: 0.5rem;">🎬 RunwayML Prompts (Video):</h4>
+            <ul id="video-prompts" style="color: #c9d1d9; padding-left: 1.5rem; line-height: 1.6;"></ul>
+        </div>
+    </div>
+
     <!-- Antifragility -->
     <div style="margin-bottom: 2.5rem;">
         <h3 style="color: #d29922; border-bottom: 1px solid #30363d; padding-bottom: 0.5rem; margin-bottom: 1rem;">🛡️ Antifragile Features (Запасний план)</h3>
@@ -92,7 +119,6 @@
 
 <script>
     function exportToMarkdown() {
-        // Надійно забираємо JSON прямо з Jinja
         const ts = {{ techspec | tojson }};
         
         let md = `# 🎯 ${ts.project_name || 'MVP Project'}\n\n`;
@@ -147,12 +173,9 @@
             md += `- 🚫 ${d}\n`;
         });
 
-        // Створення та симуляція завантаження файлу
         const blob = new Blob([md], { type: 'text/markdown;charset=utf-8;' });
         const link = document.createElement("a");
         const url = URL.createObjectURL(blob);
-        
-        // Формуємо красиву назву файлу
         const fileName = (ts.project_name || 'project').toLowerCase().replace(/\s+/g, '_') + '_techspec.md';
         
         link.setAttribute("href", url);
@@ -163,12 +186,45 @@
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
     }
+
+    async function generateAssets() {
+        // Абсолютна антикрихкість: беремо унікальний ID прямо з URL-шляху браузера
+        const predictionId = window.location.pathname.split("/").pop();
+        
+        const btn = document.getElementById("gen-assets-btn");
+        const statusBox = document.getElementById("status-box");
+        const resultDiv = document.getElementById("assets-result");
+        
+        btn.style.display = "none";
+        statusBox.style.display = "block";
+        
+        try {
+            const res = await fetch(`/generate_assets/${predictionId}`, { method: "POST" });
+            const data = await res.json();
+            
+            if (!res.ok || data.error) {
+                throw new Error(data.error || "Не вдалося виконати генерацію");
+            }
+            
+            document.getElementById("bash-code").textContent = data.bash_setup_script;
+            document.getElementById("ui-prompts").innerHTML = data.ui_prompts.map(p => `<li>${p}</li>`).join("");
+            document.getElementById("video-prompts").innerHTML = data.video_prompts.map(p => `<li>${p}</li>`).join("");
+            
+            statusBox.style.display = "none";
+            resultDiv.style.display = "block";
+        } catch (err) {
+            alert("Помилка генерації коду: " + err.message);
+            btn.style.display = "block";
+            statusBox.style.display = "none";
+        }
+    }
 </script>
 
 <style>
+    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
     @media print {
         body { background: white !important; color: black !important; }
-        .navbar, .print-controls { display: none !important; }
+        .navbar, .print-controls, #gen-assets-btn, #status-box, #assets-result { display: none !important; }
         .techspec-container { border: none !important; padding: 0 !important; max-width: 100% !important; }
         * { color: black !important; }
     }

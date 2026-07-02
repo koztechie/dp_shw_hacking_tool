@@ -8,7 +8,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from src.logger import logger
 from src.analyzer.ai_client import generate_json_with_failover
 
-def analyze_hackathon_with_gemini(hackathon_data: dict, osint_data: dict) -> dict:
+def analyze_hackathon_with_gemini(hackathon_data: dict, osint_data: dict, banner_bytes: bytes = None) -> dict:
     logger.info(f"AI-аналіз профілю хакатону: {hackathon_data.get('title', 'Unknown')}")
     
     sponsors = ", ".join(hackathon_data.get('sponsors', []))
@@ -28,7 +28,8 @@ Themes: {themes}
 Judging Criteria: {criteria}
 Prize Pool / Details: {prizes}
 About: {about}
-OSINT DATA:
+Judges Info: {hackathon_data.get("judges_info", "")}
+I have also attached the hackathon banner image. Extract any hidden themes or sponsor logos from it.\nOSINT DATA:
 {osint_text}
 
 Return the analysis STRICTLY as a JSON object matching exactly this schema:
@@ -43,7 +44,7 @@ Return the analysis STRICTLY as a JSON object matching exactly this schema:
   "trend_alignment": ["trends"]
 }}
 """
-    result = generate_json_with_failover(prompt)
+    result = generate_json_with_failover(prompt, banner_bytes)
     
     # Абсолютна антикрихкість: якщо всі моделі світу впадуть, ми не зламаємо пайплайн
     if "fallback" in result or "error" in result:

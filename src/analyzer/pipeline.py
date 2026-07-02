@@ -34,10 +34,22 @@ def _run_analysis_pipeline(hackathon_data: dict, source_url: str) -> dict:
     organizer = hackathon_data.get("organizer", "")
     osint = get_organizer_patterns(organizer) if organizer else {"found": False, "patterns": {}}
 
+
+    # Завантаження банера для Multi-Modal аналізу
+    banner_url = hackathon_data.get("banner_url")
+    banner_bytes = None
+    if banner_url:
+        from src.scraper.http_client import safe_get
+        img_resp = safe_get(banner_url, timeout=5)
+        if img_resp and len(img_resp.content) < 4 * 1024 * 1024:  # Ліміт 4 МБ
+            banner_bytes = img_resp.content
+            logger.info("📸 Банер успішно завантажено для AI Vision аналізу.")
+
     ck_analysis = cache_key(source_url + "analysis")
     analysis = get_cached(ck_analysis)
     if not analysis:
-        analysis = analyze_hackathon_with_gemini(hackathon_data, osint)
+        analysis = analyze_hackathon_with_gemini(hackathon_data, osint, banner_bytes)
+
         set_cache(ck_analysis, analysis)
 
     ck_ideas = cache_key(source_url + "ideas")

@@ -3,8 +3,9 @@ from pathlib import Path
 import json
 import time
 import uuid
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
-# Гарантуємо правильні шляхи імпорту
+# Гарантуємо правильні шляхи
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
@@ -16,13 +17,41 @@ from src.scraper.project_detail_scraper import scrape_project_detail
 from src.scraper.github_scraper import get_github_metrics
 from src.db import get_connection, init_db
 
-# Стоп-слова для фільтрації закритих/університетських хакатонів
 STOP_WORDS = ["student", "university", "high school", "internal", "closed"]
+
+def _process_single_project(p: dict, h_id: str) -> dict:
+    """Функція для паралельного виконання (Worker Task). Збирає деталі 1 проекту."""
+    p_url = p.get("project_url", "")
+    p_id = str(uuid.uuid5(uuid.NAMESPACE_URL, p_url if p_url else p.get("title", "") + h_id))
+    
+    pdetail = scrape_project_detail(p_url) if p_url else {}
+    github_url = pdetail.get("github_url", "")
+    github = get_github_metrics(github_url) if github_url else {}
+    
+    tech_tags = pdetail.get("tech_tags") or p.get("tech_tags", [])
+    is_winner = p.get("is_winner", False) or (pdetail.get("prize_track") is not None)
+    
+    return {
+        "id": p_id,
+        "title": p.get("title", ""),
+        "description": p.get("description", ""),
+        "tech_tags": tech_tags,
+        "team_size": pdetail.get("team_size", 1),
+        "likes": p.get("likes", 0),
+        "github_url": github_url,
+        "demo_url": pdetail.get("demo_url"),
+        "is_winner": is_winner,
+        "prize_track": pdetail.get("prize_track"),
+        "readme_length": github.get("readme_length", 0),
+        "commit_count": github.get("commit_count_48h", 0),
+        "url": p_url
+    }
 
 def run_full_ingestion(pages: int = 5):
     """
     Повний цикл збору даних з Devpost.
-    Повністю захищений від зсуву стовпців у БД завдяки явному іменуванню полів.
+    Використовує Lightweight ThreadPool для паралельного I/O мережі,
+    уникаючи важких Celery/Redis.
     """
     logger.info("Запуск ініціалізації бази даних...")
     init_db()
@@ -37,14 +66,12 @@ def run_full_ingestion(pages: int = 5):
         if not h_url:
             continue
             
-        # Ранній фільтр назв
         if any(word in h_title.lower() for word in STOP_WORDS):
-            logger.info(f"[{idx}/{len(hackathons_list)}] 🚫 Відфільтровано (Студентський/Закритий): {h_title}")
+            logger.info(f"[{idx}/{len(hackathons_list)}] 🚫 Відфільтровано: {h_title}")
             continue
             
         h_id = str(uuid.uuid5(uuid.NAMESPACE_URL, h_url))
         
-        # Перевірка на дублікат
         con = get_connection()
         try:
             exists = con.execute("SELECT id FROM hackathons WHERE id = ?", [h_id]).fetchone()
@@ -55,58 +82,34 @@ def run_full_ingestion(pages: int = 5):
             logger.info(f"[{idx}/{len(hackathons_list)}] Пропущено (вже є в БД): {h_title}")
             continue
             
-        logger.info(f"[{idx}/{len(hackathons_list)}] Початок збору даних для: {h_title}...")
+        logger.info(f"[{idx}/{len(hackathons_list)}] Збір даних: {h_title}...")
         
-        # Скрапінг деталей та проектів (БД вільна)
         try:
             detail = scrape_hackathon_detail(h_url)
-            
-            # Фільтр хакатонів без спонсорів
             sponsors = detail.get("sponsors", [])
             if not sponsors:
-                logger.info(f"🚫 Відфільтровано (Немає спонсорів): {h_title}.")
                 continue
             
             subdomain = extract_subdomain(h_url)
             projects = fetch_hackathon_projects(subdomain)
             logger.info(f"Знайдено проектів для обробки: {len(projects)}")
             
-            # Збираємо деталі проектів та GitHub метрики локально у список
             projects_data = []
-            for p_idx, p in enumerate(projects, start=1):
-                p_url = p.get("project_url", "")
-                p_id = str(uuid.uuid5(uuid.NAMESPACE_URL, p_url if p_url else p["title"] + h_id))
-                
-                pdetail = scrape_project_detail(p_url) if p_url else {}
-                github_url = pdetail.get("github_url", "")
-                github = get_github_metrics(github_url) if github_url else {}
-                
-                tech_tags = pdetail.get("tech_tags") or p.get("tech_tags", [])
-                is_winner = p.get("is_winner", False) or (pdetail.get("prize_track") is not None)
-                
-                projects_data.append({
-                    "id": p_id,
-                    "title": p["title"],
-                    "description": p["description"],
-                    "tech_tags": tech_tags,
-                    "team_size": pdetail.get("team_size", 1),
-                    "likes": p.get("likes", 0),
-                    "github_url": pdetail.get("github_url"),
-                    "demo_url": pdetail.get("demo_url"),
-                    "is_winner": is_winner,
-                    "prize_track": pdetail.get("prize_track"),
-                    "readme_length": github.get("readme_length", 0),
-                    "commit_count": github.get("commit_count_48h", 0),
-                    "url": p_url
-                })
-                time.sleep(0.2)
-                
-            # ЗАПИС У БД (Відкриваємо з'єднання строго на частку секунди)
+            
+            # --- ПАРАЛЕЛЬНА ОБРОБКА (Lightweight Distributed Processing) ---
+            # max_workers=3 гарантує, що ми збираємо дані швидко, але не дратуємо Cloudflare
+            with ThreadPoolExecutor(max_workers=3) as executor:
+                futures = [executor.submit(_process_single_project, p, h_id) for p in projects]
+                for future in as_completed(futures):
+                    try:
+                        projects_data.append(future.result())
+                    except Exception as e:
+                        logger.error(f"Помилка в worker thread: {e}")
+            
+            # --- ПОСЛІДОВНИЙ ЗАПИС У БАЗУ ---
             con = get_connection()
             try:
                 con.execute("BEGIN")
-                
-                # Записуємо хакатон (із явним іменуванням колонок)
                 con.execute("""
                     INSERT INTO hackathons (
                         id, url, title, organizer, start_date, end_date,
@@ -117,14 +120,11 @@ def run_full_ingestion(pages: int = 5):
                     h_id, h_url, h_title, h.get("organization_name"),
                     h.get("submission_period_dates", "")[:10] or None,
                     h.get("submission_period_dates", "")[-10:] or None,
-                    detail.get("prize_total"),
-                    detail.get("participant_count", 0),
-                    json.dumps(detail.get("themes", [])),
-                    json.dumps(sponsors),
+                    detail.get("prize_total"), detail.get("participant_count", 0),
+                    json.dumps(detail.get("themes", [])), json.dumps(sponsors),
                     detail.get("judging_criteria", "")
                 ])
                 
-                # Записуємо всі проекти пакетом (із явним іменуванням колонок)
                 for pd in projects_data:
                     con.execute("""
                         INSERT OR IGNORE INTO projects (
@@ -140,24 +140,21 @@ def run_full_ingestion(pages: int = 5):
                         pd["prize_track"], None, pd["readme_length"],
                         pd["commit_count"], pd["url"]
                     ])
-                    
                 con.commit()
-                logger.info(f"✅ Успішно збережено в БД: {h_title} ({len(projects_data)} проектів)")
-                
+                logger.info(f"✅ Збережено в БД: {h_title} ({len(projects_data)} проектів)")
             except Exception as e:
                 try: con.execute("ROLLBACK")
                 except: pass
-                logger.error(f"Помилка запису хакатону {h_title} в БД: {e}")
+                logger.error(f"Помилка запису в БД: {e}")
             finally:
-                con.close()  # МИТТЄВО ЗАКРИВАЄМО БД
+                con.close()
                 
         except Exception as e:
-            logger.error(f"Помилка збору хакатону {h_title}: {e}")
+            logger.error(f"Помилка збору хакатону: {e}")
             
         time.sleep(2)
         
-    logger.info("Процедуру повної оркестрації збору завершено.")
+    logger.info("Оркестрацію успішно завершено.")
 
 if __name__ == "__main__":
-    # Локальний пробний запуск на 1 сторінці (перші 24 хакатони)
     run_full_ingestion(pages=1)

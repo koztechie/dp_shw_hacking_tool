@@ -12,10 +12,7 @@ from src.logger import logger
 from src.scraper.http_client import safe_get
 
 def scrape_hackathon_detail(url: str) -> dict:
-    """
-    Парсить сторінку конкретного хакарону з використанням багатошарових фолбеків:
-    вилучає призові, теми, спонсорів, критерії, учасників та обмеження.
-    """
+    """Парсить деталі хакатону для фонової бази даних."""
     logger.info(f"Збір деталей для хакатону за адресою: {url}")
     
     response = safe_get(url)
@@ -26,29 +23,14 @@ def scrape_hackathon_detail(url: str) -> dict:
     try:
         soup = BeautifulSoup(response.text, "lxml")
 
-        # 1. Призовий фонд (Багатошаровий фолбек)
-        prize = "Unknown"
+        # 1. Призовий фонд
         prize_el = soup.select_one(".prize-amount")
-        if prize_el:
-            prize = prize_el.get_text(strip=True)
-        else:
-            # Спроба 2: пошук лінку призових
-            prize_link = soup.select_one("a.prizes-link")
-            if prize_link:
-                # Очищаємо текст, наприклад "$1,000 in cash" -> "$1,000"
-                raw_text = prize_link.get_text(separator=" ", strip=True)
-                match = re.search(r"\$[0-9,]+", raw_text)
-                prize = match.group(0) if match else raw_text
-            else:
-                # Спроба 3: пошук будь-якого елемента з атрибутом валюти
-                currency_val = soup.select_one("[data-currency-value]")
-                if currency_val:
-                    prize = f"${currency_val.get_text(strip=True)}"
+        prize = prize_el.get_text(strip=True) if prize_el else "Unknown"
 
         # 2. Теми
         themes = [t.get_text(strip=True) for t in soup.select(".theme-label")]
 
-        # 3. Спонсори
+        # 3. Спонсори (мульти-селектор)
         sponsors_images = (
             soup.select("img.sponsor_logo_img") or 
             soup.select("img[class*='sponsor']") or
@@ -71,35 +53,23 @@ def scrape_hackathon_detail(url: str) -> dict:
         criteria_el = soup.select_one("#judging-criteria")
         criteria = criteria_el.get_text(separator=" ", strip=True) if criteria_el else ""
 
-        # 5. Кількість учасників (Багатошаровий фолбек)
-        participants = 0
+        # 5. Кількість учасників
         participants_el = soup.select_one(".participants-count")
-        
+        participants = 0
         if participants_el:
             clean_digits = re.sub(r"\D", "", participants_el.get_text(strip=True))
             participants = int(clean_digits) if clean_digits else 0
-        else:
-            # Спроба 2: скануємо табличну верстку сайдбару на наявність слова "participants"
-            for element in soup.select("td, span, p"):
-                text = element.get_text(strip=True).lower()
-                if "participants" in text:
-                    clean_digits = re.sub(r"\D", "", text)
-                    if clean_digits:
-                        participants = int(clean_digits)
-                        break
 
-        # 6. Обмеження участі (Eligibility & Requirements)
+        # 6. Обмеження участі (Eligibility)
         invite_only = False
         students_only = False
         team_required = False
 
-        # Перевірка Invite only у блоках з інформацією
         for info_block in soup.select(".info, .info-with-icon"):
             if "invite only" in info_block.get_text(strip=True).lower():
                 invite_only = True
                 break
 
-        # Перевірка списку вимог (Eligibility List)
         eligibility_items = soup.select("#eligibility-list li")
         for li in eligibility_items:
             text = li.get_text(strip=True).lower()
@@ -107,6 +77,16 @@ def scrape_hackathon_detail(url: str) -> dict:
                 students_only = True
             if "team required" in text or re.search(r"([2-9])\s*(to|-)\s*\d+\s*members", text):
                 team_required = True
+
+        # 7. Мультимодальність: вилучення URL банера за вашим прикладом верстки
+        banner_el = soup.select_one("h1.header-image img") or soup.select_one("#logo-container img")
+        banner_url = ""
+        if banner_el:
+            banner_url = banner_el.get("src", "")
+        else:
+            meta_el = soup.select_one("meta[property=\"og:image\"]")
+            if meta_el:
+                banner_url = meta_el.get("content", "")
 
         return {
             "url": url,
@@ -117,18 +97,10 @@ def scrape_hackathon_detail(url: str) -> dict:
             "participant_count": participants,
             "invite_only": invite_only,
             "students_only": students_only,
-            "team_required": team_required
+            "team_required": team_required,
+            "banner_url": banner_url
         }
         
     except Exception as e:
         logger.error(f"Помилка під час парсингу сторінки {url}: {e}")
         return {}
-
-if __name__ == "__main__":
-    test_url = "https://haignyc1.devpost.com/"
-    print(f"🔄 Повторно тестуємо детальний скрапер з новими фолбеками: {test_url}")
-    
-    result = scrape_hackathon_detail(test_url)
-    
-    print("\n📋 ОТРИМАНІ ДЕТАЛІ ХАКАТОНУ:")
-    print(json.dumps(result, indent=2, ensure_ascii=False))

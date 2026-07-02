@@ -8,7 +8,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from src.logger import logger
 from src.analyzer.ai_client import generate_json_with_failover
 
-def generate_techspec(idea: dict, hackathon_data: dict, hard_constraints: dict = None) -> dict:
+def generate_techspec(idea: dict, hackathon_data: dict, hard_constraints: dict = None, realtime_news: str = "") -> dict:
     """Генерує детальне ТЗ з урахуванням жорстких правил та використовує failover-роутер."""
     logger.info(f"AI-генерація детального ТЗ для ідеї: {idea.get('title')}")
 
@@ -24,9 +24,15 @@ HACKATHON CONTEXT:
 Title: {hackathon_data.get('title', 'Unknown')}
 Time limit: 48 hours
 
+
 🚨 RULES & CONSTRAINTS (MANDATORY):
 {constraints_text}
+
+🔥 REAL-TIME SPONSOR NEWS (Breaking news from today):
+{realtime_news}
+
 CRITICAL INSTRUCTIONS: 
+
 1. Scope the MVP Timeline specifically for the "max_team_size" (assume 1 solo developer if null or unspecified).
 2. Obey all "forbidden_tech" and "intellectual_property_rules" in architectural choices.
 

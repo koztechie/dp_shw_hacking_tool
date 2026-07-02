@@ -4,23 +4,24 @@ import json
 import os
 import httpx
 
+# Гарантуємо правильні шляхи імпорту
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.logger import logger
-from src.analyzer.rate_limiter import check_and_increment
 from config.settings import GEMINI_API_KEY, GEMINI_MODEL
+from src.analyzer.rate_limiter import check_and_increment
 
 # Зчитуємо альтернативні безкоштовні ключі з оточення
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
-def generate_json_with_failover(prompt: str) -> dict:
+def generate_json_with_failover(prompt: str, image_bytes: bytes = None) -> dict:
     """
     Каскадний маршрутизатор генерації JSON:
-    Спроба 1: Gemini (Основна модель, наприклад gemini-2.5-flash)
-    Спроба 2: Gemini (Резервна модель PRO актуального покоління, наприклад gemini-2.5-pro або gemini-1.5-flash)
-    Спроба 3: OpenRouter (АКТУАЛЬНІ БЕЗКОШТОВНІ моделі 2026 року: Llama 3.3, Qwen 2.5, Gemma 3)
-    Спроба 4: Розумний офлайн-фолбек
+    Спроба 1: Gemini (Основна модель) з підтримкою Vision банера.
+    Спроба 2: Gemini (Резервна модель PRO актуального покоління gemini-2.5-pro) з підтримкою Vision.
+    Спроба 3: OpenRouter (Безкоштовні моделі 2026 року: Llama 3.3, DeepSeek R1, Qwen 2.5) без Vision.
+    Спроба 4: Розумний офлайн-фолбек.
     """
     
     # --- СПРОБА 1: Google Gemini (Основна модель) ---
@@ -31,9 +32,13 @@ def generate_json_with_failover(prompt: str) -> dict:
             from google.genai import types
             
             client = genai.Client(api_key=GEMINI_API_KEY)
+            
+            # Якщо завантажено банер хакарону, передаємо його разом з текстом у Gemini (Multi-Modal)
+            contents_list = [types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg"), prompt] if image_bytes else prompt
+            
             response = client.models.generate_content(
                 model=GEMINI_MODEL,
-                contents=prompt,
+                contents=contents_list,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",
                     temperature=0.3
@@ -41,11 +46,10 @@ def generate_json_with_failover(prompt: str) -> dict:
             )
             return json.loads(response.text.strip())
         except Exception as e:
-            logger.warning(f"⚠️ Основна модель Gemini ({GEMINI_MODEL}) не повернула валідний JSON або недоступна: {e}")
+            logger.warning(f"⚠️ Основна модель Gemini ({GEMINI_MODEL}) недоступна або повернула невалідний JSON: {e}")
 
-    # --- СПРОБА 2: Google Gemini (Резервна модель PRO актуального покоління) ---
+    # --- СПРОБА 2: Google Gemini (Резервна модель PRO) ---
     if GEMINI_API_KEY and GEMINI_API_KEY != "your_key_here" and check_and_increment():
-        # Переключаємося на gemini-2.5-pro (актуальна PRO модель замість застарілої 1.5-pro)
         fallback_model = "gemini-2.5-pro" if GEMINI_MODEL != "gemini-2.5-pro" else "gemini-2.5-flash"
         try:
             logger.info(f"ШІ-Маршрутизатор [Спроба 2]: Переключення на резервну модель ({fallback_model})...")
@@ -53,9 +57,12 @@ def generate_json_with_failover(prompt: str) -> dict:
             from google.genai import types
             
             client = genai.Client(api_key=GEMINI_API_KEY)
+            
+            contents_list = [types.Part.from_bytes(data=image_bytes, mime_type="image/jpeg"), prompt] if image_bytes else prompt
+            
             response = client.models.generate_content(
                 model=fallback_model,
-                contents=prompt,
+                contents=contents_list,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",
                     temperature=0.3
@@ -67,12 +74,12 @@ def generate_json_with_failover(prompt: str) -> dict:
 
     # --- СПРОБА 3: OpenRouter API (АКТУАЛЬНІ БЕЗКОШТОВНІ моделі 2026 року) ---
     if OPENROUTER_API_KEY and OPENROUTER_API_KEY != "your_key_here":
-        # Використовуємо ТІЛЬКИ ті безкоштовні моделі, які зараз є активними та безкоштовними
+        # Використовуємо ТІЛЬКИ безкоштовні та активні на даний момент моделі
         openrouter_models = [
-            "meta-llama/llama-3.3-70b-instruct:free",       # Найкраща безкоштовна модель великого розміру
-            "deepseek/deepseek-r1:free",                     # Найсильніший аналітичний інструмент
-            "qwen/qwen-2.5-coder-32b-instruct:free",         # Оновлена безкоштовна модель кодування Qwen
-            "google/gemini-2.0-flash-exp:free"               # Безкоштовний Gemini 2.0
+            "meta-llama/llama-3.3-70b-instruct:free",       # Найкраща велика безкоштовна модель
+            "deepseek/deepseek-r1:free",                     # Найсильніша безкоштовна логічна модель
+            "qwen/qwen-2.5-coder-32b-instruct:free",         # Найкраща безкоштовна модель коду та ТЗ
+            "google/gemini-2.0-flash-exp:free"               # Швидкий безкоштовний Gemini 2.0
         ]
         
         for model_name in openrouter_models:
@@ -101,6 +108,7 @@ def generate_json_with_failover(prompt: str) -> dict:
                     return json.loads(result_text)
                 else:
                     logger.warning(f"⚠️ OpenRouter ({model_name}) повернув статус {r.status_code}: {r.text}")
+                
             except Exception as e:
                 logger.warning(f"⚠️ Збій підключення до OpenRouter ({model_name}): {e}")
 

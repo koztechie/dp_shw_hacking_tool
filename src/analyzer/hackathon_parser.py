@@ -14,7 +14,7 @@ from src.scraper.http_client import safe_get
 def _extract_data_from_soup(soup: BeautifulSoup, url: str) -> dict:
     """Базова функція вилучення даних з DOM-дерева."""
     
-    # 1. Базова інформація
+    # 1. Назва хакатону
     title_el = soup.select_one("h1")
     title = title_el.get_text(strip=True) if title_el else "Unknown"
 
@@ -37,7 +37,7 @@ def _extract_data_from_soup(soup: BeautifulSoup, url: str) -> dict:
     # 3. Теми
     themes = [t.get_text(strip=True) for t in soup.select(".theme-label")]
 
-    # 4. Спонсори (Антикрихкий мульти-селектор)
+    # 4. Спонсори (Антикрихкий мульти-селектор з Етапу 24)
     sponsors_images = (
         soup.select("img.sponsor_logo_img") or 
         soup.select("img[class*='sponsor']") or
@@ -66,7 +66,7 @@ def _extract_data_from_soup(soup: BeautifulSoup, url: str) -> dict:
     prizes_el = soup.select_one("#prizes")
     prizes_text = prizes_el.get_text(separator=" ", strip=True) if prizes_el else ""
 
-    # 6. Обмеження участі (Ранні фільтри)
+    # 6. Обмеження участі (Ранні фільтри з Етапу 11.1)
     invite_only = False
     students_only = False
     team_required = False
@@ -83,12 +83,23 @@ def _extract_data_from_soup(soup: BeautifulSoup, url: str) -> dict:
         if "team required" in text or re.search(r"([2-9])\s*(to|-)\s*\d+\s*members", text):
             team_required = True
 
-    # 7. Підготовка до Етапу 31.1: Знаходимо URL правил
+    # 7. НОВИЙ ВИПРАВЛЕНИЙ СЕЛЕКТОР ОБКЛАДИНКИ ХАКАТОНУ
+    # Спочатку шукаємо реальну картинку банера з тіла сайдбару за вашим точним прикладом
+    banner_el = soup.select_one("h1.header-image img") or soup.select_one("#logo-container img")
+    banner_url = ""
+    if banner_el:
+        banner_url = banner_el.get("src", "")
+    else:
+        # Фолбек на метатег, якщо обкладинка не знайдена у тілі
+        meta_el = soup.select_one("meta[property='og:image']")
+        if meta_el:
+            banner_url = meta_el.get("content", "")
+
+    # 8. Знаходимо URL правил
     rules_el = soup.select_one("a[href$='/rules']")
     rules_url = ""
     if rules_el:
         href = rules_el.get("href", "")
-        # Перетворюємо відносний шлях у повний
         if href.startswith("http"):
             rules_url = href
         else:
@@ -107,11 +118,11 @@ def _extract_data_from_soup(soup: BeautifulSoup, url: str) -> dict:
         "invite_only": invite_only,
         "students_only": students_only,
         "team_required": team_required,
-        "rules_url": rules_url
+        "rules_url": rules_url,
+        "banner_url": banner_url  # Повертаємо точну обкладинку
     }
 
 def parse_hackathon_from_url(url: str) -> dict:
-    """Парсить сторінку майбутнього або поточного хакатону з мережі."""
     logger.info(f"Завантаження хакатону: {url}")
     r = safe_get(url)
     if not r or not r.text:
@@ -120,16 +131,11 @@ def parse_hackathon_from_url(url: str) -> dict:
     return _extract_data_from_soup(soup, url)
 
 def parse_hackathon_from_html(html_content: str, base_url: str = "local_file") -> dict:
-    """Парсить з вивантаженого HTML файлу (офлайн режим)."""
     soup = BeautifulSoup(html_content, "lxml")
     return _extract_data_from_soup(soup, base_url)
 
 if __name__ == "__main__":
-    test_url = "https://haignyc1.devpost.com/"
-    print(f"🔄 Тестуємо парсер для AI-аналізатора: {test_url}")
+    test_url = "https://xprize.devpost.com/"
+    print(f"🔄 Тестуємо збір точного банера хакарону: {test_url}")
     result = parse_hackathon_from_url(test_url)
-    
-    # Виводимо ключові метрики для перевірки (щоб не засмічувати консоль великими текстами)
-    summary = {k: v for k, v in result.items() if k not in ['about', 'judging_criteria', 'prizes_detail']}
-    print("\n📋 ОТРИМАНА СТРУКТУРА (без довгих текстів):")
-    print(json.dumps(summary, indent=2, ensure_ascii=False))
+    print(f"🔗 Знайдений банер: {result.get('banner_url')}")

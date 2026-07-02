@@ -49,6 +49,35 @@
             </div>
         </div>
 
+        
+        
+        <!-- XAI Explanations -->
+        {% if idea.xai_explanation and (idea.xai_explanation.positive or idea.xai_explanation.negative) %}
+        <div style="margin-bottom: 1.5rem; background: rgba(88, 166, 255, 0.1); border-left: 3px solid var(--accent2); padding: 0.8rem; border-radius: 4px;">
+            <strong style="color: var(--accent2); font-size: 0.85rem; display: block; margin-bottom: 0.4rem;">🧠 ПОЯСНЕННЯ ШІ (Чому такий бал?):</strong>
+            <ul style="color: #c9d1d9; font-size: 0.85rem; padding-left: 1.2rem; margin: 0;">
+                {% for pos in idea.xai_explanation.positive %}
+                <li style="margin-bottom: 0.2rem; color: #3fb950;">{{ pos }}</li>
+                {% endfor %}
+                {% for neg in idea.xai_explanation.negative %}
+                <li style="margin-bottom: 0.2rem; color: #f85149;">{{ neg }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        
+        <!-- Causal Inference Insights -->
+        {% if idea.causal_advice %}
+        <div style="margin-bottom: 1.5rem; background: rgba(210, 153, 34, 0.1); border-left: 3px solid var(--warning); padding: 0.8rem; border-radius: 4px;">
+            <strong style="color: var(--warning); font-size: 0.85rem; display: block; margin-bottom: 0.4rem;">💡 СИМУЛЯЦІЯ РІШЕНЬ (WHAT-IF):</strong>
+            <ul style="color: #c9d1d9; font-size: 0.85rem; padding-left: 1.2rem; margin: 0;">
+                {% for advice in idea.causal_advice %}
+                <li style="margin-bottom: 0.3rem;">{{ advice }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+        
         <!-- ML Scoring -->
         <div style="margin-top: auto; padding-top: 1.5rem; border-top: 1px solid #30363d;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem;">
