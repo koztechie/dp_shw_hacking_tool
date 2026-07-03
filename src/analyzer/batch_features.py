@@ -2,21 +2,27 @@ import sys
 from pathlib import Path
 import pandas as pd
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.decomposition import TruncatedSVD
+from sklearn.decomposition import PCA
+from sentence_transformers import SentenceTransformer
 
+# Гарантуємо правильні шляхи імпорту
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.analyzer.feature_extractor import extract_features, compute_novelty_scores
+from src.analyzer.feature_extractor import extract_features
 from src.db import get_connection
 from src.logger import logger
 
 def run_batch_feature_extraction():
     con = get_connection()
     try:
+        logger.info("Завантаження Sentence-BERT (MiniLM)...")
+        embedder = SentenceTransformer('all-MiniLM-L6-v2')
+        
         hackathons_df = con.execute("SELECT * FROM hackathons").fetchdf().replace({np.nan: None})
-        logger.info(f"Починаємо генерацію розширених ознак для {len(hackathons_df)} хакатонів...")
+        org_reputation = hackathons_df['organizer'].value_counts().to_dict()
+
+        logger.info(f"Починаємо генерацію Deep Learning ознак для {len(hackathons_df)} хакатонів...")
 
         for _, h in hackathons_df.iterrows():
             h_dict = h.to_dict()
@@ -26,54 +32,64 @@ def run_batch_feature_extraction():
                 continue
 
             projects_df = projects_df.replace({np.nan: None})
-            descriptions = [str(d) if d else "" for d in projects_df["description"].tolist()]
+            descriptions = [str(d) if d else "empty project" for d in projects_df["description"].tolist()]
             
-            novelty_scores = compute_novelty_scores(descriptions)
-
-            # --- АНТИКРИХКІ ЕМБЕДДИНГИ (LSA замість BERT) ---
             semantic_features = [[0.0, 0.0, 0.0] for _ in range(len(descriptions))]
+            novelty_scores = [0.5] * len(descriptions)
+            
             if len(descriptions) > 3:
                 try:
-                    vec = TfidfVectorizer(max_features=300, stop_words="english")
-                    tfidf_matrix = vec.fit_transform(descriptions)
-                    # Стискаємо текст у 3 числові координати
-                    svd = TruncatedSVD(n_components=3, random_state=42)
-                    semantic_features = svd.fit_transform(tfidf_matrix).tolist()
-                except Exception:
-                    pass
+                    embeddings = embedder.encode(descriptions, show_progress_bar=False)
+                    
+                    from sklearn.metrics.pairwise import cosine_similarity
+                    sim_matrix = cosine_similarity(embeddings)
+                    avg_sim = (sim_matrix.sum(axis=1) - 1) / (len(descriptions) - 1)
+                    novelty_scores = [round(float(score), 4) for score in (1.0 - avg_sim)]
+                    
+                    pca = PCA(n_components=3, random_state=42)
+                    semantic_features = pca.fit_transform(embeddings).tolist()
+                except Exception as e:
+                    logger.error(f"Помилка Embeddings: {e}")
 
             try:
                 con.execute("BEGIN")
                 total_projects = len(projects_df)
+                org_rep = org_reputation.get(h_dict.get('organizer'), 1)
                 
                 for i, (_, p) in enumerate(projects_df.iterrows()):
                     p_dict = p.to_dict()
-                    f = extract_features(p_dict, h_dict, total_projects)
+                    f = extract_features(p_dict, h_dict, total_projects, org_rep)
                     
+                    # ВИПРАВЛЕНО: Додано відсутні 5 значень у список параметрів (з 19 по 23)
                     con.execute("""
                         INSERT OR REPLACE INTO features (
                             project_id, uses_sponsor_tech, tech_count, has_social_angle,
                             description_length, novelty_score, has_github, readme_length,
                             commit_count_48h, final_score, sponsor_challenge_match,
                             has_video_demo, competition_density, prize_numeric,
-                            semantic_pca_1, semantic_pca_2, semantic_pca_3, github_stars
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                            semantic_pca_1, semantic_pca_2, semantic_pca_3, github_stars,
+                            repo_size, repo_issues, days_before_deadline, prize_per_team, organizer_reputation
+                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """, [
                         p_dict["id"], f["uses_sponsor_tech"], f["tech_count"], f["has_social_angle"],
                         f["description_length"], novelty_scores[i], f["has_github"], f["readme_length"],
                         f["commit_count_48h"], None, f["sponsor_challenge_match"],
                         f["has_video_demo"], f["competition_density"], f["prize_numeric"],
                         float(semantic_features[i][0]), float(semantic_features[i][1]), float(semantic_features[i][2]),
-                        f["github_stars"]
+                        f["github_stars"], f["repo_size"], f["repo_issues"], f["days_before_deadline"], 
+                        f["prize_per_team"], f["organizer_reputation"]
                     ])
                 con.commit()
+                logger.info(f"✅ Ознаки згенеровано для хакатону: {h_dict.get('title')} ({total_projects} проектів)")
             except Exception as e:
                 con.execute("ROLLBACK")
-                logger.error(f"❌ Помилка обробки хакатону: {e}")
+                logger.error(f"❌ Помилка обробки хакатону {h_dict.get('title')}: {e}")
 
+    except Exception as e:
+        logger.error(f"Критична помилка пакетної генерації: {e}")
     finally:
         con.close()
-        logger.info("Генерацію розширених ознак завершено.")
+        logger.info("Генерацію розширених Deep Learning ознак завершено.")
 
 if __name__ == "__main__":
     run_batch_feature_extraction()

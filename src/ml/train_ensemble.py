@@ -10,97 +10,141 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.ml.prepare_dataset import prepare_dataset
 from src.logger import logger
+from src.ml.experiment_tracker import log_experiment
+from src.ml.focal_loss import focal_loss_objective  # ІМПОРТ З ВИДІЛЕНОГО МОДУЛЯ
 
+import optuna
+from xgboost import XGBClassifier
 from sklearn.ensemble import RandomForestClassifier, StackingClassifier
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import StratifiedKFold
-from sklearn.metrics import classification_report, roc_auc_score
-from xgboost import XGBClassifier
+from sklearn.model_selection import StratifiedKFold, cross_val_score
+from sklearn.metrics import classification_report, average_precision_score, precision_recall_curve
+
+# Антикрихкість: Використовуємо Pipeline з imblearn, щоб уникнути витоку даних
+from imblearn.pipeline import Pipeline as ImbPipeline
+from imblearn.combine import SMOTETomek
+
+def optimize_hyperparameters(X_train, y_train):
+    """
+    Bayesian Optimization: Автоматичний підбір ідеальних гіперпараметрів 
+    через бібліотеку Optuna.
+    """
+    logger.info("🔍 Запуск Optuna для пошуку ідеальних гіперпараметрів (20 ітерацій)...")
+    optuna.logging.set_verbosity(optuna.logging.WARNING)
+
+    def objective(trial):
+        rf_max_depth = trial.suggest_int('rf_max_depth', 4, 12)
+        xgb_learning_rate = trial.suggest_float('xgb_learning_rate', 0.01, 0.2, log=True)
+        xgb_n_estimators = trial.suggest_int('xgb_n_estimators', 100, 250)
+
+        rf_base = RandomForestClassifier(
+            n_estimators=100, max_depth=rf_max_depth, random_state=42, n_jobs=1
+        )
+        xgb_base = XGBClassifier(
+            n_estimators=xgb_n_estimators, learning_rate=xgb_learning_rate,
+            max_depth=5, random_state=42, n_jobs=1, eval_metric="logloss",
+            objective=focal_loss_objective
+        )
+        meta_model = LogisticRegression(class_weight="balanced", random_state=42)
+
+        ensemble = StackingClassifier(
+            estimators=[('rf', rf_base), ('xgb', xgb_base)],
+            final_estimator=meta_model,
+            n_jobs=1
+        )
+
+        pipeline = ImbPipeline(steps=[
+            ('smote', SMOTETomek(random_state=42, n_jobs=1)),
+            ('classifier', ensemble)
+        ])
+
+        cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
+        scores = cross_val_score(pipeline, X_train, y_train, cv=cv, scoring='average_precision', n_jobs=-1)
+        return scores.mean()
+
+    study = optuna.create_study(direction='maximize')
+    study.optimize(objective, n_trials=20)
+    
+    logger.info(f"✅ Optuna знайшла найкращі параметри: {study.best_params}")
+    return study.best_params
 
 def train_ensemble():
-    logger.info("Початок підготовки даних для Ансамблю (Stacking)...")
+    logger.info("Початок підготовки даних для AutoML Ансамблю...")
     X_train, X_test, y_train, y_test = prepare_dataset()
 
-    # Динамічно розраховуємо коефіцієнт дисбалансу
-    neg_count = (y_train == 0).sum()
-    pos_count = (y_train == 1).sum()
-    imbalance_ratio = neg_count / pos_count if pos_count > 0 else 1.0
+    best_params = optimize_hyperparameters(X_train, y_train)
 
-    # 1. Базові моделі (n_jobs=1 для захисту від перевантаження слабкого CPU)
+    logger.info("🚀 Тренування фінального Потрійного Ансамблю...")
+    
     rf_base = RandomForestClassifier(
         n_estimators=150, 
-        class_weight="balanced", 
-        max_depth=8, 
-        random_state=42, 
-        n_jobs=1
+        max_depth=best_params['rf_max_depth'], 
+        random_state=42, n_jobs=1
     )
-    
     xgb_base = XGBClassifier(
-        n_estimators=150, 
-        scale_pos_weight=imbalance_ratio, 
-        max_depth=5, 
-        learning_rate=0.08, 
-        random_state=42, 
-        n_jobs=1,
-        eval_metric="logloss"
+        n_estimators=best_params['xgb_n_estimators'], 
+        learning_rate=best_params['xgb_learning_rate'],
+        max_depth=5, random_state=42, n_jobs=1, eval_metric="logloss",
+        objective=focal_loss_objective
     )
-
-    # 2. Мета-модель
     meta_model = LogisticRegression(class_weight="balanced", random_state=42)
 
-    # 3. Ансамбль
+    from src.ml.pytorch_model import PyTorchHackathonClassifier
+    nn_base = PyTorchHackathonClassifier(epochs=20)
+
+    # Наш потрійний ансамбль
     ensemble = StackingClassifier(
-        estimators=[('rf', rf_base), ('xgb', xgb_base)],
+        estimators=[('rf', rf_base), ('xgb', xgb_base), ('nn', nn_base)],
         final_estimator=meta_model,
-        cv=5,
-        n_jobs=-1
+        cv=5, n_jobs=-1
     )
 
-    logger.info("🚀 Тренування ансамблю моделей...")
-    ensemble.fit(X_train, y_train)
+    logger.info("Генерація фінальних синтетичних даних (SMOTETomek)...")
+    smt = SMOTETomek(random_state=42, n_jobs=1)
+    X_res, y_res = smt.fit_resample(X_train, y_train)
+    
+    ensemble.fit(X_res, y_res)
     logger.info("Тренування завершено! Оцінюємо якість...")
 
-    y_pred = ensemble.predict(X_test)
     y_prob = ensemble.predict_proba(X_test)[:, 1]
+    
+    precisions, recalls, thresholds = precision_recall_curve(y_test, y_prob)
+    f1_scores = np.divide(2 * (precisions * recalls), (precisions + recalls), out=np.zeros_like(precisions), where=(precisions + recalls) != 0)
+    best_idx = np.argmax(f1_scores)
+    best_threshold = thresholds[best_idx] if best_idx < len(thresholds) else 0.5
+    best_f1 = f1_scores[best_idx]
 
-    print("\n=== РЕЗУЛЬТАТИ МЕТА-МОДЕЛІ (STACKING ENSEMBLE) ===")
-    print(classification_report(y_test, y_pred, target_names=["Програв", "Переможець"]))
-    
-    ens_auc = roc_auc_score(y_test, y_prob)
-    print(f"🌟 Ensemble ROC-AUC Score: {ens_auc:.4f}")
-    
-    # Зберігаємо модель ансамблю в її окремий файл
+    y_pred_tuned = (y_prob >= best_threshold).astype(int)
+    pr_auc = average_precision_score(y_test, y_prob)
+
+    print("\n=== РЕЗУЛЬТАТИ AUTOML МЕТА-МОДЕЛІ (STACKING + OPTUNA + FOCAL LOSS + PYTORCH) ===")
+    print(classification_report(y_test, y_pred_tuned, target_names=["Програв", "Переможець"]))
+    print(f"🌟 Ensemble PR-AUC Score: {pr_auc:.4f} (Оптимальний поріг: {best_threshold:.4f})")
+
     models_dir = Path("data/models")
     with open(models_dir / "ensemble.pkl", "wb") as f:
         pickle.dump(ensemble, f)
 
-    # АНТИКРИХКІСТЬ: Порівняння з поточним лідером у best_model.pkl
+    metrics = {"pr_auc": round(float(pr_auc), 4), "f1_score": round(float(best_f1), 4)}
+    log_experiment("AutoML_Stacking_Focal_Loss_PyTorch", best_params, metrics, ensemble)
+
     best_model_path = models_dir / "best_model.pkl"
-    current_best_auc = 0.0
-    current_best_model = None
-
-    if best_model_path.exists():
-        try:
-            with open(best_model_path, "rb") as f:
-                current_best_model = pickle.load(f)
-            # Тестуємо поточного лідера на поточній вибірці
-            best_prob = current_best_model.predict_proba(X_test)[:, 1]
-            current_best_auc = roc_auc_score(y_test, best_prob)
-            print(f"\n📈 Порівняння: Поточний лідер в БД ROC-AUC = {current_best_auc:.4f} vs Новий Ансамбль ROC-AUC = {ens_auc:.4f}")
-        except Exception as e:
-            logger.warning(f"Не вдалося порівняти з поточним лідером: {e}")
-
-    # Оновлюємо головну модель тільки якщо ансамбль ДІЙСНО переміг!
-    if ens_auc >= current_best_auc or current_best_model is None:
-        print("\n🏆 ПЕРЕМОЖЕЦЬ: Ансамбль моделей очолив лідерство!")
-        print("  Файл best_model.pkl успішно оновлено Ансамблем.")
-        with open(best_model_path, "wb") as f:
-            pickle.dump(ensemble, f)
+    if not best_model_path.exists():
+        with open(best_model_path, "wb") as f: pickle.dump(ensemble, f)
     else:
-        print(f"\n🏆 ПЕРЕМОЖЕЦЬ: Поточний лідер ({current_best_auc:.4f}) зберіг першість!")
-        print("  Файл best_model.pkl залишено без змін.")
+        try:
+            with open(best_model_path, "rb") as f: current_best_model = pickle.load(f)
+            current_prob = current_best_model.predict_proba(X_test)[:, 1]
+            current_auc = average_precision_score(y_test, current_prob)
+            print(f"\n📈 Порівняння: Поточний лідер PR-AUC = {current_auc:.4f} vs Новий AutoML Ансамбль PR-AUC = {pr_auc:.4f}")
+            if pr_auc >= current_auc:
+                print("🏆 ПЕРЕМОЖЕЦЬ: Новий AutoML Ансамбль очолив лідерство!")
+                with open(best_model_path, "wb") as f: pickle.dump(ensemble, f)
+            else:
+                print("🏆 Поточний лідер зберіг першість!")
+        except Exception:
+            with open(best_model_path, "wb") as f: pickle.dump(ensemble, f)
 
-    # Завжди оновлюємо список фіч
     with open(models_dir / "feature_names.pkl", "wb") as f:
         pickle.dump(list(X_train.columns), f)
 

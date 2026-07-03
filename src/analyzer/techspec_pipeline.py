@@ -10,7 +10,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from src.analyzer.techspec_generator import generate_techspec
 from src.analyzer.cache import cache_key, get_cached, set_cache
 from src.scraper.realtime_news import get_realtime_sponsor_news
-from src.analyzer.rl_strategy import epsilon_greedy_tech_selector, optimize_timeline
+from src.analyzer.rl_strategy import thompson_sampling_tech_selector, optimize_timeline
 from src.db import get_connection
 from src.logger import logger
 
@@ -68,7 +68,7 @@ def generate_and_save_techspec(prediction_id: str, idea_index: int, hackathon_ur
             except: pass
             
         # У нас немає osint на цьому етапі напряму, тому беремо порожній (Bandit піде в Exploration або Fallback)
-        bonus_tech = epsilon_greedy_tech_selector({}, trends_data)
+        bonus_tech = thompson_sampling_tech_selector({}, trends_data)
         optimized_time = optimize_timeline(len(idea.get("tech_stack", [])), idea.get("team_size", 1))
         
         rl_instructions = f"\n🧠 MAB STRATEGY: Try to creatively integrate {bonus_tech}.\n⏱️ OPTIMIZED TIMELINE: Structure the MVP Scope according to this optimal time distribution: {optimized_time}."

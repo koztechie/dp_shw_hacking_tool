@@ -1,74 +1,96 @@
 import sys
 from pathlib import Path
-import random
 import json
+import numpy as np
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.logger import logger
 
-def epsilon_greedy_tech_selector(osint_data: dict, trends_data: dict, epsilon: float = 0.25) -> str:
+def thompson_sampling_tech_selector(osint_data: dict, trends_data: dict) -> str:
     """
-    Multi-Armed Bandit (Epsilon-Greedy):
-    Обирає бонусну технологію для проекту.
-    - Exploitation (1 - epsilon): Беремо перевірену технологію, що вигравала раніше.
-    - Exploration (epsilon): Беремо ризиковану нову технологію з глобальних трендів.
+    Contextual Thompson Sampling (Bayesian Bandit):
+    Динамічно обирає технологію, балансуючи між відомим успіхом (Exploitation)
+    та інноваціями (Exploration) за допомогою Бета-розподілу.
+    Безстанова антикрихка реалізація: стан підтягується прямо з DuckDB OSINT.
     """
-    explore = random.random() < epsilon
+    winning_tags = osint_data.get("top_winning_tags", {}) if osint_data else {}
+    losing_tags = osint_data.get("top_losing_tags", {}) if osint_data else {}
     
-    if explore and trends_data:
-        logger.info("🎰 Multi-Armed Bandit: EXPLORATION (додаємо новий тренд)")
-        trends = trends_data.get("hacker_news_discussions", []) + trends_data.get("latest_arxiv_ai_papers", [])
-        if trends:
-            return random.choice(trends)
+    trends = []
+    if trends_data:
+        trends.extend(trends_data.get("hacker_news_discussions", []))
+        trends.extend(trends_data.get("latest_arxiv_ai_papers", []))
+
+    # Збираємо всіх кандидатів
+    candidates = set(list(winning_tags.keys()) + list(losing_tags.keys()) + trends)
+    
+    if not candidates:
+        return "Docker"
+
+    best_tech = "Docker"
+    best_score = -1.0
+
+    for tech in candidates:
+        # Апріорні знання (Prior)
+        alpha = 1.0
+        beta = 1.0
+        
+        # Апостеріорні знання (Posterior evidence з бази даних)
+        alpha += winning_tags.get(tech, 0)
+        beta += losing_tags.get(tech, 0)
+        
+        # Симулюємо значення Бета-розподілу
+        try:
+            score = np.random.beta(alpha, beta)
+        except Exception:
+            score = 0.0
             
-    logger.info("🎰 Multi-Armed Bandit: EXPLOITATION (використовуємо перевірений стек)")
-    if osint_data and osint_data.get("top_winning_tags"):
-        # Обираємо найпопулярнішу або другу за популярністю
-        top_tags = list(osint_data["top_winning_tags"].keys())
-        if top_tags:
-            return random.choice(top_tags[:3])
+        if score > best_score:
+            best_score = score
+            best_tech = tech
             
-    return "Docker" # Fallback
+    # Визначаємо, чи ми ризикнули, чи взяли перевірене
+    if best_tech in trends and best_tech not in winning_tags:
+        logger.info(f"🎰 Thompson Sampling: EXPLORATION (Ризикнули з новим трендом: {best_tech})")
+    else:
+        logger.info(f"🎰 Thompson Sampling: EXPLOITATION (Обрано перевірений стек: {best_tech})")
+
+    return best_tech
 
 def optimize_timeline(tech_count: int, team_size: int) -> str:
-    """
-    Dynamic Bayesian Optimization Proxy:
-    Розподіляє 48 годин на основі складності (кількості технологій) та робочих рук (команди).
-    """
-    base_sleep = 12 # 6 годин сну на ніч
-    base_video = 4  # Запис відео та подача
-    
-    # Решта часу йде на кодінг та інтеграцію
+    """Динамічний розподіл часу."""
+    base_sleep = 12
+    base_video = 4
     available_hours = (48 - base_sleep - base_video) * team_size
     
-    # Якщо технологій багато, виділяємо більше часу на інтеграцію (hour_12_24)
     if tech_count >= 5:
         phase_1 = "15 hours (Heavy core implementation)"
         phase_2 = "12 hours (Complex API integrations)"
-        phase_3 = f"{available_hours - 27} hours (Testing & Polish)"
+        phase_3 = f"{max(available_hours - 27, 2)} hours (Testing & Polish)"
     else:
         phase_1 = "10 hours (Rapid prototyping)"
         phase_2 = "10 hours (Feature completion)"
-        phase_3 = f"{available_hours - 20} hours (Extensive UX Polish & Testing)"
+        phase_3 = f"{max(available_hours - 20, 2)} hours (Extensive UX Polish & Testing)"
         
     return f"Phase 1: {phase_1}, Phase 2: {phase_2}, Phase 3: {phase_3}, Sleep: {base_sleep}h, Video/Deploy: {base_video}h"
 
 if __name__ == "__main__":
-    print("=== ТЕСТУВАННЯ МУЛЬТИ-РУКОГО БАНДИТА ===")
-    mock_osint = {"top_winning_tags": {"React": 10, "Python": 8, "AWS": 5}}
-    mock_trends = {"hacker_news_discussions": ["Supabase Edge Functions", "Claude 3.5"]}
+    print("=== ТЕСТУВАННЯ THOMPSON SAMPLING ===")
+    # Мок-дані: React часто виграє, але й часто програє (high alpha, high beta)
+    # Python тільки виграє (high alpha, low beta)
+    mock_osint = {
+        "top_winning_tags": {"React": 15, "Python": 10},
+        "top_losing_tags": {"React": 20, "Python": 1}
+    }
+    mock_trends = {"hacker_news_discussions": ["Supabase Edge Functions"]}
     
-    # Проведемо 10 симуляцій
-    explores = 0
-    for i in range(10):
-        tech = epsilon_greedy_tech_selector(mock_osint, mock_trends, epsilon=0.25)
-        print(f"Спроба {i+1}: Обрана технологія -> {tech}")
-        if tech in mock_trends["hacker_news_discussions"]: explores += 1
+    counts = {"React": 0, "Python": 0, "Supabase Edge Functions": 0}
+    for _ in range(100):
+        t = thompson_sampling_tech_selector(mock_osint, mock_trends)
+        counts[t] = counts.get(t, 0) + 1
         
-    print(f"\nСтатистика: Exploration={explores}/10, Exploitation={10-explores}/10")
-    
-    print("\n=== ТЕСТУВАННЯ ОПТИМІЗАЦІЇ ЧАСУ ===")
-    print("Для соло-розробника зі складним стеком (6 технологій):")
-    print(optimize_timeline(6, 1))
+    print("Результати 100 симуляцій (вибір технології):")
+    for k, v in counts.items():
+        print(f"{k}: {v}% виборів")

@@ -46,8 +46,21 @@ def get_github_metrics(github_url: str) -> dict:
             
         metrics = {
             "readme_length": 0,
-            "commit_count_48h": 0
+            "commit_count_48h": 0,
+            "repo_size": 0,
+            "repo_issues": 0
         }
+        
+        
+        # 0. Запит загальної інформації про репо
+        repo_info_url = f"https://api.github.com/repos/{owner}/{repo}"
+        try:
+            r_info = httpx.get(repo_info_url, headers=headers, timeout=10.0)
+            if r_info.status_code == 200:
+                data = r_info.json()
+                metrics["repo_size"] = data.get("size", 0)
+                metrics["repo_issues"] = data.get("open_issues_count", 0)
+        except: pass
         
         # 1. Запит README length
         readme_url = f"https://api.github.com/repos/{owner}/{repo}/readme"
