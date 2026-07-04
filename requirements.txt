@@ -14,7 +14,7 @@ colorlog==6.10.1
 cryptography==49.0.0
 distlib==0.4.3
 distro==1.9.0
--e git+https://github.com/koztechie/dp_shw_hacking_tool.git@22127aa59ec09bcd5876a0b134b878987f47f3af#egg=dp_shw_hacking_tool
+-e git+https://github.com/koztechie/dp_shw_hacking_tool.git@7f51d08bd3129244da50c538453ea9479d5e0f25#egg=dp_shw_hacking_tool
 duckdb==1.5.4
 fastapi==0.138.0
 filelock==3.29.4
@@ -24,7 +24,6 @@ google-api-core==2.25.2
 google-api-python-client==2.197.0
 google-auth==2.55.0
 google-auth-httplib2==0.4.0
-google-genai==2.9.0
 googleapis-common-protos==1.75.0
 greenlet==3.5.3
 grpcio==1.81.1
@@ -40,6 +39,7 @@ idna==3.18
 imbalanced-learn==0.14.2
 iniconfig==2.3.0
 Jinja2==3.1.6
+jiter==0.16.0
 joblib==1.5.3
 librt==0.11.0
 llvmlite==0.48.0
@@ -58,6 +58,7 @@ nodeenv==1.10.0
 numba==0.66.0
 numpy==2.4.6
 nvidia-nccl-cu12==2.30.7
+openai==2.44.0
 optuna==4.9.0
 packaging==26.2
 pandas==3.0.3

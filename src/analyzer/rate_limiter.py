@@ -7,14 +7,14 @@ from datetime import datetime
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from config.settings import CACHE_DIR, GEMINI_DAILY_LIMIT, GEMINI_RPM_LIMIT
+from config.settings import CACHE_DIR, MIMO_DAILY_LIMIT, MIMO_RPM_LIMIT
 from src.logger import logger
 
 RATE_FILE = Path(CACHE_DIR) / "rate_limit.json"
 
 def check_and_increment() -> bool:
     """
-    Перевіряє, чи не вичерпано ліміти Gemini API.
+    Перевіряє, чи не вичерпано ліміти MiMo API.
     Якщо ліміт дозволяє - інкрементує лічильник та повертає True.
     Якщо вичерпано - повертає False.
     """
@@ -47,12 +47,12 @@ def check_and_increment() -> bool:
     minute = state["minute_counts"].get(current_minute, 0)
 
     # Перевірка лімітів
-    if daily >= GEMINI_DAILY_LIMIT:
-        logger.warning(f"🛑 Досягнуто денний ліміт Gemini ({GEMINI_DAILY_LIMIT}).")
+    if daily >= MIMO_DAILY_LIMIT:
+        logger.warning(f"🛑 Досягнуто денний ліміт MiMo ({MIMO_DAILY_LIMIT}).")
         return False
         
-    if minute >= GEMINI_RPM_LIMIT:
-        logger.warning(f"🛑 Досягнуто хвилинний ліміт Gemini ({GEMINI_RPM_LIMIT} req/min).")
+    if minute >= MIMO_RPM_LIMIT:
+        logger.warning(f"🛑 Досягнуто хвилинний ліміт MiMo ({MIMO_RPM_LIMIT} req/min).")
         return False
 
     # Інкремент

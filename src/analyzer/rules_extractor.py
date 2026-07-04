@@ -43,7 +43,7 @@ Return EXACTLY a JSON object matching this schema:
   "intellectual_property_rules": ""
 }}
 """
-    result = generate_json_with_failover(prompt)
+    result = generate_json_with_failover(prompt, thinking=False)
     if "fallback" in result or "error" in result:
         return {}
     return result

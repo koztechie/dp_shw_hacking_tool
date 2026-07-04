@@ -1,14 +1,13 @@
 import sys
 from pathlib import Path
 import duckdb
-import numpy as np
 from fastapi import FastAPI, Request, Form, BackgroundTasks, UploadFile, File
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse
 import uvicorn
 
-# Гарантуємо абсолютні шляхи
+# Гарантуємо правильні шляхи імпорту
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
@@ -190,18 +189,15 @@ async def techspec_page(request: Request, prediction_id: str):
         context={"techspec": techspec, "selected_idea": selected_idea}
     )
 
-# 6. Ендпоінт Панелі історії передбачень з підтримкою Feedback_Won
+# 6. Ендпоінт Панелі історії передбачень
 @app.get("/history", response_class=HTMLResponse)
 async def history_page(request: Request):
     predictions = []
     try:
         con = duckdb.connect(DB_PATH, read_only=True)
-        # Антикрихкість: Витягуємо feedback_won через LEFT JOIN
         df = con.execute("""
-            SELECT p.id, p.hackathon_url, strftime(p.generated_at, '%Y-%m-%d %H:%M') as gen_date, p.idea_1_title, p.idea_1_score, p.selected_idea, f.won as feedback_won
-            FROM predictions p
-            LEFT JOIN feedback f ON p.id = f.prediction_id
-            ORDER BY p.generated_at DESC LIMIT 50
+            SELECT id, hackathon_url, strftime(generated_at, '%Y-%m-%d %H:%M') as gen_date, idea_1_title, idea_1_score, selected_idea
+            FROM predictions ORDER BY generated_at DESC LIMIT 50
         """).fetchdf()
         df = df.replace({np.nan: None})
         predictions = df.to_dict("records")
@@ -255,13 +251,16 @@ async def retrain_check():
         except:
             pass
 
-    # Якщо різниця більше 20 - пропонуємо перенавчання або виявлено дрейф даних
-    if (current_count - last_count) >= 20 or detect_drift():
+    # АНТИКРИХКІСТЬ: Перевіряємо дрейф ТІЛЬКИ якщо з моменту останнього тренування з'явилися нові дані
+    has_model = (PROJECT_ROOT / "data" / "models" / "best_model.pkl").exists()
+    
+    if not has_model:
         suggest_retrain = True
-
-    # Якщо моделі взагалі ще немає
-    if not (PROJECT_ROOT / "data" / "models" / "best_model.pkl").exists():
-        suggest_retrain = True
+    elif current_count > last_count:
+        delta = current_count - last_count
+        # Дрейф перевіряємо тільки якщо з'явилися нові нетреновані дані!
+        if delta >= 20 or detect_drift():
+            suggest_retrain = True
 
     return JSONResponse({
         "hackathons": current_count,
@@ -304,13 +303,11 @@ async def ml_evolution():
 # --- НОВИЙ ЕНДПОІНТ ФІДБЕКУ (Етап 63) ---
 @app.post("/feedback/{prediction_id}")
 async def submit_feedback(prediction_id: str, background_tasks: BackgroundTasks, won: bool = Form(...), actual_place: int = Form(0)):
-    """Фіксуємо реальний результат та запускаємо перевірку еволюції моделі."""
     try:
         con = duckdb.connect(DB_PATH)
         con.execute("INSERT INTO feedback VALUES (?, ?, ?, current_timestamp)", [prediction_id, won, actual_place])
         con.commit()
         
-        # АНТИКРИХКІСТЬ: Запускаємо Self-Evolution Engine у фоні!
         from src.analyzer.evolution_engine import trigger_auto_evolution_check
         background_tasks.add_task(trigger_auto_evolution_check)
         
