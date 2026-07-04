@@ -38,8 +38,8 @@ def thompson_sampling_tech_selector(osint_data: dict, trends_data: dict) -> str:
         beta = 1.0
         
         # Апостеріорні знання (Posterior evidence з бази даних)
-        alpha += winning_tags.get(tech, 0)
-        beta += losing_tags.get(tech, 0)
+        alpha = max(1.0, alpha + winning_tags.get(tech, 0))
+        beta = max(1.0, beta + losing_tags.get(tech, 0))
         
         # Симулюємо значення Бета-розподілу
         try:

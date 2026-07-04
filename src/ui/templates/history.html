@@ -18,6 +18,7 @@
                     <th style="padding: 1rem 0.5rem;">Головна ідея</th>
                     <th style="padding: 1rem 0.5rem;">ML Скор</th>
                     <th style="padding: 1rem 0.5rem;">Дія</th>
+                    <th style="padding: 1rem 0.5rem;">Результат</th>
                 </tr>
             </thead>
             <tbody>
@@ -40,6 +41,20 @@
                             <a href="/ideas/{{ p.id }}" class="btn" style="display: inline-block; text-decoration: none; text-align: center; background: rgba(247, 129, 102, 0.1); color: #f78166; border: 1px solid #f78166; padding: 0.4rem 0.8rem;">💡 Вибрати ідею</a>
                         {% endif %}
                     </td>
+                    <td style="padding: 1rem 0.5rem;">
+                        {% if p.feedback_won is not none %}
+                            {% if p.feedback_won %}
+                                <span style="color: #3fb950; font-weight: bold;">🏆 Виграв</span>
+                            {% else %}
+                                <span style="color: #f85149; font-weight: bold;">❌ Програв</span>
+                            {% endif %}
+                        {% else %}
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button onclick="submitFeedback('{{ p.id }}', true)" style="background: rgba(63, 185, 80, 0.1); color: #3fb950; border: 1px solid #3fb950; border-radius: 4px; cursor: pointer; padding: 0.2rem 0.5rem;" title="Ми виграли хакатон!">👍</button>
+                                <button onclick="submitFeedback('{{ p.id }}', false)" style="background: rgba(248, 81, 73, 0.1); color: #f85149; border: 1px solid #f85149; border-radius: 4px; cursor: pointer; padding: 0.2rem 0.5rem;" title="Проект програв">👎</button>
+                            </div>
+                        {% endif %}
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -53,4 +68,25 @@
     </div>
     {% endif %}
 </div>
+
+<script>
+    async function submitFeedback(predictionId, won) {
+        if (!confirm(`Підтвердити результат: проект ${won ? 'ВИГРАВ 🏆' : 'ПРОГРАВ ❌'}?`)) return;
+        
+        const formData = new FormData();
+        formData.append('won', won ? 'true' : 'false');
+        formData.append('actual_place', won ? '1' : '0');
+        
+        try {
+            const res = await fetch(`/feedback/${predictionId}`, { method: 'POST', body: formData });
+            if (res.ok) {
+                location.reload();
+            } else {
+                alert("Помилка збереження.");
+            }
+        } catch(e) {
+            alert("Помилка мережі: " + e);
+        }
+    }
+</script>
 {% endblock %}

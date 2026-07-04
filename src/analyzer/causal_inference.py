@@ -14,8 +14,7 @@ def get_counterfactual_advice(features: dict, base_ml_score: float) -> list:
     """
     advice = []
     
-    if base_ml_score <= 0:
-        base_ml_score = 0.001  # Захист від ділення на нуль
+    base_ml_score = max(base_ml_score, 0.01)  # Захист від математичного вибуху
 
     treatments = [
         ("uses_sponsor_tech", "використання технології спонсора"),

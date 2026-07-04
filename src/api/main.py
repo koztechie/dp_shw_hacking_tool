@@ -1,10 +1,5 @@
 import sys
 from pathlib import Path
-
-# КРИТИЧНО ДЛЯ АНТИКРИХКОСТІ: Системні шляхи налаштовуються у першу чергу!
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
 import duckdb
 import numpy as np
 from fastapi import FastAPI, Request, Form, BackgroundTasks, UploadFile, File
@@ -12,6 +7,10 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse
 import uvicorn
+
+# Гарантуємо абсолютні шляхи
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.logger import logger
 from config.settings import DB_PATH
@@ -191,15 +190,18 @@ async def techspec_page(request: Request, prediction_id: str):
         context={"techspec": techspec, "selected_idea": selected_idea}
     )
 
-# 6. Ендпоінт Панелі історії передбачень
+# 6. Ендпоінт Панелі історії передбачень з підтримкою Feedback_Won
 @app.get("/history", response_class=HTMLResponse)
 async def history_page(request: Request):
     predictions = []
     try:
         con = duckdb.connect(DB_PATH, read_only=True)
+        # Антикрихкість: Витягуємо feedback_won через LEFT JOIN
         df = con.execute("""
-            SELECT id, hackathon_url, strftime(generated_at, '%Y-%m-%d %H:%M') as gen_date, idea_1_title, idea_1_score, selected_idea
-            FROM predictions ORDER BY generated_at DESC LIMIT 50
+            SELECT p.id, p.hackathon_url, strftime(p.generated_at, '%Y-%m-%d %H:%M') as gen_date, p.idea_1_title, p.idea_1_score, p.selected_idea, f.won as feedback_won
+            FROM predictions p
+            LEFT JOIN feedback f ON p.id = f.prediction_id
+            ORDER BY p.generated_at DESC LIMIT 50
         """).fetchdf()
         df = df.replace({np.nan: None})
         predictions = df.to_dict("records")
@@ -208,27 +210,6 @@ async def history_page(request: Request):
     finally:
         if 'con' in locals(): con.close()
     return templates.TemplateResponse(request=request, name="history.html", context={"predictions": predictions})
-
-
-@app.post("/generate_assets/{prediction_id}")
-async def generate_assets(prediction_id: str):
-    import json
-    try:
-        con = duckdb.connect(DB_PATH, read_only=True)
-        row = con.execute("SELECT techspec FROM predictions WHERE id = ?", [prediction_id]).fetchone()
-    except Exception as e:
-        return JSONResponse({"error": str(e)}, status_code=500)
-    finally:
-        if "con" in locals(): con.close()
-
-    if not row or not row[0]:
-        return JSONResponse({"error": "TechSpec not found"}, status_code=404)
-
-    techspec = json.loads(row[0])
-    from src.analyzer.assets_generator import generate_project_assets
-    assets = generate_project_assets(techspec)
-    
-    return JSONResponse(assets)
 
 # 7. Ендпоінт системи самодіагностики (Health Check)
 @app.get("/health")
@@ -319,6 +300,27 @@ async def ml_evolution():
     from src.analyzer.evolution_engine import analyze_system_performance
     result = analyze_system_performance()
     return JSONResponse(result)
+
+# --- НОВИЙ ЕНДПОІНТ ФІДБЕКУ (Етап 63) ---
+@app.post("/feedback/{prediction_id}")
+async def submit_feedback(prediction_id: str, background_tasks: BackgroundTasks, won: bool = Form(...), actual_place: int = Form(0)):
+    """Фіксуємо реальний результат та запускаємо перевірку еволюції моделі."""
+    try:
+        con = duckdb.connect(DB_PATH)
+        con.execute("INSERT INTO feedback VALUES (?, ?, ?, current_timestamp)", [prediction_id, won, actual_place])
+        con.commit()
+        
+        # АНТИКРИХКІСТЬ: Запускаємо Self-Evolution Engine у фоні!
+        from src.analyzer.evolution_engine import trigger_auto_evolution_check
+        background_tasks.add_task(trigger_auto_evolution_check)
+        
+    except Exception as e:
+        logger.error(f"Помилка збереження фідбеку: {e}")
+        return JSONResponse({"status": "error", "error": str(e)}, status_code=500)
+    finally:
+        if "con" in locals(): con.close()
+        
+    return JSONResponse({"status": "success"})
 
 if __name__ == "__main__":
     logger.info("Запуск локального сервера FastAPI...")

@@ -16,24 +16,24 @@ def _get_rag_context() -> str:
     Lightweight RAG: Витягує 3 реальних проекти-переможці з нашої бази даних 
     для натхнення ШІ.
     """
+    winners = []
     try:
         con = duckdb.connect(DB_PATH, read_only=True)
-        # Беремо 3 успішні проекти з високою кількістю лайків як еталон
         winners = con.execute("""
             SELECT title, description, tech_tags, prize_track 
             FROM projects 
             WHERE is_winner = TRUE AND likes > 5
             ORDER BY RANDOM() LIMIT 3
         """).fetchdf().to_dict('records')
-        con.close()
-        
-        if not winners:
-            return "No historical context available."
-            
-        return json.dumps(winners, indent=2, ensure_ascii=False)
     except Exception as e:
         logger.warning(f"RAG Retrieval failed: {e}")
+    finally:
+        if "con" in locals(): con.close()
+        
+    if not winners:
         return "No historical context available."
+        
+    return json.dumps(winners, indent=2, ensure_ascii=False)
 
 def generate_winning_ideas(hackathon_data: dict, hackathon_analysis: dict, hard_constraints: dict) -> list[dict]:
     """

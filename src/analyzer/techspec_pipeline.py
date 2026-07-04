@@ -10,14 +10,14 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from src.analyzer.techspec_generator import generate_techspec
 from src.analyzer.cache import cache_key, get_cached, set_cache
 from src.scraper.realtime_news import get_realtime_sponsor_news
-from src.analyzer.rl_strategy import thompson_sampling_tech_selector, optimize_timeline
 from src.db import get_connection
 from src.logger import logger
 
 def generate_and_save_techspec(prediction_id: str, idea_index: int, hackathon_url: str) -> dict:
     """
     Генерує ТЗ для обраної ідеї і безпечно зберігає в БД.
-    Перед генерацією автоматично збирає найсвіжіші новини спонсорів.
+    Антикрихкість: використовує LEFT JOIN для підтримки нових хакатонів,
+    які ще не були завантажені фоновим оркестратором.
     """
     logger.info(f"Запуск генерації ТЗ для передбачення {prediction_id} (Ідея #{idea_index})")
     
@@ -27,11 +27,12 @@ def generate_and_save_techspec(prediction_id: str, idea_index: int, hackathon_ur
     try:
         con = get_connection()
         
-        # 1. Запит опису ідеї та спонсорів хакатону через JOIN
+        # АНТИКРИХКІСТЬ: Заміна JOIN на LEFT JOIN, щоб не втрачати ідею,
+        # якщо хакатону ще немає в таблиці hackathons!
         query = """
             SELECT p.idea_1_description, h.sponsors 
             FROM predictions p 
-            JOIN hackathons h ON p.hackathon_url = h.url 
+            LEFT JOIN hackathons h ON p.hackathon_url = h.url 
             WHERE p.id = ?
         """
         # Динамічно коригуємо назву стовпця ідеї
@@ -39,43 +40,33 @@ def generate_and_save_techspec(prediction_id: str, idea_index: int, hackathon_ur
         row = con.execute(query, [prediction_id]).fetchone()
 
         if not row or not row[0]:
-            logger.error("Опис ідеї або передбачення не знайдено в БД.")
+            logger.error(f"Опис ідеї #{idea_index} або передбачення не знайдено в БД.")
             return {"error": "Prediction or idea not found"}
 
         idea_json = row[0]
-        sponsors_raw = row[1] if len(row) > 1 else "[]"
-        
+        sponsors_raw = row[1]  # Буде None для нових хакатонів
+
         try:
             idea = json.loads(idea_json)
         except json.JSONDecodeError:
             idea = {}
 
-        try:
-            sponsors_list = json.loads(sponsors_raw)
-        except Exception:
-            sponsors_list = []
+        # АНТИКРИХКІСТЬ: Якщо хакатону немає у нашій базі (новий запуск з UI),
+        # ми витягуємо спонсорів прямо зі згенерованого ШІ-списку sponsor_tech_used!
+        sponsors_list = []
+        if sponsors_raw:
+            try:
+                sponsors_list = json.loads(sponsors_raw)
+            except Exception:
+                pass
+        
+        if not sponsors_list:
+            sponsors_list = idea.get("sponsor_tech_used", [])
 
-        # 2. Real-Time Data Ingestion: отримуємо найсвіжіші новини спонсорів з Hacker News
+        # Real-Time Data Ingestion: отримуємо найсвіжіші новини спонсорів з Hacker News
         realtime_news = get_realtime_sponsor_news(sponsors_list)
 
-        # --- REINFORCEMENT LEARNING STRATEGY ---
-        trends_file = Path("data/cache/global_trends.json")
-        trends_data = {}
-        if trends_file.exists():
-            try:
-                import json as js
-                trends_data = js.loads(trends_file.read_text(encoding="utf-8"))
-            except: pass
-            
-        # У нас немає osint на цьому етапі напряму, тому беремо порожній (Bandit піде в Exploration або Fallback)
-        bonus_tech = thompson_sampling_tech_selector({}, trends_data)
-        optimized_time = optimize_timeline(len(idea.get("tech_stack", [])), idea.get("team_size", 1))
-        
-        rl_instructions = f"\n🧠 MAB STRATEGY: Try to creatively integrate {bonus_tech}.\n⏱️ OPTIMIZED TIMELINE: Structure the MVP Scope according to this optimal time distribution: {optimized_time}."
-        realtime_news += rl_instructions
-
-
-        # 3. Кешування
+        # Кешування ТЗ
         ck = cache_key(f"{prediction_id}_{idea_index}_techspec")
         techspec = get_cached(ck)
         
@@ -93,7 +84,7 @@ def generate_and_save_techspec(prediction_id: str, idea_index: int, hackathon_ur
         else:
             logger.info("ТЗ успішно завантажено з кешу.")
 
-        # 4. Оновлення БД
+        # Оновлення БД
         con.execute(
             "UPDATE predictions SET selected_idea = ?, techspec = ? WHERE id = ?",
             [idea_index, json.dumps(techspec, ensure_ascii=False), prediction_id]
@@ -107,7 +98,8 @@ def generate_and_save_techspec(prediction_id: str, idea_index: int, hackathon_ur
         logger.error(f"Помилка в пайплайні ТЗ: {e}")
         return {"error": str(e)}
     finally:
-        con.close()
+        if 'con' in locals():
+            con.close()
 
 if __name__ == "__main__":
     print("=== ТЕСТУВАННЯ ПАЙПЛАЙНУ ТЗ З НОВИНАМИ ===")
