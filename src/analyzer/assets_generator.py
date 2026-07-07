@@ -2,6 +2,7 @@ import sys
 from pathlib import Path
 import json
 
+# Гарантуємо правильні шляхи імпорту
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
@@ -9,7 +10,10 @@ from src.logger import logger
 from src.analyzer.ai_client import generate_json_with_failover
 
 def generate_project_assets(techspec: dict) -> dict:
-    """Генерує стартовий код та промпти для медіа-генераторів на основі ТЗ."""
+    """
+    Генерує стартовий код та промпти для медіа-генераторів на основі ТЗ.
+    ОПТИМІЗАЦІЯ ВИТРАТ ТА ШВИДКОСТІ: вимагаємо лаконічний boilerplate для запобігання таймаутам.
+    """
     logger.info(f"💻 Запуск генерації коду та медіа-промптів для: {techspec.get('project_name', 'Unknown')}")
     
     prompt = f"""
@@ -21,15 +25,16 @@ def generate_project_assets(techspec: dict) -> dict:
     
     Return EXACTLY a JSON object matching this schema:
     {{
-      "bash_setup_script": "A valid bash script (using mkdir, touch, and cat << \EOF\) that creates the project folder structure, writes basic boilerplate code, AND MUST generate DevOps/Deployment files: 1) A highly optimized Dockerfile. 2) A GitHub Actions CI/CD pipeline in .github/workflows/deploy.yml. 3) A deployment config (e.g., vercel.json, netlify.toml, or docker-compose.yml) depending on the tech stack.",
+      "bash_setup_script": "A valid, highly CONCISE bash script (using mkdir, touch, and cat << 'EOF') that creates the project structure. CRITICAL: If the tech stack relies on a proprietary platform (like Reddit Devvit), ONLY use their native CLI commands (e.g., `devvit new`) and DO NOT generate Dockerfile or Vercel configs. If it is a standard web app, generate Dockerfile/deploy.yml. Keep the code compact and focused on boilerplate.",
       "ui_prompts": ["Highly detailed Midjourney prompt for the app dashboard", "Prompt for the mobile view"],
       "video_prompts": ["RunwayML Gen-2 prompt for the intro video shot", "Prompt for the app UI animation"]
     }}
     """
     
-    result = generate_json_with_failover(prompt)
+    # Вимикаємо роздуми для швидкості та упередження таймаутів
+    result = generate_json_with_failover(prompt, thinking=False)
     
-    if "fallback" in result or "error" in result:
+    if "fallback" in result or "bash_setup_script" not in result:
         return {
             "bash_setup_script": "mkdir -p project\ntouch project/main.py\necho 'print(\"Fallback\")' > project/main.py",
             "ui_prompts": ["Modern UI dashboard, dark theme, neon accents, UI/UX --v 6.0"],

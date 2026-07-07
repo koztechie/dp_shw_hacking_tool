@@ -61,13 +61,13 @@
 
     <!-- 48H Timeline -->
     <div style="margin-bottom: 2.5rem;">
-        <h3 style="color: #58a6ff; border-bottom: 1px solid #30363d; padding-bottom: 0.5rem; margin-bottom: 1rem;">⏱️ 48-Hour MVP Scope</h3>
+        <h3 style="color: #58a6ff; border-bottom: 1px solid #30363d; padding-bottom: 0.5rem; margin-bottom: 1rem;">⏱️ Development Timeline (Adaptive)</h3>
         <div style="background: #0d1117; padding: 1.5rem; border-radius: 8px; border: 1px solid #30363d;">
-            <p><strong>Години 0 - 4:</strong> {{ techspec.mvp_scope.hour_0_4 }}</p>
-            <p><strong>Години 4 - 12:</strong> {{ techspec.mvp_scope.hour_4_12 }}</p>
-            <p><strong>Години 12 - 24:</strong> {{ techspec.mvp_scope.hour_12_24 }}</p>
-            <p><strong>Години 24 - 36:</strong> {{ techspec.mvp_scope.hour_24_36 }}</p>
-            <p><strong>Години 36 - 48 (Submission):</strong> <span style="color: #f78166;">{{ techspec.mvp_scope.hour_36_48 }}</span></p>
+            <p><strong>Phase 1 (Setup):</strong> {{ techspec.timeline_plan.phase_1_setup }}</p>
+            <p><strong>Phase 2 (Core):</strong> {{ techspec.timeline_plan.phase_2_core }}</p>
+            <p><strong>Phase 3 (Integration):</strong> {{ techspec.timeline_plan.phase_3_integration }}</p>
+            <p><strong>Phase 4 (Polish):</strong> {{ techspec.timeline_plan.phase_4_polish }}</p>
+            <p><strong>Phase 5 (Submission):</strong> <span style="color: #f78166;">{{ techspec.timeline_plan.phase_5_submission }}</span></p>
         </div>
     </div>
 
@@ -151,13 +151,13 @@
             md += `\n`;
         }
         
-        md += `## ⏱️ 48-Hour MVP Timeline\n`;
-        if (ts.mvp_scope) {
-            md += `- [ ] **Години 0 - 4:** ${ts.mvp_scope.hour_0_4 || ''}\n`;
-            md += `- [ ] **Години 4 - 12:** ${ts.mvp_scope.hour_4_12 || ''}\n`;
-            md += `- [ ] **Години 12 - 24:** ${ts.mvp_scope.hour_12_24 || ''}\n`;
-            md += `- [ ] **Години 24 - 36:** ${ts.mvp_scope.hour_24_36 || ''}\n`;
-            md += `- [ ] **Години 36 - 48 (Submission):** ${ts.mvp_scope.hour_36_48 || ''}\n\n`;
+        md += `## ⏱️ Development Timeline (Adaptive)\n`;
+        if (ts.timeline_plan) {
+            md += `- [ ] **Phase 0 - 4:** ${ts.timeline_plan.phase_1_setup || ''}\n`;
+            md += `- [ ] **Phase 4 - 12:** ${ts.timeline_plan.phase_2_core || ''}\n`;
+            md += `- [ ] **Phase 12 - 24:** ${ts.timeline_plan.phase_3_integration || ''}\n`;
+            md += `- [ ] **Phase 24 - 36:** ${ts.timeline_plan.phase_4_polish || ''}\n`;
+            md += `- [ ] **Phase 36 - 48 (Submission):** ${ts.timeline_plan.phase_5_submission || ''}\n\n`;
         }
         
         md += `## 🛡️ Antifragile Features (Запасний план)\n`;

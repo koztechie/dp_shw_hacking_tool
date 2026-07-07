@@ -1,4 +1,5 @@
 import sys
+import time
 from pathlib import Path
 import duckdb
 
@@ -7,20 +8,32 @@ PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
 from config.settings import DB_PATH
+from src.logger import logger
 
-def get_connection():
+def get_connection(retries: int = 5, delay: float = 1.0):
     """
     Повертає стандартне з'єднання з DuckDB у режимі читання/запису.
-    КРИТИЧНО ДЛЯ АНТИКРИХКОСТІ: Ця функція має бути імпортована іншими модулями.
+    АНТИКРИХКІСТЬ: Захист від паралельних блокувань іншими процесами (Retry Mechanism).
     """
-    return duckdb.connect(DB_PATH)
+    for attempt in range(1, retries + 1):
+        try:
+            # Намагаємося відкрити з'єднання
+            return duckdb.connect(DB_PATH)
+        except Exception as e:
+            if attempt == retries:
+                logger.error(f"❌ Фатальна помилка DuckDB: Не вдалося підключитися після {retries} спроб: {e}")
+                raise e
+            logger.warning(f"⚠️ База даних заблокована іншим процесом. Спроба {attempt}/{retries}. Очікування {delay}с...")
+            time.sleep(delay)
+            # Експоненційне збільшення часу очікування
+            delay *= 1.5
 
 def init_db():
     """
     Ініціалізує всі таблиці бази даних DuckDB.
     Повністю сумісний з розширеним набором ознак (23 фічі) та MLOps фідбеком.
     """
-    con = duckdb.connect(DB_PATH)
+    con = get_connection()
     try:
         # 1. Таблиця хакатонів (включаючи Judges Info)
         con.execute("""
@@ -33,22 +46,22 @@ def init_db():
                 end_date VARCHAR,
                 prize_total VARCHAR,
                 participant_count INTEGER,
-                themes VARCHAR,          -- Зберігається як JSON-рядок
-                sponsors VARCHAR,        -- Зберігається як JSON-рядок
+                themes VARCHAR,
+                sponsors VARCHAR,
                 judging_criteria VARCHAR,
-                judges_info VARCHAR,     -- Інформація про суддів
+                judges_info VARCHAR,
                 scraped_at TIMESTAMP DEFAULT current_timestamp
             )
         """)
 
-        # 2. Таблиця проектів (включаючи URL проекту)
+        # 2. Таблиця проектів
         con.execute("""
             CREATE TABLE IF NOT EXISTS projects (
                 id VARCHAR PRIMARY KEY,
                 hackathon_id VARCHAR,
                 title VARCHAR,
                 description VARCHAR,
-                tech_tags VARCHAR,       -- Зберігається як JSON-рядок
+                tech_tags VARCHAR,
                 team_size INTEGER,
                 likes INTEGER,
                 github_url VARCHAR,
@@ -58,12 +71,12 @@ def init_db():
                 win_score FLOAT,
                 readme_length INTEGER,
                 commit_count_48h INTEGER,
-                project_url VARCHAR,     -- Посилання на проект
+                project_url VARCHAR,
                 scraped_at TIMESTAMP DEFAULT current_timestamp
             )
         """)
 
-        # 3. Таблиця ознак (Features) - ПОВНИЙ 23-КОЛОНКОВИЙ НАБІР ДЛЯ ML
+        # 3. Таблиця ознак (Features)
         con.execute("""
             CREATE TABLE IF NOT EXISTS features (
                 project_id VARCHAR PRIMARY KEY,
@@ -99,26 +112,38 @@ def init_db():
                 hackathon_url VARCHAR,
                 generated_at TIMESTAMP DEFAULT current_timestamp,
                 idea_1_title VARCHAR,
-                idea_1_description VARCHAR,  -- Зберігається як JSON
+                idea_1_description VARCHAR,
                 idea_1_score FLOAT,
                 idea_2_title VARCHAR,
-                idea_2_description VARCHAR,  -- Зберігається як JSON
+                idea_2_description VARCHAR,
                 idea_2_score FLOAT,
                 idea_3_title VARCHAR,
-                idea_3_description VARCHAR,  -- Зберігається як JSON
+                idea_3_description VARCHAR,
                 idea_3_score FLOAT,
                 selected_idea INTEGER,
-                techspec VARCHAR             -- Зберігається як JSON
+                techspec VARCHAR
             )
         """)
 
-        # 5. Таблиця зворотного зв'язку (MLOps Feedback Loop)
+        # 5. Таблиця зворотного зв'язку
         con.execute("""
             CREATE TABLE IF NOT EXISTS feedback (
                 prediction_id VARCHAR,
                 won BOOLEAN,
                 actual_place INTEGER,
                 created_at TIMESTAMP DEFAULT current_timestamp
+            )
+        """)
+
+        # 6. Таблиця відстеження експериментів
+        con.execute("""
+            CREATE TABLE IF NOT EXISTS experiments (
+                run_id VARCHAR PRIMARY KEY,
+                timestamp TIMESTAMP DEFAULT current_timestamp,
+                model_name VARCHAR,
+                hyperparameters VARCHAR,
+                metrics VARCHAR,
+                model_path VARCHAR
             )
         """)
 

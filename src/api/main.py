@@ -1,6 +1,7 @@
 import sys
 from pathlib import Path
 import duckdb
+import numpy as np
 from fastapi import FastAPI, Request, Form, BackgroundTasks, UploadFile, File
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -192,19 +193,29 @@ async def techspec_page(request: Request, prediction_id: str):
 # 6. Ендпоінт Панелі історії передбачень
 @app.get("/history", response_class=HTMLResponse)
 async def history_page(request: Request):
+    import pandas as pd
     predictions = []
     try:
         con = duckdb.connect(DB_PATH, read_only=True)
         df = con.execute("""
-            SELECT id, hackathon_url, strftime(generated_at, '%Y-%m-%d %H:%M') as gen_date, idea_1_title, idea_1_score, selected_idea
-            FROM predictions ORDER BY generated_at DESC LIMIT 50
+            SELECT p.id, p.hackathon_url, strftime(p.generated_at, '%Y-%m-%d %H:%M') as gen_date, p.idea_1_title, p.idea_1_score, p.selected_idea, f.won as feedback_won
+            FROM predictions p
+            LEFT JOIN feedback f ON p.id = f.prediction_id
+            ORDER BY p.generated_at DESC LIMIT 50
         """).fetchdf()
-        df = df.replace({np.nan: None})
-        predictions = df.to_dict("records")
+        
+        records = df.to_dict("records")
+        for r in records:
+            val = r.get("feedback_won")
+            if pd.isna(val):
+                r["feedback_won"] = None
+            else:
+                r["feedback_won"] = bool(val)
+        predictions = records
     except Exception as e:
         logger.error(f"Помилка завантаження історії: {e}")
     finally:
-        if 'con' in locals(): con.close()
+        if "con" in locals(): con.close()
     return templates.TemplateResponse(request=request, name="history.html", context={"predictions": predictions})
 
 # 7. Ендпоінт системи самодіагностики (Health Check)
@@ -318,6 +329,33 @@ async def submit_feedback(prediction_id: str, background_tasks: BackgroundTasks,
         if "con" in locals(): con.close()
         
     return JSONResponse({"status": "success"})
+
+
+# --- ЕНДПОЇНТ ГЕНЕРАЦІЇ АКТИВІВ (Етап 17-18) ---
+@app.post("/generate_assets/{prediction_id}")
+async def generate_assets(prediction_id: str):
+    import json
+    try:
+        con = duckdb.connect(DB_PATH, read_only=True)
+        row = con.execute("SELECT techspec FROM predictions WHERE id = ?", [prediction_id]).fetchone()
+    except Exception as e:
+        logger.error(f"Помилка БД при отриманні ТЗ для активів: {e}")
+        return JSONResponse({"error": str(e)}, status_code=500)
+    finally:
+        if "con" in locals(): con.close()
+
+    if not row or not row[0]:
+        return JSONResponse({"error": "TechSpec not found. Будь ласка, спочатку згенеруйте ТЗ."}, status_code=404)
+
+    try:
+        techspec = json.loads(row[0])
+        from src.analyzer.assets_generator import generate_project_assets
+        assets = generate_project_assets(techspec)
+        return JSONResponse(assets)
+    except Exception as e:
+        logger.error(f"Помилка генерації активів: {e}")
+        return JSONResponse({"error": str(e)}, status_code=500)
+
 
 if __name__ == "__main__":
     logger.info("Запуск локального сервера FastAPI...")
