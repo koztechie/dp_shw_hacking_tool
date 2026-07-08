@@ -1,45 +1,46 @@
 import sys
-from pathlib import Path
 import os
+from pathlib import Path
 from loguru import logger
+import sentry_sdk
+from sentry_sdk.integrations.loguru import LoguruIntegration
 
 # Гарантуємо правильні шляхи імпорту
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from config.settings import LOG_PATH
+from config.settings import SENTRY_DSN
 
-# Створюємо директорію для логів, якщо вона відсутня
-Path(LOG_PATH).parent.mkdir(parents=True, exist_ok=True)
+# Ініціалізація Sentry з урахуванням антикрихких правок безпеки (No PII) та продуктивності (10% sampling)
+if SENTRY_DSN and SENTRY_DSN != "your_sentry_dsn_here" and SENTRY_DSN != "":
+    sentry_sdk.init(
+        dsn=SENTRY_DSN,
+        integrations=[LoguruIntegration()],
+        send_default_pii=False,      # АНТИКРИХКІСТЬ: Захист від витоку IP та Cookies
+        traces_sample_rate=0.1,      # Обмежуємо навантаження на процесор (10% запитів)
+        profiles_sample_rate=0.1     # Економія ресурсів на профілюванні
+    )
+    logger.info("📡 Sentry SDK успішно ініціалізовано. Моніторинг активний!")
 
-# --- АНТИКРИХКА ІНІЦІАЛІЗАЦІЯ SENTRY ---
-SENTRY_DSN = os.getenv("SENTRY_DSN")
+# Конфігурація Loguru логера
+LOG_DIR = PROJECT_ROOT / "logs"
+LOG_DIR.mkdir(parents=True, exist_ok=True)
 
-if SENTRY_DSN and SENTRY_DSN != "https://your_sentry_dsn_here" and "sentry.io" in SENTRY_DSN:
-    try:
-        import sentry_sdk
-        from sentry_sdk.integrations.loguru import LoguruIntegration
-        
-        sentry_sdk.init(
-            dsn=SENTRY_DSN,
-            # Виправлено: ініціалізуємо інтегратор без параметрів
-            integrations=[LoguruIntegration()],
-            send_default_pii=True,          # Дозволяє збирати контекст запитів FastAPI
-            traces_sample_rate=1.0,
-            profiles_sample_rate=1.0,
-        )
-        logger.info("📡 Sentry SDK успішно ініціалізовано. Моніторинг активний!")
-    except Exception as e:
-        # У разі будь-якого збою не ламаємо запуск системи
-        sys.stderr.write(f"⚠️ Не вдалося ініціалізувати Sentry: {e}\n")
+# Очищуємо дефолтні налаштування логера
+logger.remove()
 
-# Налаштовуємо логування в локальний файл через Loguru
+# Додаємо вивід у консоль
 logger.add(
-    LOG_PATH,
+    sys.stderr,
+    format="<green>{time:YYYY-MM-DD HH:mm:ss.SSS}</green> | <level>{level:<8}</level> | <cyan>{name}</cyan>:<cyan>{function}</cyan>:<cyan>{line}</cyan> - <level>{message}</level>",
+    level="INFO"
+)
+
+# Додаємо ротацію логів у файл для автономності
+logger.add(
+    str(LOG_DIR / "app.log"),
+    format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level:<8} | {name}:{function}:{line} - {message}",
+    level="DEBUG",
     rotation="10 MB",
-    retention="30 days",
-    level="INFO",
-    encoding="utf-8",
-    backtrace=True,
-    diagnose=True
+    compression="zip"
 )

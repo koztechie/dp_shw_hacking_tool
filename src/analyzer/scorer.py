@@ -14,16 +14,30 @@ from src.analyzer.causal_inference import get_counterfactual_advice
 from src.analyzer.xai_explainer import explain_prediction
 from src.logger import logger
 
-# Lazy Loading для економії оперативної пам'яті сервера
-_embedder = None
+# АНТИКРИХКІСТЬ: Менеджер життєвого циклу моделі (Memory Leak Protection)
+class EmbedderManager:
+    _embedder = None
+
+    @classmethod
+    def get_embedder(cls):
+        if cls._embedder is None:
+            logger.info("Завантаження Sentence-BERT для інференсу (Lazy Load)...")
+            from sentence_transformers import SentenceTransformer
+            cls._embedder = SentenceTransformer('all-MiniLM-L6-v2')
+        return cls._embedder
+
+    @classmethod
+    def cleanup(cls):
+        """Викликати після кожного інференсу для тотальної економії RAM"""
+        if cls._embedder is not None:
+            del cls._embedder
+            cls._embedder = None
+            import gc
+            gc.collect()
+            logger.info("🧹 Sentence-BERT видалено з пам'яті (RAM звільнено).")
 
 def get_embedder():
-    global _embedder
-    if _embedder is None:
-        logger.info("Завантаження Sentence-BERT для інференсу (Lazy Load)...")
-        from sentence_transformers import SentenceTransformer
-        _embedder = SentenceTransformer('all-MiniLM-L6-v2')
-    return _embedder
+    return EmbedderManager.get_embedder()
 
 def _safe_len(val) -> int:
     if not val: return 0
@@ -66,7 +80,6 @@ def score_idea(idea: dict, hackathon_data: dict) -> float:
     participants = int(hackathon_data.get("participant_count") or 100)
     competition_density = round(participants / 40, 2)
 
-    # 1. Підготовка кількісних ознак із залученням реальних семантичних векторів
     features = {
         "title": idea.get("title", "Unknown Idea"),
         "uses_sponsor_tech": _safe_len(idea.get("sponsor_tech_used")) > 0,
@@ -117,39 +130,42 @@ def score_idea(idea: dict, hackathon_data: dict) -> float:
 def rank_ideas(ideas: list[dict], hackathon_data: dict) -> list[dict]:
     logger.info(f"Починаємо динамічний скоринг для {len(ideas)} ідей...")
     
-    # АНТИКРИХКІСТЬ: Батчева семантична обробка нових ідей
-    if ideas:
-        try:
-            from sklearn.decomposition import PCA
-            embedder = get_embedder()
-            descriptions = [str(i.get("solution", i.get("title", ""))) for i in ideas]
-            embeddings = embedder.encode(descriptions, show_progress_bar=False)
-            
-            # Захист від падіння PCA, якщо ідей менше 3
-            n_comp = min(3, len(ideas))
-            if n_comp > 0:
-                pca = PCA(n_components=n_comp, random_state=42)
-                transformed = pca.fit_transform(embeddings)
-                if n_comp < 3:
-                    transformed = np.pad(transformed, ((0, 0), (0, 3 - n_comp)), 'constant')
-                semantic_features = transformed.tolist()
-            else:
-                semantic_features = [[0.0, 0.0, 0.0] for _ in ideas]
+    # АНТИКРИХКІСТЬ: Гарантоване звільнення пам'яті через try/finally
+    try:
+        if ideas:
+            try:
+                from sklearn.decomposition import PCA
+                embedder = get_embedder()
+                descriptions = [str(i.get("solution", i.get("title", ""))) for i in ideas]
+                embeddings = embedder.encode(descriptions, show_progress_bar=False)
                 
-            for idx, idea in enumerate(ideas):
-                idea["semantic_pca_1"] = semantic_features[idx][0]
-                idea["semantic_pca_2"] = semantic_features[idx][1]
-                idea["semantic_pca_3"] = semantic_features[idx][2]
-        except Exception as e:
-            logger.error(f"Помилка розрахунку семантичних PCA на інференсі: {e}")
+                n_comp = min(3, len(ideas))
+                if n_comp > 0:
+                    pca = PCA(n_components=n_comp, random_state=42)
+                    transformed = pca.fit_transform(embeddings)
+                    if n_comp < 3:
+                        transformed = np.pad(transformed, ((0, 0), (0, 3 - n_comp)), 'constant')
+                    semantic_features = transformed.tolist()
+                else:
+                    semantic_features = [[0.0, 0.0, 0.0] for _ in ideas]
+                    
+                for idx, idea in enumerate(ideas):
+                    idea["semantic_pca_1"] = semantic_features[idx][0]
+                    idea["semantic_pca_2"] = semantic_features[idx][1]
+                    idea["semantic_pca_3"] = semantic_features[idx][2]
+            except Exception as e:
+                logger.error(f"Помилка розрахунку семантичних PCA на інференсі: {e}")
 
-    for idea in ideas:
-        idea["win_probability"] = score_idea(idea, hackathon_data)
-        
-    return sorted(ideas, key=lambda x: x["win_probability"], reverse=True)
+        for idea in ideas:
+            idea["win_probability"] = score_idea(idea, hackathon_data)
+            
+        return sorted(ideas, key=lambda x: x["win_probability"], reverse=True)
+    finally:
+        # Після оцінки всіх ідей повністю вичищаємо Sentence-BERT з RAM
+        EmbedderManager.cleanup()
 
 if __name__ == "__main__":
-    print("=== ТЕСТУВАННЯ СИНХРОНІЗАЦІЇ ІНФЕРЕНСУ (Етап Data Leakage Fix) ===")
+    print("=== ТЕСТУВАННЯ МЕНЕДЖЕРА ПАМ'ЯТІ (Memory Leak Fix) ===")
     mock_hackathon = {"title": "AI Summit"}
     mock_ideas = [
         {"title": "Idea 1", "solution": "A complex neural network for healthcare."},
@@ -157,4 +173,4 @@ if __name__ == "__main__":
     ]
     ranked = rank_ideas(mock_ideas, mock_hackathon)
     for i in ranked:
-        print(f"{i['title']} - PCA1: {i.get('semantic_pca_1', 0):.4f} - Score: {i.get('win_probability', 0)*100:.2f}%")
+        print(f"{i['title']} - PCA1: {i.get('semantic_pca_1', 0):.4f}")

@@ -10,7 +10,7 @@ from src.logger import logger
 from src.analyzer.hackathon_parser import parse_hackathon_from_url, parse_hackathon_from_html
 from src.analyzer.rules_extractor import fetch_and_clean_rules, extract_hard_constraints_with_ai
 from src.analyzer.organizer_osint import get_organizer_patterns
-from src.analyzer.gemini_analyzer import analyze_hackathon_with_gemini
+from src.analyzer.profile_analyzer import analyze_hackathon_profile
 from src.analyzer.idea_generator import generate_winning_ideas
 from src.analyzer.scorer import rank_ideas
 from src.analyzer.cache import cache_key, get_cached, set_cache
@@ -48,7 +48,7 @@ def _run_analysis_pipeline(hackathon_data: dict, source_url: str) -> dict:
     ck_analysis = cache_key(source_url + "analysis")
     analysis = get_cached(ck_analysis)
     if not analysis:
-        analysis = analyze_hackathon_with_gemini(hackathon_data, osint, banner_bytes)
+        analysis = analyze_hackathon_profile(hackathon_data, osint, banner_bytes)
 
         set_cache(ck_analysis, analysis)
 

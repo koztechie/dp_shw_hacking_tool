@@ -7,6 +7,9 @@ from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import HTMLResponse, JSONResponse
 import uvicorn
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
 
 # Гарантуємо правильні шляхи імпорту
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -23,11 +26,44 @@ TEMPLATES_DIR.mkdir(parents=True, exist_ok=True)
 STATIC_DIR.mkdir(parents=True, exist_ok=True)
 
 app = FastAPI(title="DP_SHW_Hacking_Tool")
+limiter = Limiter(key_func=get_remote_address)
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+
+from fastapi.middleware.cors import CORSMiddleware
+
+# АНТИКРИХКІСТЬ: Додаємо підтримку CORS для майбутніх AI-згенерованих фронтендів
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://127.0.0.1:8000", 
+        "http://localhost:8000",
+        "http://localhost:3000",  # Для згенерованого React
+        "http://localhost:5173"   # Для згенерованого Vite
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.mount("/static", StaticFiles(directory=str(STATIC_DIR)), name="static")
 templates = Jinja2Templates(directory=str(TEMPLATES_DIR))
 
-# Глобальний кеш для лічильника
-LAST_COLLECTED_COUNT = 0
+import threading
+
+# Потокобезпечний кеш для лічильника
+class AppState:
+    _lock = threading.Lock()
+    _last_count = 0
+
+    @classmethod
+    def get_count(cls):
+        with cls._lock:
+            return cls._last_count
+
+    @classmethod
+    def set_count(cls, value):
+        with cls._lock:
+            cls._last_count = value
 
 @app.get("/ping")
 async def ping():
@@ -36,7 +72,6 @@ async def ping():
 # 1. Ендпоінт Дашборду
 @app.get("/", response_class=HTMLResponse)
 async def dashboard(request: Request):
-    global LAST_COLLECTED_COUNT
     stats = {"hackathons": 0, "projects": 0, "winners": 0, "predictions": 0, "error": None}
     try:
         con = duckdb.connect(DB_PATH, read_only=True)
@@ -44,7 +79,7 @@ async def dashboard(request: Request):
         stats["projects"] = con.execute("SELECT COUNT(*) FROM projects").fetchone()[0]
         stats["winners"] = con.execute("SELECT COUNT(*) FROM projects WHERE is_winner=TRUE").fetchone()[0]
         
-        LAST_COLLECTED_COUNT = stats["hackathons"]
+        AppState.set_count(stats["hackathons"])
         
         try:
             stats["predictions"] = con.execute("SELECT COUNT(*) FROM predictions").fetchone()[0]
@@ -52,7 +87,7 @@ async def dashboard(request: Request):
             pass
     except Exception as e:
         stats["error"] = str(e)
-        stats["hackathons"] = LAST_COLLECTED_COUNT
+        stats["hackathons"] = AppState.get_count()
     finally:
         if 'con' in locals(): con.close()
     return templates.TemplateResponse(request=request, name="index.html", context={"stats": stats})
@@ -71,22 +106,41 @@ async def start_training(background_tasks: BackgroundTasks, pages: int = Form(1)
 
 @app.get("/training/status")
 async def training_status():
-    global LAST_COLLECTED_COUNT
     try:
         con = duckdb.connect(DB_PATH, read_only=True)
-        LAST_COLLECTED_COUNT = con.execute("SELECT COUNT(*) FROM hackathons").fetchone()[0]
+        count = con.execute("SELECT COUNT(*) FROM hackathons").fetchone()[0]
+        AppState.set_count(count)
         con.close()
     except Exception:
         pass
-    return JSONResponse({"hackathons_collected": LAST_COLLECTED_COUNT})
+    return JSONResponse({"hackathons_collected": AppState.get_count()})
 
 # 3. Ендпоінти Панелі Аналізу хакаронів
 @app.get("/analyze", response_class=HTMLResponse)
 async def analyze_page(request: Request):
     return templates.TemplateResponse(request=request, name="analyze.html", context={})
 
+
+def is_safe_devpost_url(url: str) -> bool:
+    """Антикрихкий захист від SSRF атак. Жорстко перевіряє домен."""
+    try:
+        from urllib.parse import urlparse
+        parsed = urlparse(url)
+        if parsed.scheme != "https":
+            return False
+        netloc = parsed.netloc.lower()
+        # Блокує обходи типу "devpost.com.evil.net"
+        return netloc == "devpost.com" or netloc.endswith(".devpost.com")
+    except Exception:
+        return False
+
 @app.post("/analyze/url")
-async def analyze_url(url: str = Form(...)):
+@limiter.limit("5/minute")
+async def analyze_url(request: Request, url: str = Form(...)):
+    if not is_safe_devpost_url(url):
+        logger.warning(f"🚨 SSRF Спроба заблокована: невалідний URL {url}")
+        return JSONResponse({"status": "error", "error": "Дозволені лише безпечні посилання на https://*.devpost.com/"}, status_code=400)
+
     try:
         from src.analyzer.pipeline import analyze_hackathon
         result = analyze_hackathon(url)
@@ -238,6 +292,22 @@ async def health():
     
     if health_status["status"] == "ok" and not health_status["model_ready"]:
         health_status["status"] = "degraded"
+
+    # АНТИКРИХКІСТЬ: Безкоштовний та надшвидкий пінг Xiaomi API без витрати токенів
+    health_status["ai_api"] = "degraded"
+    try:
+        import httpx
+        from config.settings import MIMO_API_KEY, MIMO_BASE_URL
+        r = httpx.get(f"{MIMO_BASE_URL}/models", headers={"Authorization": f"Bearer {MIMO_API_KEY}"}, timeout=3.0)
+        if r.status_code == 200:
+            health_status["ai_api"] = "ok"
+        else:
+            health_status["ai_api"] = f"error_{r.status_code}"
+    except Exception:
+        health_status["ai_api"] = "unreachable"
+
+    if health_status["ai_api"] != "ok":
+        health_status["status"] = "degraded"
         
     return JSONResponse(health_status)
 
@@ -358,5 +428,8 @@ async def generate_assets(prediction_id: str):
 
 
 if __name__ == "__main__":
-    logger.info("Запуск локального сервера FastAPI...")
-    uvicorn.run("src.api.main:app", host="127.0.0.1", port=8000, reload=True)
+    import os
+    is_dev = os.getenv("ENV", "production") == "development"
+    mode_text = "DEVELOPMENT (з авто-перезавантаженням)" if is_dev else "PRODUCTION (стабільний режим)"
+    logger.info(f"Запуск локального сервера FastAPI... [{mode_text}]")
+    uvicorn.run("src.api.main:app", host="127.0.0.1", port=8000, reload=is_dev)

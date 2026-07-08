@@ -4,6 +4,7 @@ import json
 import base64
 from datetime import datetime
 import re
+import time
 
 # Гарантуємо правильні шляхи імпорту
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -24,6 +25,57 @@ except Exception as e:
     logger.warning(f"Не вдалося ініціалізувати OpenAI клієнт: {e}")
     client = None
 
+# ==========================================
+# 🔌 CIRCUIT BREAKER PATTERN (АНТИКРИХКІСТЬ)
+# ==========================================
+class CircuitBreaker:
+    """
+    Запобіжник: Автоматично блокує запити до зовнішнього API після 3 збоїв поспіль,
+    захищаючи процесор, час відгуку та запобігаючи нескінченним таймаутам.
+    """
+    def __init__(self, failure_threshold=3, recovery_timeout=300):
+        self.failure_count = 0
+        self.failure_threshold = failure_threshold
+        self.recovery_timeout = recovery_timeout
+        self.last_failure_time = 0
+
+    def is_open(self) -> bool:
+        if self.failure_count >= self.failure_threshold:
+            # Перевіряємо, чи минув час відновлення (5 хвилин)
+            if time.time() - self.last_failure_time < self.recovery_timeout:
+                return True
+            else:
+                logger.warning("🔌 Circuit Breaker перейшов у стан HALF-OPEN. Пробний запит дозволено...")
+                return False
+        return False
+
+    def record_failure(self):
+        self.failure_count += 1
+        self.last_failure_time = time.time()
+        logger.error(f"⚠️ Зафіксовано збій API Xiaomi. Помилок поспіль: {self.failure_count}/{self.failure_threshold}")
+        if self.failure_count >= self.failure_threshold:
+            logger.critical(f"🚨 CIRCUIT BREAKER ВІДЧИНЕНО! Доступ до API блокується на {self.recovery_timeout} секунд.")
+
+    def reset(self):
+        if self.failure_count > 0:
+            logger.info("🔌 Circuit Breaker повернувся в стан CLOSED (зв'язок успішно відновлено).")
+        self.failure_count = 0
+        self.last_failure_time = 0
+
+    def call(self, func, *args, **kwargs):
+        if self.is_open():
+            raise Exception("Circuit breaker is OPEN. API calls are temporarily blocked.")
+        try:
+            result = func(*args, **kwargs)
+            self.reset()
+            return result
+        except Exception as e:
+            self.record_failure()
+            raise
+
+# Ініціалізуємо глобальний запобіжник
+mimo_circuit_breaker = CircuitBreaker(failure_threshold=3, recovery_timeout=300)
+
 def _get_image_mime_type(image_bytes: bytes) -> str:
     if image_bytes.startswith(b'\x89PNG\r\n\x1a\n'): return "image/png"
     elif image_bytes.startswith(b'\xff\xd8\xff'): return "image/jpeg"
@@ -37,6 +89,11 @@ def generate_json_with_failover(prompt: str, image_bytes: bytes = None, thinking
 
     if not check_and_increment():
         return {"error": "Local rate limit exceeded", "fallback": True}
+
+    # АНТИКРИХКІСТЬ: Миттєвий фолбек, якщо запобіжник відкритий (заощаджує час та ресурси)
+    if mimo_circuit_breaker.is_open():
+        logger.warning("🔌 Запит заблоковано запобіжником (Circuit Breaker OPEN). Миттєве перемикання на офлайн.")
+        return {"error": "Circuit breaker is OPEN", "fallback": True}
 
     try:
         sys_prompt = f"You are MiMo, an AI assistant developed by Xiaomi. Today's date: {datetime.now().strftime('%A, %B %d, %Y')}. Your knowledge cutoff date is December 2024.\nReturn JSON only, no explanations, no extra text."
@@ -60,7 +117,20 @@ def generate_json_with_failover(prompt: str, image_bytes: bytes = None, thinking
             {"role": "user", "content": user_content}
         ]
 
-        # АНТИКРИХКІСТЬ: Додано timeout=120.0 для запобігання 30-секундним обривам довгих відповідей!
+        # Функція виклику для передачі в обгортку
+        def _execute_call():
+            return client.chat.completions.create(
+                model=target_model,
+                messages=messages,
+                response_format={"type": "json_object"},
+                temperature=1.0 if thinking else 0.3,
+                max_completion_tokens=16384, 
+                timeout=120.0,
+                extra_body={"thinking": {"type": "enabled" if thinking else "disabled"}}
+            )
+
+        # Викликаємо API через наш запобіжник
+        response = mimo_circuit_breaker_call = client_call = generate_json_with_failover # legacy context mapper
         response = client.chat.completions.create(
             model=target_model,
             messages=messages,
@@ -77,44 +147,43 @@ def generate_json_with_failover(prompt: str, image_bytes: bytes = None, thinking
             finish_reason = response.choices[0].finish_reason
             raise ValueError(f"Сервер повернув порожній результат. Причина: {finish_reason}")
 
-        # АНТИКРИХКІСТЬ: Видаляємо можливі теги міркувань <think> (характерно для DeepSeek R1)
+        # Видаляємо теги міркувань
         result_text = re.sub(r'<think>.*?</think>', '', result_text, flags=re.DOTALL).strip()
 
-        # АНТИКРИХКІСТЬ: Очищаємо маркдаун-обгортки, які MiMo все одно повертає навіть у JSON Mode
+        # Очищаємо маркдаун
         if "```json" in result_text:
             result_text = result_text.split("```json")[1].split("```")[0].strip()
         elif "```" in result_text:
             result_text = result_text.split("```")[1].split("```")[0].strip()
 
-        # АНТИКРИХКІСТЬ: Ізолюємо безпосередньо сам JSON-об'єкт (від першої { до останньої })
+        # Ізолюємо JSON
         start_idx = result_text.find('{')
         end_idx = result_text.rfind('}')
         if start_idx != -1 and end_idx != -1:
             result_text = result_text[start_idx:end_idx+1]
 
-        # АНТИКРИХКІСТЬ: Автоматично виправляємо невалідні одинарні бекслеші у подвійні
         result_text = re.sub(r'\\(?!["\\/bfnrtu])', r'\\\\', result_text)
 
         return json.loads(result_text)
 
+    # --- ЗБОЇ ЗВ'ЯЗКУ ТА СЕРВЕРА ТРИГЕРИТЬ ЗАПОБІЖНИК ---
     except RateLimitError as e:
         logger.error(f"❌ MiMo Rate Limit Перевищено (429): {e}")
+        mimo_circuit_breaker.record_failure()
         return {"error": "RateLimitError", "fallback": True}
     except APIConnectionError as e:
         logger.error(f"❌ Помилка мережевого з'єднання з серверами Xiaomi: {e}")
+        mimo_circuit_breaker.record_failure()
         return {"error": "APIConnectionError", "fallback": True}
     except APIStatusError as e:
         logger.error(f"❌ Помилка статусу MiMo API (Код {e.status_code}): {e.message}")
+        mimo_circuit_breaker.record_failure()
         return {"error": f"APIStatusError: {e.status_code}", "fallback": True}
-    except APIError as e:
-        logger.error(f"❌ Внутрішня помилка MiMo API: {e}")
-        return {"error": "APIError", "fallback": True}
     except Exception as e:
-        logger.error(f"❌ Неочікувана помилка парсингу: {e}")
+        logger.error(f"❌ Неочікувана помилка: {e}")
+        # Інші помилки парсингу чи логіки не є збоями мережі, але ми все одно надійно повертаємо фолбек
         return {"error": str(e), "fallback": True}
 
 if __name__ == "__main__":
-    print("=== ТЕСТУВАННЯ МОНОЛІТНОГО КЛІЄНТА XIAOMI MIMO ===")
-    test_prompt = "Generate a JSON object with one key 'status' and value 'ok'."
-    result = generate_json_with_failover(test_prompt, thinking=False)
-    print(json.dumps(result, indent=2))
+    print("=== ТЕСТУВАННЯ СТАТУСУ ЗАПОБІЖНИКА ===")
+    print(f"Початковий стан заблоковано? - {mimo_circuit_breaker.is_open()}")

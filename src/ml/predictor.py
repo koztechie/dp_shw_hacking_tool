@@ -1,6 +1,31 @@
 import sys
 from pathlib import Path
 import pickle
+import hashlib
+
+def verify_model_integrity(model_path: Path) -> bool:
+    """Перевірка цілісності моделі через SHA-256 для запобігання Pickle RCE"""
+    checksum_file = model_path.parent / "checksums.txt"
+    if not checksum_file.exists():
+        logger.warning(f"⚠️ Файл checksums.txt відсутній! Пропуск перевірки для {model_path.name}")
+        return True
+
+    
+        if not verify_model_integrity(model_path):
+            raise ValueError(f"🚨 КРИТИЧНО: Хеш файлу {model_path.name} не збігається! Файл пошкоджено або скомпрометовано.")
+        
+        with open(model_path, "rb") as f:
+        current_hash = hashlib.sha256(f.read()).hexdigest()
+
+    with open(checksum_file, "r") as f:
+        saved_hashes = dict(line.strip().split(":") for line in f if ":" in line)
+
+    expected_hash = saved_hashes.get(model_path.name)
+    if not expected_hash:
+        return True
+
+    return current_hash == expected_hash
+
 import pandas as pd
 
 # Гарантуємо правильні шляхи імпорту
@@ -24,7 +49,11 @@ def load_model():
             "Будь ласка, спочатку запустіть тренування моделі: python src/ml/train_model.py"
         )
 
-    with open(model_path, "rb") as f:
+    
+        if not verify_model_integrity(model_path):
+            raise ValueError(f"🚨 КРИТИЧНО: Хеш файлу {model_path.name} не збігається! Файл пошкоджено або скомпрометовано.")
+        
+        with open(model_path, "rb") as f:
         model = pickle.load(f)
     with open(features_path, "rb") as f:
         feature_names = pickle.load(f)

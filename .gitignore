@@ -5,3 +5,8 @@ venv/
 data/
 logs/
 nohup.out
+
+# Debug and temporary scripts
+tests/debug/
+debug_*.py
+

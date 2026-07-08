@@ -7,8 +7,8 @@
 ### 1. Налаштування оточення
 Створіть файл `.env` у корені проекту та додайте ваші ключі доступу:
 ```ini
-GEMINI_API_KEY=ваш_ключ_gemini
-OPENROUTER_API_KEY=sk-or-v1-ваш_ключ_openrouter
+Xiaomi MiMo v2.5 Pro_API_KEY=ваш_ключ_Xiaomi MiMo v2.5 Pro
+Xiaomi MiMo v2.5 Pro_API_KEY=sk-or-v1-ваш_ключ_Xiaomi MiMo v2.5 Pro
 SENTRY_DSN=https://ваш_dsn_від_sentry  # Опціонально, для моніторингу помилок
 ```
 
@@ -32,13 +32,13 @@ SENTRY_DSN=https://ваш_dsn_від_sentry  # Опціонально, для м
 
 ## 🧠 MLOps та Антикрихкість
 
-* **Каскадний AI-Роутер:** У разі падіння API від Google (503 помилка), система миттєво та непомітно перемикається на безкоштовні моделі з OpenRouter (Llama 3.3, Qwen 2.5).
+* **Каскадний AI-Роутер:** У разі падіння API від Google (503 помилка), система миттєво та непомітно перемикається на безкоштовні моделі з Xiaomi MiMo v2.5 Pro (Xiaomi MiMo v2.5 Pro 3.3, Qwen 2.5).
 * **Self-Evolution Engine:** Після внесення результатів хакатону в історію, система аналізує свої помилки (Data Drift) і надсилає готові промпти у Sentry для самостійного оновлення коду.
 * **Відмовостійка БД:** Використовується транзакційна запис у DuckDB з автоматичним бекфілом та захистом від блокувань.
 
 ## 🛠 Технологічний стек
 **Backend:** Python 3.14, FastAPI, Uvicorn  
 **Data & ML:** DuckDB, Pandas, Scikit-Learn, XGBoost, Imbalanced-learn  
-**AI & Scraping:** httpx, BeautifulSoup4, Google GenAI SDK, OpenRouter API  
+**AI & Scraping:** httpx, BeautifulSoup4, Google GenAI SDK, Xiaomi MiMo v2.5 Pro API  
 **DevOps:** Loguru, Sentry  
 **Frontend:** Jinja2, HTML5/CSS3/JS (Vanilla)  

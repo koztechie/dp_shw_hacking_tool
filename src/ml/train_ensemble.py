@@ -11,7 +11,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from src.ml.prepare_dataset import prepare_dataset
 from src.logger import logger
 from src.ml.experiment_tracker import log_experiment
-from src.ml.focal_loss import focal_loss_objective  # ІМПОРТ З ВИДІЛЕНОГО МОДУЛЯ
+from src.ml.focal_loss import focal_loss_objective
 
 import optuna
 from xgboost import XGBClassifier
@@ -27,7 +27,7 @@ from imblearn.combine import SMOTETomek
 def optimize_hyperparameters(X_train, y_train):
     """
     Bayesian Optimization: Автоматичний підбір ідеальних гіперпараметрів 
-    через бібліотеку Optuna.
+    через бібліотеку Optuna з жорстким обмеженням пам'яті (n_jobs=1).
     """
     logger.info("🔍 Запуск Optuna для пошуку ідеальних гіперпараметрів (20 ітерацій)...")
     optuna.logging.set_verbosity(optuna.logging.WARNING)
@@ -59,7 +59,9 @@ def optimize_hyperparameters(X_train, y_train):
         ])
 
         cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
-        scores = cross_val_score(pipeline, X_train, y_train, cv=cv, scoring='average_precision', n_jobs=-1)
+        
+        # АНТИКРИХКІСТЬ: Обмежуємо n_jobs=1 для уникнення Out of Memory на 6GB RAM
+        scores = cross_val_score(pipeline, X_train, y_train, cv=cv, scoring='average_precision', n_jobs=1)
         return scores.mean()
 
     study = optuna.create_study(direction='maximize')
@@ -92,11 +94,11 @@ def train_ensemble():
     from src.ml.pytorch_model import PyTorchHackathonClassifier
     nn_base = PyTorchHackathonClassifier(epochs=20)
 
-    # Наш потрійний ансамбль
+    # АНТИКРИХКІСТЬ: Задаємо n_jobs=1 для стабільного послідовного тренування без OOM
     ensemble = StackingClassifier(
         estimators=[('rf', rf_base), ('xgb', xgb_base), ('nn', nn_base)],
         final_estimator=meta_model,
-        cv=5, n_jobs=-1
+        cv=5, n_jobs=1
     )
 
     logger.info("Генерація фінальних синтетичних даних (SMOTETomek)...")
@@ -122,31 +124,53 @@ def train_ensemble():
     print(f"🌟 Ensemble PR-AUC Score: {pr_auc:.4f} (Оптимальний поріг: {best_threshold:.4f})")
 
     models_dir = Path("data/models")
+    models_dir.mkdir(parents=True, exist_ok=True)
+    
     with open(models_dir / "ensemble.pkl", "wb") as f:
         pickle.dump(ensemble, f)
 
+    # 4. Experiment Tracking & Model Registry
     metrics = {"pr_auc": round(float(pr_auc), 4), "f1_score": round(float(best_f1), 4)}
     log_experiment("AutoML_Stacking_Focal_Loss_PyTorch", best_params, metrics, ensemble)
 
     best_model_path = models_dir / "best_model.pkl"
     if not best_model_path.exists():
-        with open(best_model_path, "wb") as f: pickle.dump(ensemble, f)
+        with open(best_model_path, "wb") as f: 
+            pickle.dump(ensemble, f)
     else:
         try:
-            with open(best_model_path, "rb") as f: current_best_model = pickle.load(f)
+            with open(best_model_path, "rb") as f: 
+                current_best_model = pickle.load(f)
             current_prob = current_best_model.predict_proba(X_test)[:, 1]
             current_auc = average_precision_score(y_test, current_prob)
             print(f"\n📈 Порівняння: Поточний лідер PR-AUC = {current_auc:.4f} vs Новий AutoML Ансамбль PR-AUC = {pr_auc:.4f}")
             if pr_auc >= current_auc:
                 print("🏆 ПЕРЕМОЖЕЦЬ: Новий AutoML Ансамбль очолив лідерство!")
-                with open(best_model_path, "wb") as f: pickle.dump(ensemble, f)
+                with open(best_model_path, "wb") as f: 
+                    pickle.dump(ensemble, f)
             else:
                 print("🏆 Поточний лідер зберіг першість!")
         except Exception:
-            with open(best_model_path, "wb") as f: pickle.dump(ensemble, f)
+            with open(best_model_path, "wb") as f: 
+                pickle.dump(ensemble, f)
 
+    # Зберігаємо feature names (виправлено відступи!)
     with open(models_dir / "feature_names.pkl", "wb") as f:
         pickle.dump(list(X_train.columns), f)
+
+    # АНТИКРИХКІСТЬ: Генерація SHA-256 чексум для безпечної десеріалізації
+    import hashlib
+    checksums = {}
+    for fname in ["best_model.pkl", "feature_names.pkl", "ensemble.pkl"]:
+        fpath = models_dir / fname
+        if fpath.exists():
+            with open(fpath, "rb") as f:
+                checksums[fname] = hashlib.sha256(f.read()).hexdigest()
+                
+    with open(models_dir / "checksums.txt", "w") as f:
+        for k, v in checksums.items():
+            f.write(f"{k}:{v}\n")
+    logger.info("🔒 Криптографічні хеші моделей успішно згенеровано та збережено.")
 
 if __name__ == "__main__":
     train_ensemble()
