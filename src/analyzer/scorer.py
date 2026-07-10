@@ -50,7 +50,7 @@ def _simulate_judge(idea: dict, hackathon_data: dict) -> dict:
     }}
     """
 
-    result = generate_json_with_failover(prompt)
+    result = generate_json_with_failover(prompt, schema_name="judge_evaluation")
     if "fallback" in result or "error" in result:
         return {"judge_score": 0.65, "critique": "Offline fallback score applied."}
     return result

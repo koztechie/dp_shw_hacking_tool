@@ -1,14 +1,15 @@
 import sys
 from pathlib import Path
-import json
+
 from bs4 import BeautifulSoup
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.logger import logger
-from src.scraper.http_client import safe_get
-from src.analyzer.ai_client import generate_json_with_failover
+from src.analyzer.ai_client import generate_json_with_failover  # noqa: E402
+from src.logger import logger  # noqa: E402
+from src.scraper.http_client import safe_get  # noqa: E402
+
 
 def fetch_and_clean_rules(rules_url: str) -> str:
     if not rules_url:
@@ -25,12 +26,13 @@ def fetch_and_clean_rules(rules_url: str) -> str:
         return ""
     return rules_container.get_text(separator=" ", strip=True)[:15000]
 
+
 def extract_hard_constraints_with_ai(rules_text: str) -> dict:
     if not rules_text or len(rules_text) < 100:
         return {}
-        
+
     logger.info("AI-аналіз жорстких обмежень хакатону...")
-    
+
     prompt = f"""
 Analyze the following hackathon rules text and extract ONLY the hard constraints.
 Rules text: {rules_text}
@@ -43,7 +45,7 @@ Return EXACTLY a JSON object matching this schema:
   "intellectual_property_rules": ""
 }}
 """
-    result = generate_json_with_failover(prompt, thinking=False)
+    result = generate_json_with_failover(prompt, thinking=False, schema_name="hard_constraints")
     if "fallback" in result or "error" in result:
         return {}
     return result
