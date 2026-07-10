@@ -12,8 +12,10 @@ from src.analyzer.feature_extractor import extract_features  # noqa: E402
 from src.db import get_connection  # noqa: E402
 from src.logger import logger  # noqa: E402
 from src.ml.embedder import EmbedderSingleton  # noqa: E402
+from src.utils.memory_guard import memory_guard  # noqa: E402
 
 
+@memory_guard.memory_aware(task_name="Batch Feature Extraction")
 def run_batch_feature_extraction():
     con = get_connection()
     try:

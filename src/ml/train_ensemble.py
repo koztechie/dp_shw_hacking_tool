@@ -26,6 +26,7 @@ from src.ml.experiment_tracker import log_experiment  # noqa: E402
 from src.ml.focal_loss import focal_loss_objective  # noqa: E402
 from src.ml.predictor import safe_pickle_load  # noqa: E402
 from src.ml.prepare_dataset import prepare_dataset  # noqa: E402
+from src.utils.memory_guard import memory_guard  # noqa: E402
 
 
 def optimize_hyperparameters(X_train, y_train):
@@ -77,6 +78,7 @@ def optimize_hyperparameters(X_train, y_train):
     return study.best_params
 
 
+@memory_guard.memory_aware(task_name="ML Model Training")
 def train_ensemble():
     """
     АНТИКРИХКІСТЬ: Легкий ансамбль для 6GB RAM.

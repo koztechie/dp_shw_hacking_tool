@@ -1,0 +1,26 @@
+[Unit]
+Description=DP_SHW Hacking Tool - Antifragile MLOps System
+After=network.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=koztechie
+Group=koztechie
+WorkingDirectory=/home/koztechie/dev/dp_shw_hacking_tool
+
+# АНТИКРИХКІСТЬ: Автоматичний перезапуск при будь-якому падінні
+Restart=always
+RestartSec=5
+StartLimitInterval=60
+StartLimitBurst=5
+
+# АНТИКРИХКІСТЬ: Обмеження ресурсів (OOM Killer захист)
+MemoryHigh=2G
+MemoryMax=3G
+CPUQuota=150%
+
+ExecStart=/home/koztechie/dev/dp_shw_hacking_tool/venv/bin/python main.py
+
+[Install]
+WantedBy=multi-user.target

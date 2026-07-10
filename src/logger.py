@@ -82,5 +82,20 @@ logger.add(
     format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level:<8} | {name}:{function}:{line} - {message}",
     level="DEBUG",
     rotation="10 MB",
-    compression="zip"
+    retention="7 days",
+    compression="zip",
+    enqueue=True
 )
+
+# Окремий файл для помилок
+logger.add(
+    str(LOG_DIR / "errors.log"),
+    format="{time:YYYY-MM-DD HH:mm:ss.SSS} | {level:<8} | {name}:{function}:{line} - {message}",
+    level="ERROR",
+    rotation="5 MB",
+    retention="14 days",
+    compression="zip",
+    enqueue=True
+)
+
+logger.info("✅ Logger ініціалізовано з ротацією та cleanup")

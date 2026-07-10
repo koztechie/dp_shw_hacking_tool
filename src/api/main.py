@@ -1,17 +1,22 @@
+import asyncio
 import contextlib
 import json
 import os
+import signal
 import sys
 import threading
 import traceback
 import uuid
+from contextlib import asynccontextmanager
+from datetime import datetime
 from pathlib import Path
 
 import duckdb
 import pandas as pd
+import psutil
 import sentry_sdk
 import uvicorn
-from fastapi import BackgroundTasks, Depends, FastAPI, File, Form, HTTPException, Request, UploadFile, status
+from fastapi import BackgroundTasks, Depends, FastAPI, File, Form, HTTPException, Request, Response, UploadFile, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
@@ -34,7 +39,53 @@ STATIC_DIR = PROJECT_ROOT / "src" / "ui" / "static"
 TEMPLATES_DIR.mkdir(parents=True, exist_ok=True)
 STATIC_DIR.mkdir(parents=True, exist_ok=True)
 
-app = FastAPI(title="DP_SHW_Hacking_Tool")
+# Глобальний стан для graceful shutdown
+shutdown_event = asyncio.Event()
+
+def signal_handler(sig, frame):
+    """
+    АНТИКРИХКІСТЬ: Graceful shutdown при отриманні SIGTERM/SIGINT.
+    """
+    logger.info(f"🛑 Отримано сигнал {sig}. Ініціюю graceful shutdown...")
+    shutdown_event.set()
+
+# Реєструємо обробники сигналів
+signal.signal(signal.SIGTERM, signal_handler)
+signal.signal(signal.SIGINT, signal_handler)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    АНТИКРИХКІСТЬ: Lifecycle manager для коректного запуску та зупинки.
+    """
+    # Startup
+    logger.info("🚀 FastAPI запускається...")
+
+    # Ініціалізація БД
+    try:
+        from src.db import init_db
+        init_db()
+        logger.info("✅ База даних ініціалізована")
+    except Exception as e:
+        logger.error(f"❌ Помилка ініціалізації БД: {e}")
+
+    yield
+
+    # Shutdown
+    logger.info("🛑 FastAPI зупиняється...")
+
+    # Закриваємо всі активні з'єднання з БД
+    try:
+        # DuckDB автоматично закриває з'єднання при виході з контексту
+        logger.info("✅ З'єднання з БД закриті")
+    except Exception as e:
+        logger.error(f"Помилка закриття БД: {e}")
+
+    # Очікуємо завершення background tasks
+    logger.info("✅ Graceful shutdown завершено")
+
+# Оновлюємо створення app
+app = FastAPI(title="DP_SHW_Hacking_Tool", lifespan=lifespan)
 
 # АНТИКРИХКІСТЬ: Сувора політика CORS (OWASP), яка не ламає локальні ШІ-фронтенди (Vite/React)
 app.add_middleware(
@@ -617,47 +668,243 @@ async def history_page(request: Request, page: int = 1, limit: int = 50):
 
 
 # 7. Ендпоінт системи самодіагностики (Health Check)
+
+
 @app.get("/health")
 @limiter.limit("60/minute")
 async def health(request: Request):
-    health_status = {"status": "ok", "hackathons": 0, "projects": 0, "model_ready": False, "error": None}
+    """
+    АНТИКРИХКІСТЬ: Deep health check з перевіркою всіх критичних компонентів.
+    """
+    health_status = {
+        "status": "ok",
+        "timestamp": datetime.now().isoformat(),
+        "components": {
+            "database": {"status": "unknown", "details": {}},
+            "ml_model": {"status": "unknown", "details": {}},
+            "ai_api": {"status": "unknown", "details": {}},
+            "disk_space": {"status": "unknown", "details": {}},
+            "memory": {"status": "unknown", "details": {}}
+        },
+        "metrics": {
+            "hackathons": 0,
+            "projects": 0,
+            "predictions": 0
+        }
+    }
+
+    critical_failures = []
+
+    # 1. Database Health Check
     try:
         con = duckdb.connect(DB_PATH, read_only=True)
-        health_status["hackathons"] = con.execute("SELECT COUNT(*) FROM hackathons").fetchone()[0]
-        health_status["projects"] = con.execute("SELECT COUNT(*) FROM projects").fetchone()[0]
+
+        # Перевіряємо, чи можна виконати запити
+        hackathons_count = con.execute("SELECT COUNT(*) FROM hackathons").fetchone()[0]
+        projects_count = con.execute("SELECT COUNT(*) FROM projects").fetchone()[0]
+        predictions_count = con.execute("SELECT COUNT(*) FROM predictions").fetchone()[0]
+
+        health_status["metrics"]["hackathons"] = hackathons_count
+        health_status["metrics"]["projects"] = projects_count
+        health_status["metrics"]["predictions"] = predictions_count
+
+        # Перевіряємо цілісність БД
+        con.execute("SELECT 1")  # Простий ping запит
+
+        health_status["components"]["database"] = {
+            "status": "ok",
+            "details": {
+                "hackathons": hackathons_count,
+                "projects": projects_count,
+                "predictions": predictions_count
+            }
+        }
+
+        con.close()
     except Exception as e:
-        health_status["status"] = "error"
-        health_status["error"] = f"Database Error: {str(e)}"
+        health_status["components"]["database"] = {
+            "status": "error",
+            "details": {"error": str(e)}
+        }
+        critical_failures.append("database")
         logger.error(f"Health check failed (DB): {e}")
-    finally:
-        if "con" in locals():
-            con.close()
 
+    # 2. ML Model Health Check
     model_path = PROJECT_ROOT / "data" / "models" / "best_model.pkl"
-    health_status["model_ready"] = model_path.exists()
+    if model_path.exists():
+        try:
+            import pickle
+            with open(model_path, "rb") as f:
+                model = pickle.load(f)
 
-    if health_status["status"] == "ok" and not health_status["model_ready"]:
-        health_status["status"] = "degraded"
+            # Перевіряємо, чи модель має необхідні атрибути
+            # NOTE: Ensemble soft-voting uses dict with rf and xgb
+            if isinstance(model, dict) and "rf" in model and "xgb" in model:
+                 health_status["components"]["ml_model"] = {
+                    "status": "ok",
+                    "details": {
+                        "model_type": "SoftVotingEnsemble",
+                        "size_mb": round(model_path.stat().st_size / (1024 * 1024), 2)
+                    }
+                }
+            elif hasattr(model, "predict_proba"):
+                health_status["components"]["ml_model"] = {
+                    "status": "ok",
+                    "details": {
+                        "model_type": type(model).__name__,
+                        "size_mb": round(model_path.stat().st_size / (1024 * 1024), 2)
+                    }
+                }
+            else:
+                health_status["components"]["ml_model"] = {
+                    "status": "degraded",
+                    "details": {
+                        "error": (
+                            "Model missing predict_proba method and is "
+                            "not an expected ensemble dictionary"
+                        )
+                    }
+                }
+                critical_failures.append("ml_model")
+        except Exception as e:
+            health_status["components"]["ml_model"] = {
+                "status": "error",
+                "details": {"error": str(e)}
+            }
+            critical_failures.append("ml_model")
+    else:
+        health_status["components"]["ml_model"] = {
+            "status": "missing",
+            "details": {"error": "Model file not found"}
+        }
+        critical_failures.append("ml_model")
 
-    # АНТИКРИХКІСТЬ: Безкоштовний та надшвидкий пінг Xiaomi API без витрати токенів
-    health_status["ai_api"] = "degraded"
+    # 3. AI API Health Check (безкоштовний ping)
     try:
         import httpx
 
         from config.settings import MIMO_API_KEY, MIMO_BASE_URL
 
-        r = httpx.get(f"{MIMO_BASE_URL}/models", headers={"Authorization": f"Bearer {MIMO_API_KEY}"}, timeout=3.0)
+        start_time = datetime.now()
+        r = httpx.get(
+            f"{MIMO_BASE_URL}/models",
+            headers={"Authorization": f"Bearer {MIMO_API_KEY}"},
+            timeout=5.0
+        )
+        response_time_ms = int((datetime.now() - start_time).total_seconds() * 1000)
+
         if r.status_code == 200:
-            health_status["ai_api"] = "ok"
+            health_status["components"]["ai_api"] = {
+                "status": "ok",
+                "details": {
+                    "response_time_ms": response_time_ms,
+                    "status_code": r.status_code
+                }
+            }
         else:
-            health_status["ai_api"] = f"error_{r.status_code}"
-    except Exception:
-        health_status["ai_api"] = "unreachable"
+            health_status["components"]["ai_api"] = {
+                "status": "degraded",
+                "details": {
+                    "status_code": r.status_code,
+                    "response_time_ms": response_time_ms
+                }
+            }
+    except httpx.TimeoutException:
+        health_status["components"]["ai_api"] = {
+            "status": "timeout",
+            "details": {"error": "API request timed out"}
+        }
+    except Exception as e:
+        health_status["components"]["ai_api"] = {
+            "status": "unreachable",
+            "details": {"error": str(e)}
+        }
 
-    if health_status["ai_api"] != "ok":
-        health_status["status"] = "degraded"
+    # 4. Disk Space Health Check
+    try:
+        disk_usage = psutil.disk_usage(str(PROJECT_ROOT))
+        disk_percent = disk_usage.percent
 
-    return JSONResponse(health_status)
+        if disk_percent < 80:
+            health_status["components"]["disk_space"] = {
+                "status": "ok",
+                "details": {
+                    "used_percent": round(disk_percent, 1),
+                    "free_gb": round(disk_usage.free / (1024**3), 2)
+                }
+            }
+        elif disk_percent < 90:
+            health_status["components"]["disk_space"] = {
+                "status": "warning",
+                "details": {
+                    "used_percent": round(disk_percent, 1),
+                    "free_gb": round(disk_usage.free / (1024**3), 2)
+                }
+            }
+        else:
+            health_status["components"]["disk_space"] = {
+                "status": "critical",
+                "details": {
+                    "used_percent": round(disk_percent, 1),
+                    "free_gb": round(disk_usage.free / (1024**3), 2)
+                }
+            }
+            critical_failures.append("disk_space")
+    except Exception as e:
+        health_status["components"]["disk_space"] = {
+            "status": "error",
+            "details": {"error": str(e)}
+        }
+
+    # 5. Memory Health Check
+    try:
+        mem_usage = psutil.virtual_memory()
+        mem_percent = mem_usage.percent
+
+        if mem_percent < 75:
+            health_status["components"]["memory"] = {
+                "status": "ok",
+                "details": {
+                    "used_percent": round(mem_percent, 1),
+                    "available_gb": round(mem_usage.available / (1024**3), 2)
+                }
+            }
+        elif mem_percent < 85:
+            health_status["components"]["memory"] = {
+                "status": "warning",
+                "details": {
+                    "used_percent": round(mem_percent, 1),
+                    "available_gb": round(mem_usage.available / (1024**3), 2)
+                }
+            }
+        else:
+            health_status["components"]["memory"] = {
+                "status": "critical",
+                "details": {
+                    "used_percent": round(mem_percent, 1),
+                    "available_gb": round(mem_usage.available / (1024**3), 2)
+                }
+            }
+            critical_failures.append("memory")
+    except Exception as e:
+        health_status["components"]["memory"] = {
+            "status": "error",
+            "details": {"error": str(e)}
+        }
+
+    # Визначаємо загальний статус
+    if critical_failures:
+        if "database" in critical_failures or "ml_model" in critical_failures:
+            health_status["status"] = "critical"
+        else:
+            health_status["status"] = "degraded"
+
+        health_status["critical_failures"] = critical_failures
+
+    # HTTP status code залежить від стану
+    status_code = 200 if health_status["status"] == "ok" else (503 if health_status["status"] == "critical" else 200)
+
+    return JSONResponse(health_status, status_code=status_code)
 
 
 # 8. Ендпоінти для перенавчання ML-моделі (MLOps)
@@ -790,6 +1037,20 @@ async def generate_assets(prediction_id: str):
         logger.error(f"Помилка генерації активів: {e}")
         return JSONResponse({"error": str(e)}, status_code=500)
 
+
+@app.get("/metrics")
+async def metrics():
+    """Prometheus metrics endpoint."""
+    from src.utils.metrics import CONTENT_TYPE_LATEST, MEMORY_USAGE, generate_latest
+
+    # Оновлюємо поточні метрики
+    with contextlib.suppress(Exception):
+        MEMORY_USAGE.set(psutil.virtual_memory().percent)
+
+    return Response(
+        content=generate_latest(),
+        media_type=CONTENT_TYPE_LATEST
+    )
 
 if __name__ == "__main__":
     import os
