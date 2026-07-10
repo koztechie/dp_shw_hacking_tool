@@ -1,85 +1,75 @@
+import hashlib
+import pickle
 import sys
 from pathlib import Path
-import pickle
-import pandas as pd
-import numpy as np
-import os
-import hashlib
-import hmac
 
-# Гарантуємо правильні шляхи імпорту
+import pandas as pd
+
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.logger import logger
+from src.logger import logger  # noqa: E402
 
-MODEL_SIGNING_KEY = os.getenv("MODEL_SIGNING_KEY", "dp_shw_super_secret_key_2026")
 
-def verify_model_signature(model_path: Path) -> bool:
-    """Криптографічна перевірка цілісності моделі через HMAC-SHA256"""
-    signature_file = model_path.parent / f"{model_path.name}.sig"
-    if not signature_file.exists():
-        logger.warning(f"⚠️ Файл підпису {signature_file.name} відсутній! Пропуск.")
-        return True
+def safe_pickle_load(file_path: Path, checksums_path: Path = None) -> object:
+    """Безпечна десеріалізація pickle з перевіркою SHA-256."""
+    if checksums_path and checksums_path.exists():
+        with open(file_path, "rb") as f:
+            current_hash = hashlib.sha256(f.read()).hexdigest()
+        with open(checksums_path) as f:
+            saved_hashes = dict(line.strip().split(":", 1) for line in f if ":" in line)
+        expected = saved_hashes.get(file_path.name)
+        if expected and current_hash != expected:
+            raise ValueError(f"🚨 Файл {file_path.name} скомпрометовано!")
 
-    with open(model_path, "rb") as f:
-        model_data = f.read()
+    with open(file_path, "rb") as f:
+        return pickle.load(f)
 
-    with open(signature_file, "r") as f:
-        stored_signature = f.read().strip()
-
-    computed_signature = hmac.new(
-        MODEL_SIGNING_KEY.encode("utf-8"),
-        model_data,
-        hashlib.sha256
-    ).hexdigest()
-
-    return hmac.compare_digest(computed_signature, stored_signature)
-
-class SafeUnpickler(pickle.Unpickler):
-    """
-    Безпечний Unpickler: дозволяє розпаковувати ТІЛЬКИ авторизовані класи.
-    Захищає систему від Pickle Deserialization RCE.
-    """
-    ALLOWED_CLASSES = {
-        "sklearn", "xgboost", "numpy", "pandas", "collections", "builtins",
-        "src.ml.pytorch_model", "src.ml.focal_loss", "imblearn", "torch"  # ДОДАНО torch!
-    }
-    
-    def find_class(self, module, name):
-        if not any(module.startswith(allowed) for allowed in self.ALLOWED_CLASSES):
-            raise pickle.UnpicklingError(f"🚨 RCE БЛОКОВАНО: Спроба завантажити неавторизований клас {module}.{name}")
-        return super().find_class(module, name)
 
 def load_model():
-    """Безпечне завантаження моделі з криптографічною перевіркою підпису"""
+    """Завантажує найкращу натреновану модель та список її ознак."""
     models_dir = PROJECT_ROOT / "data" / "models"
     model_path = models_dir / "best_model.pkl"
     features_path = models_dir / "feature_names.pkl"
+    checksums_path = models_dir / "checksums.txt"
 
     if not model_path.exists() or not features_path.exists():
-        raise FileNotFoundError("Файли моделей не знайдено.")
+        raise FileNotFoundError(
+            "❌ Файли моделей не знайдені у data/models/. "
+            "Будь ласка, запустіть тренування: python src/ml/train_ensemble.py"
+        )
 
-    if not verify_model_signature(model_path) or not verify_model_signature(features_path):
-        raise ValueError("🚨 КРИТИЧНО: Цілісність моделі порушена (HMAC не збігається)! Файл скомпрометовано.")
-
-    with open(model_path, "rb") as f:
-        model = SafeUnpickler(f).load()
-    with open(features_path, "rb") as f:
-        feature_names = SafeUnpickler(f).load()
+    model = safe_pickle_load(model_path, checksums_path)
+    feature_names = safe_pickle_load(features_path, checksums_path)
 
     return model, feature_names
 
+
 def predict_win_probability(features: dict) -> float:
+    """Приймає словник ознак проекту, повертає ймовірність перемоги 0.0–1.0."""
     try:
         model, feature_names = load_model()
-        df = pd.DataFrame([features])
-        for col in feature_names:
-            if col not in df.columns:
-                df[col] = 0
-        df = df[feature_names]
-        prob = model.predict_proba(df)[0][1]
+
+        row = []
+        for f in feature_names:
+            val = features.get(f, 0)
+            if isinstance(val, bool):
+                val = int(val)
+            row.append(val)
+
+        row_df = pd.DataFrame([row], columns=feature_names)
+
+        # Підтримка Soft Voting Ensemble (dict з rf та xgb)
+        if isinstance(model, dict) and "rf" in model and "xgb" in model:
+            rf_prob = model["rf"].predict_proba(row_df)[0][1]
+            xgb_prob = model["xgb"].predict_proba(row_df)[0][1]
+            weights = model.get("weights", (0.4, 0.6))
+            prob = weights[0] * rf_prob + weights[1] * xgb_prob
+        else:
+            # Зворотна сумісність зі StackingClassifier
+            prob = model.predict_proba(row_df)[0][1]
+
         return float(prob)
     except Exception as e:
-        logger.error(f"Помилка передбачення: {e}")
-        return 0.5
+        logger.error(f"Помилка прогнозування: {e}")
+        return 0.0

@@ -1,14 +1,16 @@
 import sys
 import time
 from pathlib import Path
+
 import duckdb
 
 # Гарантуємо правильні шляхи імпорту
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from config.settings import DB_PATH
-from src.logger import logger
+from config.settings import DB_PATH  # noqa: E402
+from src.logger import logger  # noqa: E402
+
 
 def get_connection(retries: int = 5, delay: float = 1.0):
     """
@@ -23,7 +25,10 @@ def get_connection(retries: int = 5, delay: float = 1.0):
             if attempt == retries:
                 logger.error(f"❌ Фатальна помилка DuckDB: Не вдалося підключитися після {retries} спроб: {e}")
                 raise e
-            logger.warning(f"⚠️ База даних заблокована іншим процесом. Спроба {attempt}/{retries}. Очікування {delay}с...")
+            logger.warning(
+                f"⚠️ База даних заблокована іншим процесом. Спроба {attempt}/{retries}. "
+                f"Очікування {delay}с..."
+            )
             time.sleep(delay)
             # Експоненційне збільшення часу очікування
             delay *= 1.5
@@ -147,7 +152,15 @@ def init_db():
             )
         """)
 
-        print("Базу даних DuckDB успішно ініціалізовано.")
+        # АНТИКРИХКІСТЬ: Індекси для швидких JOIN та WHERE запитів
+        con.execute("CREATE INDEX IF NOT EXISTS idx_projects_hackathon_id ON projects(hackathon_id)")
+        con.execute("CREATE INDEX IF NOT EXISTS idx_projects_is_winner ON projects(is_winner)")
+        con.execute("CREATE INDEX IF NOT EXISTS idx_projects_scraped_at ON projects(scraped_at)")
+        con.execute("CREATE INDEX IF NOT EXISTS idx_features_project_id ON features(project_id)")
+        con.execute("CREATE INDEX IF NOT EXISTS idx_predictions_hackathon_url ON predictions(hackathon_url)")
+        con.execute("CREATE INDEX IF NOT EXISTS idx_feedback_prediction_id ON feedback(prediction_id)")
+
+        logger.info("База даних DuckDB успішно ініціалізовано з індексами.")
     finally:
         con.close()
 

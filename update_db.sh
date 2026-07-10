@@ -1,11 +1,21 @@
 #!/bin/bash
 set -e
 
+cd "$(dirname "$0")"
+
+# АНТИКРИХКІСТЬ: Mutex через flock — запобігає одночасному запуску
+LOCKFILE="/tmp/dp_shw_update.lock"
+exec 200>"$LOCKFILE"
+if ! flock -n 200; then
+    mkdir -p logs
+    echo "⚠️ Інший процес оновлення вже працює. Пропускаємо цей запуск." >> logs/anacron.log
+    exit 0
+fi
+
 # АНТИКРИХКІСТЬ: Максимально знижуємо пріоритет процесора (19) та I/O диску (7)
 renice -n 19 -p $$ >/dev/null 2>&1 || true
 ionice -c2 -n7 -p $$ >/dev/null 2>&1 || true
 
-cd "$(dirname "$0")"
 PYTHON_BIN="./venv/bin/python"
 
 echo "=== [$(date)] ЗАПУСК АВТОНОМНОГО MLOps ОНОВЛЕННЯ (Низький пріоритет) ===" >> logs/anacron.log

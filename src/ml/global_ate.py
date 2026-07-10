@@ -1,16 +1,18 @@
 import sys
 from pathlib import Path
-import pickle
+
 import numpy as np
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.ml.prepare_dataset import prepare_dataset
+from src.ml.predictor import safe_pickle_load  # noqa: E402
+from src.ml.prepare_dataset import prepare_dataset  # noqa: E402
+
 
 def calculate_global_ate():
     print("=== СТАТИСТИЧНИЙ АНАЛІЗ: Average Treatment Effect (ATE) ===")
-    
+
     # Отримуємо дані
     X_train, X_test, y_train, y_test = prepare_dataset()
 
@@ -19,15 +21,14 @@ def calculate_global_ate():
         print("❌ Модель не знайдена. Спочатку натренуйте ансамбль.")
         return
 
-    with open(model_path, "rb") as f:
-        model = pickle.load(f)
+    model = safe_pickle_load(model_path, PROJECT_ROOT / "data" / "models" / "checksums.txt")
 
     treatments = [
         ("has_video_demo", "Наявність відео-демо"),
         ("uses_sponsor_tech", "Використання технологій спонсора"),
         ("has_github", "Відкритий репозиторій GitHub"),
         ("has_social_angle", "Соціальна значущість (Social Good)"),
-        ("sponsor_challenge_match", "Пряме попадання в номінацію")
+        ("sponsor_challenge_match", "Пряме попадання в номінацію"),
     ]
 
     print("\nГлобальний вплив факторів на всі проекти (Causal Effect):")
@@ -50,9 +51,10 @@ def calculate_global_ate():
 
         # Форматування виводу
         if ate > 0:
-            print(f"📈 {name:<35}: +{ate*100:.2f}% до шансів перемоги")
+            print(f"📈 {name:<35}: +{ate * 100:.2f}% до шансів перемоги")
         else:
-            print(f"🔻 {name:<35}: {ate*100:.2f}% (негативний вплив)")
+            print(f"🔻 {name:<35}: {ate * 100:.2f}% (негативний вплив)")
+
 
 if __name__ == "__main__":
     calculate_global_ate()
