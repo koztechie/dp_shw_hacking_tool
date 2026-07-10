@@ -4,6 +4,8 @@
 
 {% block content %}
 <div class="techspec-container" style="background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 2.5rem; max-width: 900px; margin: 0 auto;">
+    <!-- Прихований контейнер для передачі JSON даних у JS без синтаксичних помилок -->
+    <div id="techspec-data" data-json="{{ techspec | tojson | forceescape }}" style="display: none;"></div>
     
     <!-- Панель керування експортом -->
     <div class="print-controls" style="display: flex; justify-content: flex-end; gap: 1rem; margin-bottom: 1.5rem;">
@@ -117,9 +119,9 @@
     </div>
 </div>
 
-<script>
+<script nonce="{{ request.state.csp_nonce }}">
     function exportToMarkdown() {
-        const ts = {{ techspec | tojson }};
+        const ts = JSON.parse(document.getElementById('techspec-data').getAttribute('data-json'));
         
         let md = `# 🎯 ${ts.project_name || 'MVP Project'}\n\n`;
         md += `> ${ts.tagline || ''}\n\n`;

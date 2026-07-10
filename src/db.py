@@ -26,18 +26,22 @@ def get_connection(retries: int = 5, delay: float = 1.0):
                 logger.error(f"❌ Фатальна помилка DuckDB: Не вдалося підключитися після {retries} спроб: {e}")
                 raise e
             logger.warning(
-                f"⚠️ База даних заблокована іншим процесом. Спроба {attempt}/{retries}. "
-                f"Очікування {delay}с..."
+                f"⚠️ База даних заблокована іншим процесом. Спроба {attempt}/{retries}. Очікування {delay}с..."
             )
             time.sleep(delay)
             # Експоненційне збільшення часу очікування
             delay *= 1.5
+
 
 def init_db():
     """
     Ініціалізує всі таблиці бази даних DuckDB.
     Повністю сумісний з розширеним набором ознак (23 фічі) та MLOps фідбеком.
     """
+    from src.utils import backup_database
+
+    backup_database(DB_PATH)
+
     con = get_connection()
     try:
         # 1. Таблиця хакатонів (включаючи Judges Info)
@@ -151,6 +155,18 @@ def init_db():
                 model_path VARCHAR
             )
         """)
+        # 7. Таблиця аудиту
+        con.execute("""
+            CREATE TABLE IF NOT EXISTS audit_log (
+                id INTEGER PRIMARY KEY,
+                timestamp TIMESTAMP DEFAULT current_timestamp,
+                user_ip VARCHAR,
+                endpoint VARCHAR,
+                method VARCHAR,
+                status_code INTEGER,
+                details VARCHAR
+            )
+        """)
 
         # АНТИКРИХКІСТЬ: Індекси для швидких JOIN та WHERE запитів
         con.execute("CREATE INDEX IF NOT EXISTS idx_projects_hackathon_id ON projects(hackathon_id)")
@@ -163,6 +179,7 @@ def init_db():
         logger.info("База даних DuckDB успішно ініціалізовано з індексами.")
     finally:
         con.close()
+
 
 if __name__ == "__main__":
     init_db()

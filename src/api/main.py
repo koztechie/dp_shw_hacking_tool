@@ -1,14 +1,11 @@
 import contextlib
-import ipaddress
 import json
 import os
-import socket
 import sys
 import threading
 import traceback
 import uuid
 from pathlib import Path
-from urllib.parse import urlparse
 
 import duckdb
 import pandas as pd
@@ -50,23 +47,31 @@ app.add_middleware(
 )
 
 
+import base64  # noqa: E402
+
+
 @app.middleware("http")
 async def security_headers_middleware(request: Request, call_next):
     """
-    АНТИКРИХКІСТЬ: Встановлення HTTP-заголовків безпеки за стандартом OWASP.
-    Захист від XSS, Clickjacking та ін'єкцій iframe.
+    АНТИКРИХКІСТЬ: Суворі HTTP-заголовки безпеки за стандартом OWASP.
     """
     response = await call_next(request)
 
-    # Суворий CSP: ніяких зовнішніх API-дзвінків з фронтенду
+    # Суворий CSP без unsafe-inline/unsafe-eval
+    # Використовуємо nonce для inline скриптів (потрібно додати в templates)
+    nonce = base64.b64encode(os.urandom(16)).decode("utf-8")
+    request.state.csp_nonce = nonce
+
     response.headers["Content-Security-Policy"] = (
-        "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; "
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
-        "font-src 'self' data: https://fonts.gstatic.com; "
-        "img-src 'self' data: https:; "
-        "connect-src 'self'; "
-        "frame-ancestors 'none';"
+        f"default-src 'self'; "
+        f"script-src 'self' 'nonce-{nonce}' https://cdn.jsdelivr.net; "
+        f"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "  # unsafe-inline для CSS прийнятний
+        f"font-src 'self' data: https://fonts.gstatic.com; "
+        f"img-src 'self' data: https:; "
+        f"connect-src 'self'; "
+        f"frame-ancestors 'none'; "
+        f"base-uri 'self'; "
+        f"form-action 'self';"
     )
 
     response.headers["X-Content-Type-Options"] = "nosniff"
@@ -74,6 +79,38 @@ async def security_headers_middleware(request: Request, call_next):
     response.headers["X-XSS-Protection"] = "1; mode=block"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+    response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"  # HSTS
+
+    return response
+
+
+@app.middleware("http")
+async def audit_log_middleware(request: Request, call_next):
+    """
+    АНТИКРИХКІСТЬ: Логування всіх запитів для аудиту безпеки.
+    """
+    response = await call_next(request)
+
+    # Логуємо тільки критичні операції
+    if request.method in ["POST", "PUT", "DELETE", "PATCH"]:
+        try:
+            con = duckdb.connect(DB_PATH)
+            con.execute(
+                """
+                INSERT INTO audit_log (user_ip, endpoint, method, status_code, details)
+                VALUES (?, ?, ?, ?, ?)
+            """,
+                [
+                    request.client.host,
+                    request.url.path,
+                    request.method,
+                    response.status_code,
+                    f"User-Agent: {request.headers.get('User-Agent', 'Unknown')}",
+                ],
+            )
+            con.close()
+        except Exception as e:
+            logger.error(f"Failed to write audit log: {e}")
 
     return response
 
@@ -140,34 +177,81 @@ class AppState:
 @app.middleware("http")
 async def csrf_protection_middleware(request: Request, call_next):
     """
-    АНТИКРИХКІСТЬ: Захист від CSRF-атак на основі перевірки заголовків Origin та Referer (OWASP Standard).
-    Запобігає міжсайтовому підробленню запитів без потреби переписувати HTML-шаблони чи JS-скрипти.
+    АНТИКРИХКІСТЬ: Подвійний CSRF захист - Origin/Referer АБО Secret Token.
     """
     if request.method in ["POST", "PUT", "DELETE", "PATCH"]:
         origin = request.headers.get("Origin")
         referer = request.headers.get("Referer")
+        csrf_token = request.headers.get("X-CSRF-Token")
 
-        # Дозволені локальні хости та порти розробника
         allowed_hosts = ("127.0.0.1:8000", "localhost:8000", "localhost:5173", "localhost:3000")
 
         from urllib.parse import urlparse
 
-        if origin:
-            parsed = urlparse(origin)
-            if parsed.netloc and parsed.netloc not in allowed_hosts:
-                logger.critical(f"🚨 CSRF БЛОКОВАНО: Спроба запиту з підозрілого Origin: {origin}")
+        # Якщо є Origin або Referer - перевіряємо їх
+        if origin or referer:
+            if origin:
+                parsed = urlparse(origin)
+                if parsed.netloc and parsed.netloc not in allowed_hosts:
+                    logger.critical(f"🚨 CSRF БЛОКОВАНО: Спроба запиту з підозрілого Origin: {origin}")
+                    return JSONResponse(
+                        {"status": "error", "error": "CSRF Protection: Request blocked due to untrusted Origin."},
+                        status_code=403,
+                    )
+            elif referer:
+                parsed = urlparse(referer)
+                if parsed.netloc and parsed.netloc not in allowed_hosts:
+                    logger.critical(f"🚨 CSRF БЛОКОВАНО: Спроба запиту з підозрілого Referer: {referer}")
+                    return JSONResponse(
+                        {"status": "error", "error": "CSRF Protection: Request blocked due to untrusted Referer."},
+                        status_code=403,
+                    )
+        else:
+            # Якщо немає Origin/Referer - вимагаємо CSRF token
+            if not csrf_token:
+                logger.critical("🚨 CSRF БЛОКОВАНО: Відсутні Origin/Referer та CSRF Token")
                 return JSONResponse(
-                    {"status": "error", "error": "CSRF Protection: Request blocked due to untrusted Origin."},
+                    {"status": "error", "error": "CSRF Protection: Missing Origin/Referer and CSRF Token."},
                     status_code=403,
                 )
-        elif referer:
-            parsed = urlparse(referer)
-            if parsed.netloc and parsed.netloc not in allowed_hosts:
-                logger.critical(f"🚨 CSRF БЛОКОВАНО: Спроба запиту з підозрілого Referer: {referer}")
+
+            # Перевіряємо CSRF token (простий секрет для локального застосунку)
+            expected_token = os.getenv("CSRF_SECRET", "default_csrf_secret_change_me")
+            if csrf_token != expected_token:
+                logger.critical("🚨 CSRF БЛОКОВАНО: Невалідний CSRF Token")
                 return JSONResponse(
-                    {"status": "error", "error": "CSRF Protection: Request blocked due to untrusted Referer."},
-                    status_code=403,
+                    {"status": "error", "error": "CSRF Protection: Invalid CSRF Token."}, status_code=403
                 )
+
+    return await call_next(request)
+
+
+@app.middleware("http")
+async def api_key_auth_middleware(request: Request, call_next):
+    """
+    АНТИКРИХКІСТЬ: Проста API-key аутентифікація для всіх POST запитів.
+    """
+    if request.method in ["POST", "PUT", "DELETE", "PATCH"]:
+        # Пропускаємо ендпоінти, які вже мають verify_local_access
+        path = request.url.path
+        if path.startswith("/training/") or path.startswith("/ml/") or path.startswith("/feedback/"):
+            return await call_next(request)
+
+        api_key = request.headers.get("X-API-Key")
+        expected_key = os.getenv("API_SECRET_KEY")
+
+        if not expected_key:
+            # Якщо ключ не налаштований - працюємо в режимі розробки (тільки localhost)
+            if request.client.host not in ("127.0.0.1", "localhost", "::1"):
+                logger.warning(f"🚨 Блоковано несанкціонований доступ з IP: {request.client.host}")
+                return JSONResponse(
+                    {"status": "error", "error": "API Key authentication required for remote access."}, status_code=401
+                )
+        else:
+            # Перевіряємо API ключ
+            if not api_key or api_key != expected_key:
+                logger.warning(f"🚨 Невалідний API Key з IP: {request.client.host}")
+                return JSONResponse({"status": "error", "error": "Invalid API Key."}, status_code=401)
 
     return await call_next(request)
 
@@ -206,10 +290,19 @@ async def training_page(request: Request):
     return templates.TemplateResponse(request=request, name="training.html", context={})
 
 
+import hmac  # noqa: E402
+
+
 def verify_local_access(request: Request):
-    """Антикрихкий захист: дозволяємо важкі MLOps операції ТІЛЬКИ з локальної машини (127.0.0.1)."""
+    """Антикрихкий захист: дозволяємо важкі MLOps операції ТІЛЬКИ з локальної машини."""
     client_ip = request.client.host
-    if client_ip not in ("127.0.0.1", "localhost", "::1"):
+
+    # Використовуємо constant-time comparison
+    allowed_ips = ["127.0.0.1", "localhost", "::1"]
+
+    is_allowed = any(hmac.compare_digest(client_ip.encode(), ip.encode()) for ip in allowed_ips)
+
+    if not is_allowed:
         logger.warning(f"🚨 Блоковано несанкціонований доступ до MLOps з IP: {client_ip}")
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN, detail="Ця операція вимагає локального доступу (Localhost Only)."
@@ -253,30 +346,56 @@ async def analyze_page(request: Request):
 
 
 def is_safe_devpost_url(url: str) -> bool:
-    """АНТИКРИХКІСТЬ: Захист від SSRF, IP Spoofing, IDN Homograph та DNS Rebinding."""
+    """
+    АНТИКРИХКІСТЬ: Повний захист від SSRF, IP Spoofing, IDN Homograph, DNS Rebinding та Path Traversal.
+    """
     try:
+        import ipaddress
+        import re
+        import socket
+        from urllib.parse import urlparse
+
+        # 1. Перевірка довжини URL (захист від DoS)
+        if len(url) > 2048:
+            return False
+
         parsed = urlparse(url)
+
+        # 2. Тільки HTTPS
         if parsed.scheme != "https":
             return False
 
         netloc = parsed.netloc.lower().split(":")[0]
 
-        # 1. Блокуємо IP-адреси
+        # 3. Блокуємо IP-адреси (IP Spoofing)
         try:
             ipaddress.ip_address(netloc)
             return False
         except ValueError:
             pass
 
-        # 2. IDN Homograph check
+        # 4. Блокуємо IDN Homograph (кириличні літери)
         if any(ord(c) > 127 for c in netloc):
             return False
 
-        # 3. Жорстка перевірка домену
+        # 5. Жорстка перевірка домену
         if not (netloc == "devpost.com" or netloc.endswith(".devpost.com")):
             return False
 
-        # 4. DNS Resolution check (Antifragile: захищає від DNS rebinding)
+        # 6. Блокуємо спеціальні символи в path (Path Traversal)
+        if ".." in parsed.path or "//" in parsed.path:
+            return False
+
+        # 7. Блокуємо небезпечні символи
+        dangerous_chars = r'[<>"{}|\\^`\x00-\x1F\x7F]'
+        if re.search(dangerous_chars, url):
+            return False
+
+        # 8. Валідація query parameters
+        if parsed.query and len(parsed.query) > 1024:
+            return False
+
+        # 9. DNS Resolution check (Antifragile: захищає від DNS rebinding)
         try:
             resolved_ips = socket.getaddrinfo(netloc, None)
             for _family, _, _, _, sockaddr in resolved_ips:
@@ -294,7 +413,7 @@ def is_safe_devpost_url(url: str) -> bool:
 
 
 @app.post("/analyze/url")
-@limiter.limit("5/minute")
+@limiter.limit("3/minute")
 async def analyze_url(request: Request, url: str = Form(...)):
     if not is_safe_devpost_url(url):
         logger.warning(f"🚨 SSRF Спроба заблокована: невалідний URL {url}")
@@ -314,11 +433,47 @@ async def analyze_url(request: Request, url: str = Form(...)):
         return JSONResponse({"status": "error", "error": str(e)}, status_code=500)
 
 
+import magic  # noqa: E402
+
+MAX_FILE_SIZE = 5 * 1024 * 1024  # 5 MB
+ALLOWED_MIME_TYPES = ["text/html", "application/xhtml+xml"]
+
+
 @app.post("/analyze/html")
-async def analyze_html(file: UploadFile = File(...)):  # noqa: B008
+@limiter.limit("2/minute")
+async def analyze_html(request: Request, file: UploadFile = File(...)):  # noqa: B008
     try:
+        # 1. Перевірка розміру файлу
+        file.file.seek(0, 2)  # Перехід в кінець файлу
+        file_size = file.file.tell()
+        file.file.seek(0)  # Повернення на початок
+
+        if file_size > MAX_FILE_SIZE:
+            logger.warning(f"🚨 Занадто великий файл: {file_size} bytes")
+            return JSONResponse(
+                {"status": "error", "error": f"File too large. Maximum size: {MAX_FILE_SIZE // (1024 * 1024)}MB"},
+                status_code=413,
+            )
+
+        # 2. Перевірка MIME типу
         content = await file.read()
+        mime_type = magic.from_buffer(content, mime=True)
+
+        if mime_type not in ALLOWED_MIME_TYPES:
+            logger.warning(f"🚨 Невалідний MIME тип: {mime_type}")
+            return JSONResponse(
+                {"status": "error", "error": f"Invalid file type. Allowed: {ALLOWED_MIME_TYPES}"}, status_code=415
+            )
+
+        # 3. Санітизація HTML (видалення скриптів)
         html_str = content.decode("utf-8", errors="ignore")
+
+        import re
+
+        # Видаляємо <script> теги
+        html_str = re.sub(r"<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>", "", html_str, flags=re.IGNORECASE)
+        # Видаляємо event handlers (onclick, onload, etc.)
+        html_str = re.sub(r'\bon\w+\s*=\s*["\'][^"\']*["\']', "", html_str, flags=re.IGNORECASE)
 
         from src.analyzer.pipeline import analyze_hackathon_offline
 
@@ -330,7 +485,7 @@ async def analyze_html(file: UploadFile = File(...)):  # noqa: B008
         return JSONResponse({"status": "success", "prediction_id": result["prediction_id"]})
     except Exception as e:
         logger.exception(f"Помилка в ендпоінті /analyze/html: {e}")
-        return JSONResponse({"status": "error", "error": str(e)}, status_code=500)
+        return JSONResponse({"status": "error", "error": "Internal server error"}, status_code=500)
 
 
 # 4. Ендпоінти Панелі відображення ідей
@@ -373,7 +528,8 @@ async def ideas_page(request: Request, prediction_id: str):
 
 # 5. Ендпоінти Панелі генерації та відображення ТЗ
 @app.post("/techspec/{prediction_id}/{idea_index}")
-async def get_techspec(prediction_id: str, idea_index: int):
+@limiter.limit("5/minute")
+async def get_techspec(request: Request, prediction_id: str, idea_index: int):
     from src.analyzer.techspec_pipeline import generate_and_save_techspec
 
     try:

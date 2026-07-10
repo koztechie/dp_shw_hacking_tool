@@ -30,7 +30,11 @@
                     </td>
                     <td style="padding: 1rem 0.5rem; font-weight: 500; color: #e6edf3;">{{ p.idea_1_title | default('Не згенеровано', true) }}</td>
                     <td style="padding: 1rem 0.5rem;">
-                        <strong style="color: {% if p.idea_1_score > 0.6 %}#3fb950{% else %}#d29922{% endif %};">
+                        {% if p.idea_1_score > 0.6 %}
+                            <strong style="color: var(--success);">
+                        {% else %}
+                            <strong style="color: var(--warning);">
+                        {% endif %}
                             {{ (p.idea_1_score * 100)|round(1) }}%
                         </strong>
                     </td>
@@ -69,7 +73,7 @@
     {% endif %}
 </div>
 
-<script>
+<script nonce="{{ request.state.csp_nonce }}">
     async function submitFeedback(predictionId, won) {
         if (!confirm(`Підтвердити результат: проект ${won ? 'ВИГРАВ 🏆' : 'ПРОГРАВ ❌'}?`)) return;
         

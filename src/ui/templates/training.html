@@ -51,7 +51,7 @@
     </div>
 </div>
 
-<script>
+<script nonce="{{ request.state.csp_nonce }}">
     let pollInterval;
 
     async function updateStatus() {

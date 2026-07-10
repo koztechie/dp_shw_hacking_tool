@@ -12,7 +12,11 @@
 
 <div class="ideas-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
     {% for idea in ideas %}
-    <div class="idea-card card {% if loop.index == 1 %}top{% endif %}" style="background: #161b22; border: 2px solid {% if loop.index == 1 %}#3fb950{% else %}#30363d{% endif %}; border-radius: 10px; padding: 1.5rem; display: flex; flex-direction: column;">
+    {% if loop.index == 1 %}
+    <div class="idea-card card top" style="background: #161b22; border: 2px solid var(--success); border-radius: 10px; padding: 1.5rem; display: flex; flex-direction: column;">
+    {% else %}
+    <div class="idea-card card" style="background: #161b22; border: 2px solid var(--border); border-radius: 10px; padding: 1.5rem; display: flex; flex-direction: column;">
+    {% endif %}
         
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
             <h3 style="color: #e6edf3; font-size: 1.3rem; margin: 0;">{{ idea.title }}</h3>
@@ -82,15 +86,23 @@
         <div style="margin-top: auto; padding-top: 1.5rem; border-top: 1px solid #30363d;">
             <div style="display: flex; justify-content: space-between; margin-bottom: 0.3rem;">
                 <span style="font-size: 0.9rem; color: #8b949e;">Ймовірність перемоги (ML Score):</span>
-                <strong style="color: {% if idea.win_probability > 0.6 %}#3fb950{% else %}#d29922{% endif %};">
+                {% if idea.win_probability > 0.6 %}
+                    <strong style="color: var(--success);">
+                {% else %}
+                    <strong style="color: var(--warning);">
+                {% endif %}
                     {{ (idea.win_probability * 100)|round(1) }}%
                 </strong>
             </div>
             <div class="score-bar" style="height: 6px; background: #30363d; border-radius: 3px; overflow: hidden; margin-bottom: 1.5rem;">
-                <div class="score-fill" style="height: 100%; width: {{ idea.win_probability * 100 }}%; background: {% if idea.win_probability > 0.6 %}#3fb950{% else %}#d29922{% endif %};"></div>
+                {% if idea.win_probability > 0.6 %}
+                    <div class="score-fill" data-width="{{ (idea.win_probability * 100)|round(1) }}%" style="height: 100%; background: var(--success);"></div>
+                {% else %}
+                    <div class="score-fill" data-width="{{ (idea.win_probability * 100)|round(1) }}%" style="height: 100%; background: var(--warning);"></div>
+                {% endif %}
             </div>
 
-            <button id="btn-{{ loop.index }}" class="btn btn-primary" onclick="generateTechSpec('{{ prediction_id }}', {{ loop.index }})" style="width: 100%; background: #f78166; color: white; border: none; padding: 0.8rem; border-radius: 6px; font-weight: bold; cursor: pointer;">
+            <button id="btn-{{ loop.index }}" class="btn btn-primary btn-generate-techspec" data-prediction-id="{{ prediction_id }}" data-idea-index="{{ loop.index }}" style="width: 100%; background: #f78166; color: white; border: none; padding: 0.8rem; border-radius: 6px; font-weight: bold; cursor: pointer;">
                 ⚙️ Згенерувати TechSpec
             </button>
         </div>
@@ -98,10 +110,22 @@
     {% endfor %}
 </div>
 
-<script>
-    function generateTechSpec(predictionId, ideaIndex) {
-        const btn = document.getElementById('btn-' + ideaIndex);
-        
+<script nonce="{{ request.state.csp_nonce }}">
+    // Встановлюємо ширину прогрес-барів при завантаженні сторінки
+    document.querySelectorAll('.score-fill').forEach(fill => {
+        fill.style.width = fill.getAttribute('data-width');
+    });
+
+    // Навішуємо обробники кліків на кнопки генерації ТЗ
+    document.querySelectorAll('.btn-generate-techspec').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const predictionId = this.getAttribute('data-prediction-id');
+            const ideaIndex = this.getAttribute('data-idea-index');
+            generateTechSpec(this, predictionId, ideaIndex);
+        });
+    });
+
+    function generateTechSpec(btn, predictionId, ideaIndex) {
         // Блокуємо всі кнопки, щоб уникнути подвійних запитів
         document.querySelectorAll('.btn-primary').forEach(b => {
             b.disabled = true;
@@ -112,7 +136,7 @@
         btn.style.background = "#d29922";
         btn.style.opacity = '1';
 
-        // Відправляємо POST-запит на створення ТЗ (логіка буде додана на Етапі 48)
+        // Відправляємо POST-запит на створення ТЗ
         fetch(`/techspec/${predictionId}/${ideaIndex}`, { method: 'POST' })
             .then(res => res.json())
             .then(data => {
