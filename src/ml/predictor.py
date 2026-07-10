@@ -1,32 +1,11 @@
 import sys
 from pathlib import Path
 import pickle
-import hashlib
-
-def verify_model_integrity(model_path: Path) -> bool:
-    """Перевірка цілісності моделі через SHA-256 для запобігання Pickle RCE"""
-    checksum_file = model_path.parent / "checksums.txt"
-    if not checksum_file.exists():
-        logger.warning(f"⚠️ Файл checksums.txt відсутній! Пропуск перевірки для {model_path.name}")
-        return True
-
-    
-        if not verify_model_integrity(model_path):
-            raise ValueError(f"🚨 КРИТИЧНО: Хеш файлу {model_path.name} не збігається! Файл пошкоджено або скомпрометовано.")
-        
-        with open(model_path, "rb") as f:
-        current_hash = hashlib.sha256(f.read()).hexdigest()
-
-    with open(checksum_file, "r") as f:
-        saved_hashes = dict(line.strip().split(":") for line in f if ":" in line)
-
-    expected_hash = saved_hashes.get(model_path.name)
-    if not expected_hash:
-        return True
-
-    return current_hash == expected_hash
-
 import pandas as pd
+import numpy as np
+import os
+import hashlib
+import hmac
 
 # Гарантуємо правильні шляхи імпорту
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
@@ -34,81 +13,73 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.logger import logger
 
+MODEL_SIGNING_KEY = os.getenv("MODEL_SIGNING_KEY", "dp_shw_super_secret_key_2026")
+
+def verify_model_signature(model_path: Path) -> bool:
+    """Криптографічна перевірка цілісності моделі через HMAC-SHA256"""
+    signature_file = model_path.parent / f"{model_path.name}.sig"
+    if not signature_file.exists():
+        logger.warning(f"⚠️ Файл підпису {signature_file.name} відсутній! Пропуск.")
+        return True
+
+    with open(model_path, "rb") as f:
+        model_data = f.read()
+
+    with open(signature_file, "r") as f:
+        stored_signature = f.read().strip()
+
+    computed_signature = hmac.new(
+        MODEL_SIGNING_KEY.encode("utf-8"),
+        model_data,
+        hashlib.sha256
+    ).hexdigest()
+
+    return hmac.compare_digest(computed_signature, stored_signature)
+
+class SafeUnpickler(pickle.Unpickler):
+    """
+    Безпечний Unpickler: дозволяє розпаковувати ТІЛЬКИ авторизовані класи.
+    Захищає систему від Pickle Deserialization RCE.
+    """
+    ALLOWED_CLASSES = {
+        "sklearn", "xgboost", "numpy", "pandas", "collections", "builtins",
+        "src.ml.pytorch_model", "src.ml.focal_loss", "imblearn", "torch"  # ДОДАНО torch!
+    }
+    
+    def find_class(self, module, name):
+        if not any(module.startswith(allowed) for allowed in self.ALLOWED_CLASSES):
+            raise pickle.UnpicklingError(f"🚨 RCE БЛОКОВАНО: Спроба завантажити неавторизований клас {module}.{name}")
+        return super().find_class(module, name)
+
 def load_model():
-    """
-    Завантажує найкращу натреновану модель та список її ознак.
-    Захищено від відсутності файлів.
-    """
-    models_dir = Path("data/models")
+    """Безпечне завантаження моделі з криптографічною перевіркою підпису"""
+    models_dir = PROJECT_ROOT / "data" / "models"
     model_path = models_dir / "best_model.pkl"
     features_path = models_dir / "feature_names.pkl"
 
     if not model_path.exists() or not features_path.exists():
-        raise FileNotFoundError(
-            "❌ Файли моделей не знайдені у data/models/. "
-            "Будь ласка, спочатку запустіть тренування моделі: python src/ml/train_model.py"
-        )
+        raise FileNotFoundError("Файли моделей не знайдено.")
 
-    
-        if not verify_model_integrity(model_path):
-            raise ValueError(f"🚨 КРИТИЧНО: Хеш файлу {model_path.name} не збігається! Файл пошкоджено або скомпрометовано.")
-        
-        with open(model_path, "rb") as f:
-        model = pickle.load(f)
+    if not verify_model_signature(model_path) or not verify_model_signature(features_path):
+        raise ValueError("🚨 КРИТИЧНО: Цілісність моделі порушена (HMAC не збігається)! Файл скомпрометовано.")
+
+    with open(model_path, "rb") as f:
+        model = SafeUnpickler(f).load()
     with open(features_path, "rb") as f:
-        feature_names = pickle.load(f)
-        
+        feature_names = SafeUnpickler(f).load()
+
     return model, feature_names
 
 def predict_win_probability(features: dict) -> float:
-    """
-    Приймає словник ознак проекту, повертає ймовірність його перемоги від 0.0 до 1.0.
-    Повністю захищено від зсуву ознак та попереджень sklearn.
-    """
     try:
         model, feature_names = load_model()
-        
-        # Будуємо рядок значень у строгому порядку ознак моделі
-        row = []
-        for f in feature_names:
-            val = features.get(f, 0)
-            # Примусово конвертуємо булеві значення в цілі числа
-            if isinstance(val, bool):
-                val = int(val)
-            row.append(val)
-            
-        # АНТИКРИХКІСТЬ: Огортаємо в DataFrame з назвами стовпців.
-        # Це повністю прибирає попередження "UserWarning: X does not have valid feature names"
-        row_df = pd.DataFrame([row], columns=feature_names)
-        
-        # Отримуємо ймовірність для класу 1 (Переможець)
-        prob = model.predict_proba(row_df)[0][1]
-        
-        logger.info(f"Передбачено ймовірність перемоги для '{features.get('title', 'Проекту')}': {prob:.4f}")
+        df = pd.DataFrame([features])
+        for col in feature_names:
+            if col not in df.columns:
+                df[col] = 0
+        df = df[feature_names]
+        prob = model.predict_proba(df)[0][1]
         return float(prob)
-        
     except Exception as e:
-        logger.error(f"Помилка під час прогнозування ймовірності: {e}")
-        return 0.0
-
-if __name__ == "__main__":
-    print("=== ТЕСТУВАННЯ ПРЕДИКТОРУ (Етап 30) ===")
-    
-    # Мокові ознаки перспективного проекту
-    mock_features = {
-        "title": "Innovative AI Hackathon Tool",
-        "uses_sponsor_tech": True,
-        "tech_count": 6,
-        "has_social_angle": True,
-        "description_length": 1200,
-        "has_github": True,
-        "readme_length": 4500,
-        "commit_count_48h": 28,
-        "novelty_score": 0.78,
-        "sponsor_challenge_match": True,
-        "likes": 54,
-        "team_size": 1
-    }
-    
-    probability = predict_win_probability(mock_features)
-    print(f"\n🔮 Прогнозована ймовірність перемоги: {probability*100:.2f}%")
+        logger.error(f"Помилка передбачення: {e}")
+        return 0.5

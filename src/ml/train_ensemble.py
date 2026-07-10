@@ -158,19 +158,23 @@ def train_ensemble():
     with open(models_dir / "feature_names.pkl", "wb") as f:
         pickle.dump(list(X_train.columns), f)
 
-    # АНТИКРИХКІСТЬ: Генерація SHA-256 чексум для безпечної десеріалізації
+    # АНТИКРИХКІСТЬ: Генерація HMAC-SHA256 підписів для запобігання RCE
     import hashlib
-    checksums = {}
+    import hmac
+    import os
+    
+    MODEL_SIGNING_KEY = os.getenv("MODEL_SIGNING_KEY", "dp_shw_super_secret_key_2026")
+    
     for fname in ["best_model.pkl", "feature_names.pkl", "ensemble.pkl"]:
         fpath = models_dir / fname
         if fpath.exists():
             with open(fpath, "rb") as f:
-                checksums[fname] = hashlib.sha256(f.read()).hexdigest()
+                model_data = f.read()
+            signature = hmac.new(MODEL_SIGNING_KEY.encode("utf-8"), model_data, hashlib.sha256).hexdigest()
+            with open(fpath.parent / f"{fname}.sig", "w") as f:
+                f.write(signature)
                 
-    with open(models_dir / "checksums.txt", "w") as f:
-        for k, v in checksums.items():
-            f.write(f"{k}:{v}\n")
-    logger.info("🔒 Криптографічні хеші моделей успішно згенеровано та збережено.")
+    logger.info("🔒 Криптографічні HMAC підписи моделей успішно згенеровано.")
 
 if __name__ == "__main__":
     train_ensemble()

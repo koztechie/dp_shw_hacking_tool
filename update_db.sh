@@ -10,6 +10,9 @@ PYTHON_BIN="./venv/bin/python"
 
 echo "=== [$(date)] ЗАПУСК АВТОНОМНОГО MLOps ОНОВЛЕННЯ (Низький пріоритет) ===" >> logs/anacron.log
 
+echo "0. Створення резервної копії БД..." >> logs/anacron.log
+$PYTHON_BIN src/db_backup.py >> logs/anacron.log 2>&1
+
 echo "1. Збір свіжих хакатонів..." >> logs/anacron.log
 $PYTHON_BIN -c "from src.scraper.orchestrator import run_full_ingestion; run_full_ingestion(pages=2)" >> logs/anacron.log 2>&1
 

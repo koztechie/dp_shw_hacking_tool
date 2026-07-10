@@ -1,4 +1,5 @@
 import sys
+from fastapi.middleware.cors import CORSMiddleware
 from pathlib import Path
 import duckdb
 import numpy as np
@@ -26,11 +27,85 @@ TEMPLATES_DIR.mkdir(parents=True, exist_ok=True)
 STATIC_DIR.mkdir(parents=True, exist_ok=True)
 
 app = FastAPI(title="DP_SHW_Hacking_Tool")
+
+# АНТИКРИХКІСТЬ: Сувора політика CORS (OWASP), яка не ламає локальні ШІ-фронтенди (Vite/React)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://127.0.0.1:8000",
+        "http://localhost:8000",
+        "http://localhost:3000",
+        "http://localhost:5173"
+    ],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"],
+    max_age=600,
+)
+
+@app.middleware("http")
+async def security_headers_middleware(request: Request, call_next):
+    """
+    АНТИКРИХКІСТЬ: Встановлення HTTP-заголовків безпеки за стандартом OWASP.
+    Захист від XSS, Clickjacking та ін'єкцій iframe.
+    """
+    response = await call_next(request)
+    
+    # Суворий CSP: ніяких зовнішніх API-дзвінків з фронтенду
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "font-src 'self' data: https://fonts.gstatic.com; "
+        "img-src 'self' data: https:; "
+        "connect-src 'self'; "
+        "frame-ancestors 'none';"
+    )
+    
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+    
+    return response
+
 limiter = Limiter(key_func=get_remote_address)
 app.state.limiter = limiter
-app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
-from fastapi.middleware.cors import CORSMiddleware
+# АНТИКРИХКІСТЬ: Глобальний обробник (Information Disclosure Protection)
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    error_id = str(uuid.uuid4())[:8]
+    logger.error(f"🚨 Unhandled Exception (ID: {error_id}) at {request.url.path}: {exc}")
+    
+    # Відправляємо повний трейсбек у Sentry
+    sentry_sdk.capture_exception(exc)
+    
+    is_dev = os.getenv("ENV", "production") == "development"
+    if is_dev:
+        return JSONResponse(
+            status_code=500,
+            content={"status": "error", "error": str(exc), "error_id": error_id, "debug": traceback.format_exc()}
+        )
+    
+    # У продакшені жорстко приховуємо деталі
+    return JSONResponse(
+        status_code=500,
+        content={
+            "status": "error", 
+            "error": f"Внутрішня помилка сервера. Зверніться до адміністратора. (Код: {error_id})"
+        }
+    )
+
+# Кастомний обробник лімітів для стандартизації JSON відповідей
+@app.exception_handler(RateLimitExceeded)
+async def custom_rate_limit_handler(request: Request, exc: RateLimitExceeded):
+    logger.warning(f"🛡️ Rate limit exceeded for {request.client.host} on {request.url.path}")
+    return JSONResponse(
+        status_code=429,
+        content={"status": "error", "error": "Занадто багато запитів. Будь ласка, зачекайте."}
+    )
 
 # АНТИКРИХКІСТЬ: Додаємо підтримку CORS для майбутніх AI-згенерованих фронтендів
 app.add_middleware(
@@ -65,6 +140,40 @@ class AppState:
         with cls._lock:
             cls._last_count = value
 
+@app.middleware("http")
+async def csrf_protection_middleware(request: Request, call_next):
+    """
+    АНТИКРИХКІСТЬ: Захист від CSRF-атак на основі перевірки заголовків Origin та Referer (OWASP Standard).
+    Запобігає міжсайтовому підробленню запитів без потреби переписувати HTML-шаблони чи JS-скрипти.
+    """
+    if request.method in ["POST", "PUT", "DELETE", "PATCH"]:
+        origin = request.headers.get("Origin")
+        referer = request.headers.get("Referer")
+        
+        # Дозволені локальні хости та порти розробника
+        allowed_hosts = ("127.0.0.1:8000", "localhost:8000", "localhost:5173", "localhost:3000")
+        
+        from urllib.parse import urlparse
+        
+        if origin:
+            parsed = urlparse(origin)
+            if parsed.netloc and parsed.netloc not in allowed_hosts:
+                logger.critical(f"🚨 CSRF БЛОКОВАНО: Спроба запиту з підозрілого Origin: {origin}")
+                return JSONResponse(
+                    {"status": "error", "error": "CSRF Protection: Request blocked due to untrusted Origin."},
+                    status_code=403
+                )
+        elif referer:
+            parsed = urlparse(referer)
+            if parsed.netloc and parsed.netloc not in allowed_hosts:
+                logger.critical(f"🚨 CSRF БЛОКОВАНО: Спроба запиту з підозрілого Referer: {referer}")
+                return JSONResponse(
+                    {"status": "error", "error": "CSRF Protection: Request blocked due to untrusted Referer."},
+                    status_code=403
+                )
+                
+    return await call_next(request)
+
 @app.get("/ping")
 async def ping():
     return {"status": "ok", "message": "FastAPI is running!"}
@@ -97,8 +206,27 @@ async def dashboard(request: Request):
 async def training_page(request: Request):
     return templates.TemplateResponse(request=request, name="training.html", context={})
 
-@app.post("/training/start")
-async def start_training(background_tasks: BackgroundTasks, pages: int = Form(1)):
+from fastapi import HTTPException, status, Depends
+
+def verify_local_access(request: Request):
+    """Антикрихкий захист: дозволяємо важкі MLOps операції ТІЛЬКИ з локальної машини (127.0.0.1)."""
+    client_ip = request.client.host
+    if client_ip not in ("127.0.0.1", "localhost", "::1"):
+        logger.warning(f"🚨 Блоковано несанкціонований доступ до MLOps з IP: {client_ip}")
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Ця операція вимагає локального доступу (Localhost Only)."
+        )
+
+@app.post("/training/start", dependencies=[Depends(verify_local_access)])
+@limiter.limit("2/minute")
+async def start_training(request: Request, background_tasks: BackgroundTasks, pages: int = Form(1)):
+    # Захист від некоректних або від'ємних значень
+    if pages < 1:
+        return JSONResponse({"status": "error", "error": "Кількість сторінок має бути більше 0"}, status_code=400)
+    # Захист RAM комп'ютера AMD A4
+    if pages > 10:
+        return JSONResponse({"status": "error", "error": "Захист пам'яті: Максимум 10 сторінок для ручного збору."}, status_code=400)
     logger.info(f"Отримано запит на збір {pages} сторінок.")
     from src.scraper.orchestrator import run_full_ingestion
     background_tasks.add_task(run_full_ingestion, pages)
@@ -120,17 +248,36 @@ async def training_status():
 async def analyze_page(request: Request):
     return templates.TemplateResponse(request=request, name="analyze.html", context={})
 
-
 def is_safe_devpost_url(url: str) -> bool:
-    """Антикрихкий захист від SSRF атак. Жорстко перевіряє домен."""
+    """
+    АНТИКРИХКІСТЬ: Захист від SSRF, IP Spoofing та IDN Homograph (Unicode) атак.
+    Жорстко валідує домен devpost.com без використання важких Pydantic моделей.
+    """
     try:
         from urllib.parse import urlparse
+        import ipaddress
+        
         parsed = urlparse(url)
         if parsed.scheme != "https":
             return False
+            
         netloc = parsed.netloc.lower()
-        # Блокує обходи типу "devpost.com.evil.net"
-        return netloc == "devpost.com" or netloc.endswith(".devpost.com")
+        
+        # 1. Блокуємо спроби доступу через прямий IP (IP Spoofing)
+        try:
+            ipaddress.ip_address(netloc.split(':')[0])
+            return False
+        except ValueError:
+            pass
+            
+        # 2. Жорстка перевірка домену
+        if netloc == "devpost.com" or netloc.endswith(".devpost.com"):
+            # 3. Блокуємо IDN Homograph-атаки (кириличні літери, що виглядають як англійські)
+            if any(ord(c) > 127 for c in netloc):
+                return False
+            return True
+            
+        return False
     except Exception:
         return False
 
@@ -246,17 +393,25 @@ async def techspec_page(request: Request, prediction_id: str):
 
 # 6. Ендпоінт Панелі історії передбачень
 @app.get("/history", response_class=HTMLResponse)
-async def history_page(request: Request):
+async def history_page(request: Request, page: int = 1, limit: int = 50):
     import pandas as pd
+    
+    # АНТИКРИХКІСТЬ: Жорстка валідація математичних меж для уникнення DoS через гігантські limit
+    page = max(1, min(page, 100))
+    limit = max(10, min(limit, 100))
+    offset = (page - 1) * limit
+    
     predictions = []
     try:
         con = duckdb.connect(DB_PATH, read_only=True)
+        # АНТИКРИХКІСТЬ: Параметризований запит захищає від SQL Injection
         df = con.execute("""
             SELECT p.id, p.hackathon_url, strftime(p.generated_at, '%Y-%m-%d %H:%M') as gen_date, p.idea_1_title, p.idea_1_score, p.selected_idea, f.won as feedback_won
             FROM predictions p
             LEFT JOIN feedback f ON p.id = f.prediction_id
-            ORDER BY p.generated_at DESC LIMIT 50
-        """).fetchdf()
+            ORDER BY p.generated_at DESC 
+            LIMIT ? OFFSET ?
+        """, [limit, offset]).fetchdf()
         
         records = df.to_dict("records")
         for r in records:
@@ -269,12 +424,19 @@ async def history_page(request: Request):
     except Exception as e:
         logger.error(f"Помилка завантаження історії: {e}")
     finally:
+        # АНТИКРИХКІСТЬ: Гарантоване закриття бази даних
         if "con" in locals(): con.close()
-    return templates.TemplateResponse(request=request, name="history.html", context={"predictions": predictions})
+        
+    return templates.TemplateResponse(request=request, name="history.html", context={
+        "predictions": predictions,
+        "page": page,
+        "limit": limit
+    })
 
 # 7. Ендпоінт системи самодіагностики (Health Check)
 @app.get("/health")
-async def health():
+@limiter.limit("60/minute")
+async def health(request: Request):
     health_status = {"status": "ok", "hackathons": 0, "projects": 0, "model_ready": False, "error": None}
     try:
         con = duckdb.connect(DB_PATH, read_only=True)
@@ -370,8 +532,9 @@ def run_ml_pipeline():
     except Exception as e:
         logger.error(f"Помилка MLOps пайплайну: {e}")
 
-@app.post("/ml/retrain")
-async def retrain_model(background_tasks: BackgroundTasks):
+@app.post("/ml/retrain", dependencies=[Depends(verify_local_access)])
+@limiter.limit("2/minute")
+async def retrain_model(request: Request, background_tasks: BackgroundTasks):
     background_tasks.add_task(run_ml_pipeline)
     return JSONResponse({"status": "retraining started"})
 
@@ -382,10 +545,17 @@ async def ml_evolution():
     return JSONResponse(result)
 
 # --- НОВИЙ ЕНДПОІНТ ФІДБЕКУ (Етап 63) ---
-@app.post("/feedback/{prediction_id}")
+@app.post("/feedback/{prediction_id}", dependencies=[Depends(verify_local_access)])
 async def submit_feedback(prediction_id: str, background_tasks: BackgroundTasks, won: bool = Form(...), actual_place: int = Form(0)):
     try:
         con = duckdb.connect(DB_PATH)
+        
+        # АНТИКРИХКІСТЬ: Захист від IDOR та отруєння даних (Referential Integrity Check)
+        exists = con.execute("SELECT id FROM predictions WHERE id = ?", [prediction_id]).fetchone()
+        if not exists:
+            logger.warning(f"🚨 IDOR БЛОКОВАНО: Спроба додати фідбек для неіснуючого ID {prediction_id}")
+            return JSONResponse({"status": "error", "error": "Prediction not found"}, status_code=404)
+            
         con.execute("INSERT INTO feedback VALUES (?, ?, ?, current_timestamp)", [prediction_id, won, actual_place])
         con.commit()
         
@@ -399,7 +569,6 @@ async def submit_feedback(prediction_id: str, background_tasks: BackgroundTasks,
         if "con" in locals(): con.close()
         
     return JSONResponse({"status": "success"})
-
 
 # --- ЕНДПОЇНТ ГЕНЕРАЦІЇ АКТИВІВ (Етап 17-18) ---
 @app.post("/generate_assets/{prediction_id}")
@@ -426,9 +595,9 @@ async def generate_assets(prediction_id: str):
         logger.error(f"Помилка генерації активів: {e}")
         return JSONResponse({"error": str(e)}, status_code=500)
 
-
 if __name__ == "__main__":
     import os
+    import uvicorn
     is_dev = os.getenv("ENV", "production") == "development"
     mode_text = "DEVELOPMENT (з авто-перезавантаженням)" if is_dev else "PRODUCTION (стабільний режим)"
     logger.info(f"Запуск локального сервера FastAPI... [{mode_text}]")
