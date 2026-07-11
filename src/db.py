@@ -168,6 +168,11 @@ def init_db():
                 details VARCHAR
             )
         """)
+        # Міграція для існуючої таблиці, що була створена без DEFAULT
+        try:
+            con.execute("ALTER TABLE audit_log ALTER id SET DEFAULT nextval('audit_log_id_seq')")
+        except Exception:
+            pass
 
         # АНТИКРИХКІСТЬ: Індекси для швидких JOIN та WHERE запитів
         con.execute("CREATE INDEX IF NOT EXISTS idx_projects_hackathon_id ON projects(hackathon_id)")
