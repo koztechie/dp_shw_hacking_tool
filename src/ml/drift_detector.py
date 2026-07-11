@@ -48,12 +48,30 @@ def calculate_psi(expected: pd.DataFrame, actual: pd.DataFrame, buckets: int = 1
 def trigger_retraining():
     """
     Автоматичний запуск перетренування моделі при виявленні drift.
+    Оновлює last_train_count.txt щоб уникнути нескінченного циклу перетренування.
     """
     logger.info("🔄 Запуск автоматичного перетренування моделі...")
     try:
         from src.ml.train_ensemble import train_ensemble
+        import time as _time
+        import duckdb as _duckdb
 
         train_ensemble()
+
+        # АНТИКРИХКІСТЬ: Оновлюємо лічильник та таймстамп щоб retrain-check не зациклювався
+        try:
+            con = _duckdb.connect(DB_PATH, read_only=True)
+            current_count = con.execute("SELECT COUNT(*) FROM hackathons").fetchone()[0]
+            con.close()
+            count_file = PROJECT_ROOT / "data" / "models" / "last_train_count.txt"
+            count_file.parent.mkdir(parents=True, exist_ok=True)
+            count_file.write_text(str(current_count), encoding="utf-8")
+
+            time_file = PROJECT_ROOT / "data" / "models" / "last_train_time.txt"
+            time_file.write_text(str(_time.time()), encoding="utf-8")
+        except Exception as count_err:
+            logger.warning(f"Не вдалось оновити last_train_count.txt: {count_err}")
+
         logger.info("✅ Модель успішно перетренована!")
     except Exception as e:
         logger.error(f"Помилка автоматичного перетренування: {e}")
@@ -132,11 +150,10 @@ def detect_drift() -> bool:
     drift_threshold = max(3, int(len(numeric_features + categorical_features) * 0.3))
 
     if drift_count >= drift_threshold or psi_score > 0.2:
-        logger.info(f"📊 Нові хакатони відрізняються від історичних. Система ініціює перенавчання моделі.")
-
-        # Автоматичний запуск перетренування
-        trigger_retraining()
-
+        logger.info(
+            f"📊 Виявлено дрейф: {drift_count} ознак змінились, PSI={psi_score:.3f}. "
+            f"Дрейфуючі: {drifted_features}"
+        )
         return True
 
     logger.info(f"✅ Дані стабільні. Drift count: {drift_count}, PSI={psi_score:.3f}")

@@ -1092,12 +1092,26 @@ async def retrain_check():
     # АНТИКРИХКІСТЬ: Перевіряємо дрейф ТІЛЬКИ якщо з моменту останнього тренування з'явилися нові дані
     has_model = (PROJECT_ROOT / "data" / "models" / "best_model.pkl").exists()
 
+    # АНТИКРИХКІСТЬ: Захист від нескінченного циклу — кулдаун 10 хвилин після тренування
+    import time as _time
+    cooldown_file = PROJECT_ROOT / "data" / "models" / "last_train_time.txt"
+    if cooldown_file.exists():
+        with contextlib.suppress(BaseException):
+            last_train_ts = float(cooldown_file.read_text(encoding="utf-8").strip())
+            if _time.time() - last_train_ts < 600:  # 10 хвилин кулдаун
+                return JSONResponse(
+                    {"hackathons": current_count, "last_train_count": last_count, "suggest_retrain": False}
+                )
+
     if not has_model:
         suggest_retrain = True
     elif current_count > last_count:
         delta = current_count - last_count
-        # Дрейф перевіряємо тільки якщо з'явилися нові нетреновані дані!
-        if delta >= 20 or detect_drift():
+        # Дрейф перевіряємо тільки якщо з'явилося достатньо нових даних
+        if delta >= 20:
+            suggest_retrain = True
+        elif delta >= 5 and detect_drift():
+            # detect_drift() тепер тільки повертає bool, НЕ запускає тренування
             suggest_retrain = True
 
     return JSONResponse(
@@ -1121,6 +1135,10 @@ def run_ml_pipeline():
         count_file = PROJECT_ROOT / "data" / "models" / "last_train_count.txt"
         count_file.parent.mkdir(parents=True, exist_ok=True)
         count_file.write_text(str(current_count), encoding="utf-8")
+
+        import time as _time
+        time_file = PROJECT_ROOT / "data" / "models" / "last_train_time.txt"
+        time_file.write_text(str(_time.time()), encoding="utf-8")
 
         logger.info("🧠 Пайплайн перенавчання успішно завершено.")
     except Exception as e:

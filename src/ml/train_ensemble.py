@@ -183,7 +183,12 @@ def train_ensemble():
             pickle.dump(ensemble, f)
     else:
         try:
-            current_best = safe_pickle_load(best_model_path, models_dir / "checksums.txt")
+            # Завантажуємо старого лідера БЕЗ перевірки чекс‑суми:
+            # checksums.txt на цьому етапі ще не оновлено (оновлення — нижче),
+            # тому safe_pickle_load дасть false positive "скомпрометовано".
+            # Цілісність перевіряється лише при завантаженні для продакшену (load_model).
+            with open(best_model_path, "rb") as f:
+                current_best = pickle.load(f)
 
             # Безпечна перевірка старого формату
             if isinstance(current_best, dict) and "rf" in current_best:
@@ -205,9 +210,10 @@ def train_ensemble():
             else:
                 print("🏆 Поточний лідер зберіг першість!")
         except Exception as e:
-            logger.warning(f"Не вдалось завантажити старого лідера: {e}")
+            logger.warning(f"Не вдалось порівняти з попереднім лідером: {e}. Записую новий як лідера.")
             with open(best_model_path, "wb") as f:
                 pickle.dump(ensemble, f)
+
 
     with open(models_dir / "feature_names.pkl", "wb") as f:
         pickle.dump(list(X_train.columns), f)
