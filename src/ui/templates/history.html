@@ -3,11 +3,21 @@
 {% block title %} - {{ t('nav.history') }}{% endblock %}
 
 {% block content %}
+<style>
+    .history-row:hover {
+        background: #21262d !important;
+    }
+</style>
 <div class="container section">
     <div class="card stack">
-        <h2 class="fluid-h2" style="color: var(--color-accent-2); display: flex; align-items: center; gap: var(--space-2);">
-            📚 {{ t('history.title') }}
-        </h2>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 class="fluid-h2" style="color: var(--color-accent-2); display: flex; align-items: center; gap: var(--space-2); margin: 0;">
+                📚 {{ t('history.title') }}
+            </h2>
+            {% if predictions %}
+            <button id="btn-delete-all" class="btn btn-danger" style="background: rgba(248, 81, 73, 0.1); color: #f85149; border: 1px solid #f85149; border-radius: 4px; padding: 0.4rem 0.8rem; cursor: pointer;">🗑 Видалити все</button>
+            {% endif %}
+        </div>
     
     {% if predictions %}
     <div style="overflow-x: auto;">
@@ -24,7 +34,7 @@
             </thead>
             <tbody>
                 {% for p in predictions %}
-                <tr style="border-bottom: 1px solid #30363d; transition: background 0.2s;" onmouseover="this.style.background='#21262d'" onmouseout="this.style.background='transparent'">
+                <tr class="history-row" style="border-bottom: 1px solid #30363d; transition: background 0.2s; background: transparent;">
                     <td style="padding: 1rem 0.5rem; white-space: nowrap; font-size: 0.9rem; color: #8b949e;">{{ p.gen_date }}</td>
                     <td style="padding: 1rem 0.5rem; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
                         <a href="{{ p.hackathon_url }}" target="_blank" style="color: #58a6ff; text-decoration: none;">Лінк ↗</a>
@@ -45,7 +55,7 @@
                         {% else %}
                             <a href="/ideas/{{ p.id }}" class="btn" style="display: inline-block; text-decoration: none; text-align: center; background: rgba(247, 129, 102, 0.1); color: #f78166; border: 1px solid #f78166; padding: 0.4rem 0.8rem;">💡 Вибрати ідею</a>
                         {% endif %}
-                        <button onclick="confirmDeletePrediction('{{ p.id }}')" class="btn btn-danger" style="padding: 0.4rem 0.6rem; border: none; background: rgba(248, 81, 73, 0.1); color: #f85149; border-radius: 4px; cursor: pointer; font-size: 1rem;" title="Видалити">🗑</button>
+                        <button data-action="delete" data-id="{{ p.id }}" class="btn btn-danger" style="padding: 0.4rem 0.6rem; border: none; background: rgba(248, 81, 73, 0.1); color: #f85149; border-radius: 4px; cursor: pointer; font-size: 1rem;" title="Видалити">🗑</button>
                     </td>
                     <td style="padding: 1rem 0.5rem;">
                         {% if p.feedback_won is not none %}
@@ -56,8 +66,8 @@
                             {% endif %}
                         {% else %}
                             <div style="display: flex; gap: 0.5rem;">
-                                <button onclick="submitFeedback('{{ p.id }}', true)" style="background: rgba(63, 185, 80, 0.1); color: #3fb950; border: 1px solid #3fb950; border-radius: 4px; cursor: pointer; padding: 0.2rem 0.5rem;" title="Ми виграли хакатон!">👍</button>
-                                <button onclick="submitFeedback('{{ p.id }}', false)" style="background: rgba(248, 81, 73, 0.1); color: #f85149; border: 1px solid #f85149; border-radius: 4px; cursor: pointer; padding: 0.2rem 0.5rem;" title="Проект програв">👎</button>
+                                <button data-action="feedback" data-id="{{ p.id }}" data-won="true" style="background: rgba(63, 185, 80, 0.1); color: #3fb950; border: 1px solid #3fb950; border-radius: 4px; cursor: pointer; padding: 0.2rem 0.5rem;" title="Ми виграли хакатон!">👍</button>
+                                <button data-action="feedback" data-id="{{ p.id }}" data-won="false" style="background: rgba(248, 81, 73, 0.1); color: #f85149; border: 1px solid #f85149; border-radius: 4px; cursor: pointer; padding: 0.2rem 0.5rem;" title="Проект програв">👎</button>
                             </div>
                         {% endif %}
                     </td>
@@ -86,6 +96,26 @@
 </div>
 
 <script nonce="{{ request.state.csp_nonce }}">
+    document.addEventListener('DOMContentLoaded', () => {
+        const btnDeleteAll = document.getElementById('btn-delete-all');
+        if (btnDeleteAll) {
+            btnDeleteAll.addEventListener('click', confirmDeleteAll);
+        }
+
+        document.querySelectorAll('button[data-action]').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const action = btn.getAttribute('data-action');
+                const id = btn.getAttribute('data-id');
+                if (action === 'delete') {
+                    confirmDeletePrediction(id);
+                } else if (action === 'feedback') {
+                    const won = btn.getAttribute('data-won') === 'true';
+                    submitFeedback(id, won);
+                }
+            });
+        });
+    });
+
     async function submitFeedback(predictionId, won) {
         if (!confirm(`Підтвердити результат: проект ${won ? 'ВИГРАВ 🏆' : 'ПРОГРАВ ❌'}?\n\n{{ t('cta.confirm') }}`)) return;
         
@@ -119,6 +149,28 @@
             onConfirm: async () => {
                 try {
                     const res = await fetch(`/history/${predictionId}`, { method: 'DELETE' });
+                    if (res.ok) location.reload();
+                    else alert("Помилка видалення.");
+                } catch (e) {
+                    alert("Помилка мережі: " + e);
+                }
+            }
+        });
+    }
+    function confirmDeleteAll() {
+        if (!window.ConfirmModal) return alert("Модуль ConfirmModal не завантажено");
+        ConfirmModal.show({
+            title: "Видалити всю історію?",
+            body: "Це видалить усі збережені аналізи. Цю дію неможливо скасувати.",
+            consequences: [
+                "Усі збережені прогнози та ТЗ будуть втрачені",
+                "Ця дія не вплине на зібрані дані для навчання"
+            ],
+            confirmText: "Видалити все",
+            cancelText: "Скасувати",
+            onConfirm: async () => {
+                try {
+                    const res = await fetch(`/history/all`, { method: 'DELETE' });
                     if (res.ok) location.reload();
                     else alert("Помилка видалення.");
                 } catch (e) {

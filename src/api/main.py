@@ -289,7 +289,7 @@ async def api_key_auth_middleware(request: Request, call_next):
     if request.method in ["POST", "PUT", "DELETE", "PATCH"]:
         # Пропускаємо ендпоінти, які вже мають verify_local_access
         path = request.url.path
-        if path.startswith("/training/") or path.startswith("/ml/") or path.startswith("/feedback/") or path.startswith("/onboarding/"):
+        if path.startswith("/training/") or path.startswith("/ml/") or path.startswith("/feedback/") or path.startswith("/onboarding/") or path.startswith("/history/"):
             return await call_next(request)
 
         api_key = request.headers.get("X-API-Key")
@@ -799,6 +799,34 @@ async def history_page(request: Request, page: int = 1, limit: int = 50):
     return templates.TemplateResponse(
         request=request, name="history.html", context={"predictions": predictions, "page": page, "limit": limit, "t": t}
     )
+
+
+@app.delete("/history/all")
+@limiter.limit("5/minute")
+async def delete_all_history(request: Request):
+    try:
+        con = duckdb.connect(DB_PATH)
+        con.execute("DELETE FROM feedback")
+        con.execute("DELETE FROM predictions")
+        con.close()
+        return JSONResponse({"status": "success"})
+    except Exception as e:
+        logger.error(f"Помилка видалення всієї історії: {e}")
+        return JSONResponse({"error": str(e)}, status_code=500)
+
+
+@app.delete("/history/{prediction_id}")
+@limiter.limit("20/minute")
+async def delete_history_item(request: Request, prediction_id: str):
+    try:
+        con = duckdb.connect(DB_PATH)
+        con.execute("DELETE FROM feedback WHERE prediction_id = ?", [prediction_id])
+        con.execute("DELETE FROM predictions WHERE id = ?", [prediction_id])
+        con.close()
+        return JSONResponse({"status": "success"})
+    except Exception as e:
+        logger.error(f"Помилка видалення запису з історії: {e}")
+        return JSONResponse({"error": str(e)}, status_code=500)
 
 
 # 7. Ендпоінт системи самодіагностики (Health Check)
