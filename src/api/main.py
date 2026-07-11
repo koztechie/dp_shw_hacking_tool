@@ -32,6 +32,7 @@ sys.path.insert(0, str(PROJECT_ROOT))
 from config.settings import DB_PATH  # noqa: E402
 from src.logger import logger  # noqa: E402
 from src.ml.drift_detector import detect_drift  # noqa: E402
+from src.ui.i18n.system import t  # noqa: E402
 
 TEMPLATES_DIR = PROJECT_ROOT / "src" / "ui" / "templates"
 STATIC_DIR = PROJECT_ROOT / "src" / "ui" / "static"
@@ -318,7 +319,7 @@ async def dashboard(request: Request):
     # АНТИКРИХКІСТЬ: Onboarding для нових користувачів
     onboarding_flag = PROJECT_ROOT / "data" / ".onboarding_completed"
     if not onboarding_flag.exists():
-        return templates.TemplateResponse(request=request, name="onboarding.html", context={})
+        return templates.TemplateResponse(request=request, name="onboarding.html", context={"t": t})
 
     stats = {
         "hackathons": 0,
@@ -357,7 +358,7 @@ async def dashboard(request: Request):
     finally:
         if "con" in locals():
             con.close()
-    return templates.TemplateResponse(request=request, name="index.html", context={"stats": stats})
+    return templates.TemplateResponse(request=request, name="index.html", context={"stats": stats, "t": t})
 
 
 @app.post("/onboarding/complete")
@@ -372,7 +373,15 @@ async def complete_onboarding(request: Request):
 # 2. Ендпоінти Панелі Навчання
 @app.get("/training", response_class=HTMLResponse)
 async def training_page(request: Request):
-    return templates.TemplateResponse(request=request, name="training.html", context={})
+    try:
+        import duckdb
+        con = duckdb.connect(DB_PATH, read_only=True)
+        count = con.execute("SELECT COUNT(*) FROM hackathons").fetchone()[0]
+        AppState.set_count(count)
+        con.close()
+    except Exception:
+        count = AppState.get_count()
+    return templates.TemplateResponse(request=request, name="training.html", context={"t": t, "hackathons_collected": count})
 
 
 import hmac  # noqa: E402
@@ -459,7 +468,7 @@ def get_workflow_context(current_path: str, prediction_id: str = None) -> list:
 async def analyze_page(request: Request):
     workflow = get_workflow_context("/analyze")
     return templates.TemplateResponse(
-        request=request, name="analyze.html", context={"workflow": workflow}
+        request=request, name="analyze.html", context={"workflow": workflow, "t": t}
     )
 
 
@@ -535,8 +544,18 @@ def is_safe_devpost_url(url: str) -> bool:
 async def analyze_url(request: Request, url: str = Form(...)):
     if not is_safe_devpost_url(url):
         logger.warning(f"🚨 SSRF Спроба заблокована: невалідний URL {url}")
+        from src.ui.errors import UserError, ErrorType
+        user_error = UserError(ErrorType.SSRF_BLOCKED, context={"url": url})
         return JSONResponse(
-            {"status": "error", "error": "Дозволені лише безпечні посилання на https://*.devpost.com/"}, status_code=400
+            {
+                "status": "error",
+                "error_type": user_error.type.value,
+                "title": user_error.title,
+                "body": user_error.body,
+                "action": user_error.suggested_action,
+                "technical": f"Invalid URL: {url}",
+            },
+            status_code=400
         )
 
     try:
@@ -547,8 +566,20 @@ async def analyze_url(request: Request, url: str = Form(...)):
             return JSONResponse({"status": "error", "error": result["error"]}, status_code=400)
         return JSONResponse({"status": "success", "prediction_id": result["prediction_id"]})
     except Exception as e:
-        logger.exception(f"Помилка в ендпоінті /analyze/url: {e}")
-        return JSONResponse({"status": "error", "error": str(e)}, status_code=500)
+        from src.ui.errors import make_error
+        user_error = make_error(e, context={"url": url})
+        logger.exception(f"Analysis failed: {e}")
+        return JSONResponse(
+            {
+                "status": "error",
+                "error_type": user_error.type.value,
+                "title": user_error.title,
+                "body": user_error.body,
+                "action": user_error.suggested_action,
+                "technical": user_error.technical_details,
+            },
+            status_code=400
+        )
 
 
 import magic  # noqa: E402
@@ -568,8 +599,17 @@ async def analyze_html(request: Request, file: UploadFile = File(...)):  # noqa:
 
         if file_size > MAX_FILE_SIZE:
             logger.warning(f"🚨 Занадто великий файл: {file_size} bytes")
+            from src.ui.errors import UserError, ErrorType
+            user_error = UserError(ErrorType.FILE_TOO_LARGE)
             return JSONResponse(
-                {"status": "error", "error": f"File too large. Maximum size: {MAX_FILE_SIZE // (1024 * 1024)}MB"},
+                {
+                    "status": "error",
+                    "error_type": user_error.type.value,
+                    "title": user_error.title,
+                    "body": user_error.body,
+                    "action": user_error.suggested_action,
+                    "technical": f"File too large. Maximum size: {MAX_FILE_SIZE // (1024 * 1024)}MB",
+                },
                 status_code=413,
             )
 
@@ -579,8 +619,18 @@ async def analyze_html(request: Request, file: UploadFile = File(...)):  # noqa:
 
         if mime_type not in ALLOWED_MIME_TYPES:
             logger.warning(f"🚨 Невалідний MIME тип: {mime_type}")
+            from src.ui.errors import UserError, ErrorType
+            user_error = UserError(ErrorType.INVALID_FILE)
             return JSONResponse(
-                {"status": "error", "error": f"Invalid file type. Allowed: {ALLOWED_MIME_TYPES}"}, status_code=415
+                {
+                    "status": "error",
+                    "error_type": user_error.type.value,
+                    "title": user_error.title,
+                    "body": user_error.body,
+                    "action": user_error.suggested_action,
+                    "technical": f"Invalid file type. Allowed: {ALLOWED_MIME_TYPES}",
+                },
+                status_code=415,
             )
 
         # 3. Санітизація HTML (видалення скриптів)
@@ -602,8 +652,20 @@ async def analyze_html(request: Request, file: UploadFile = File(...)):  # noqa:
 
         return JSONResponse({"status": "success", "prediction_id": result["prediction_id"]})
     except Exception as e:
-        logger.exception(f"Помилка в ендпоінті /analyze/html: {e}")
-        return JSONResponse({"status": "error", "error": "Internal server error"}, status_code=500)
+        from src.ui.errors import make_error
+        user_error = make_error(e, context={"filename": file.filename})
+        logger.exception(f"HTML Analysis failed: {e}")
+        return JSONResponse(
+            {
+                "status": "error",
+                "error_type": user_error.type.value,
+                "title": user_error.title,
+                "body": user_error.body,
+                "action": user_error.suggested_action,
+                "technical": user_error.technical_details,
+            },
+            status_code=500
+        )
 
 
 # 4. Ендпоінти Панелі відображення ідей
@@ -641,7 +703,7 @@ async def ideas_page(request: Request, prediction_id: str):
     return templates.TemplateResponse(
         request=request,
         name="ideas.html",
-        context={"prediction_id": prediction_id, "ideas": valid_ideas, "hackathon_url": hackathon_url, "workflow": workflow},
+        context={"prediction_id": prediction_id, "ideas": valid_ideas, "hackathon_url": hackathon_url, "workflow": workflow, "t": t},
     )
 
 
@@ -686,7 +748,7 @@ async def techspec_page(request: Request, prediction_id: str):
 
     workflow = get_workflow_context("/techspec", prediction_id)
     return templates.TemplateResponse(
-        request=request, name="techspec.html", context={"techspec": techspec, "selected_idea": selected_idea, "workflow": workflow}
+        request=request, name="techspec.html", context={"techspec": techspec, "selected_idea": selected_idea, "workflow": workflow, "t": t}
     )
 
 
@@ -732,7 +794,7 @@ async def history_page(request: Request, page: int = 1, limit: int = 50):
             con.close()
 
     return templates.TemplateResponse(
-        request=request, name="history.html", context={"predictions": predictions, "page": page, "limit": limit}
+        request=request, name="history.html", context={"predictions": predictions, "page": page, "limit": limit, "t": t}
     )
 
 

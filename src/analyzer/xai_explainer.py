@@ -133,6 +133,6 @@ if __name__ == "__main__":
     print(f"Базовий ML Score: {base*100:.2f}%")
     
     explanation = explain_prediction(mock_feat, base)
-    print("\nЧОМУ ТАКИЙ БАЛ (SHAP Analysis):")
+    print("\nГотово. Тепер можу пояснити, чому кожна ідея має такі шанси:")
     for p in explanation["positive"]: print(p)
     for n in explanation["negative"]: print(n)

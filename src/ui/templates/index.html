@@ -1,18 +1,18 @@
 {% extends "base.html" %}
-{% block title %} - Дашборд{% endblock %}
+{% block title %} - {{ t('nav.dashboard') }}{% endblock %}
 
 {% block content %}
 <div class="dashboard">
     <header class="dashboard__header">
         <div>
-            <h1>📊 Analytics Dashboard</h1>
+            <h1>📊 {{ t('dashboard.title') }}</h1>
             <p class="dashboard__subtitle">
-                Стан ML-моделі та бази даних в реальному часі
+                {{ t('dashboard.subtitle') }}
             </p>
         </div>
         <div class="freshness-indicator freshness-indicator--{{ stats.freshness }}">
             <span class="freshness-indicator__dot"></span>
-            <span>Оновлено {{ stats.last_updated }}</span>
+            <span>{{ t('dashboard.last_updated') }}: {{ stats.last_updated }}</span>
         </div>
     </header>
     
@@ -21,12 +21,12 @@
         <div class="stat-card">
             <div class="ring-chart" style="--progress: {{ stats.win_rate }}; --color: var(--color-success);">
                 <div class="ring-chart__value">{{ stats.win_rate }}%</div>
-                <div class="ring-chart__label">Win Rate</div>
+                <div class="ring-chart__label">{{ t('dashboard.metric.win_rate') }}</div>
             </div>
         </div>
         
         <div class="stat-card">
-            <div class="stat-card__label">Хакатонів</div>
+            <div class="stat-card__label">{{ t('dashboard.metric.hackathons') }}</div>
             <div class="stat-card__value">{{ stats.hackathons }}</div>
             <div class="sparkline">
                 {% for val in stats.hackathons_trend %}
@@ -36,7 +36,7 @@
         </div>
         
         <div class="stat-card">
-            <div class="stat-card__label">Проектів</div>
+            <div class="stat-card__label">{{ t('dashboard.metric.projects') }}</div>
             <!-- Removed undefined filter format_number to prevent crashes -->
             <div class="stat-card__value">{{ stats.projects }}</div>
             <div class="sparkline">
@@ -47,14 +47,14 @@
         </div>
         
         <div class="stat-card">
-            <div class="stat-card__label">Передбачень</div>
+            <div class="stat-card__label">{{ t('dashboard.metric.predictions') }}</div>
             <div class="stat-card__value">{{ stats.predictions }}</div>
         </div>
     </section>
     
     <!-- ML Model Health -->
     <section class="ml-health">
-        <h2>🧠 ML Model Health</h2>
+        <h2>🧠 {{ t('dashboard.ml_health') }}</h2>
         <div class="ml-metrics">
             <div class="ml-metric">
                 <span class="ml-metric__label">PR-AUC</span>

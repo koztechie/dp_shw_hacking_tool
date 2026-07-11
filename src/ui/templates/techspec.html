@@ -11,9 +11,9 @@
         <!-- Панель керування експортом -->
         <div class="print-controls" style="display: flex; justify-content: flex-end; gap: var(--space-4); margin-bottom: var(--space-6);">
             <button onclick="exportToMarkdown()" class="btn btn-primary">
-                💾 Зберегти як Markdown (.md)
+                {{ t('techspec.export.md') }}
             </button>
-            <button onclick="window.print()" class="btn btn-secondary">
+            <button onclick="window.print()" class="btn btn-ghost">
                 🖨️ Друк / PDF
             </button>
         </div>
@@ -29,7 +29,7 @@
 
     <!-- Архітектура -->
     <div style="margin-bottom: 2.5rem;">
-        <h3 style="color: #58a6ff; border-bottom: 1px solid #30363d; padding-bottom: 0.5rem; margin-bottom: 1rem;">🏗️ Архітектура</h3>
+        <h3 style="color: #58a6ff; border-bottom: 1px solid #30363d; padding-bottom: 0.5rem; margin-bottom: 1rem;">🏗️ {{ t('techspec.section.architecture') }}</h3>
         <ul style="list-style: none; padding: 0; color: #c9d1d9;">
             <li style="margin-bottom: 0.8rem;"><strong>Frontend:</strong> {{ techspec.architecture.frontend }}</li>
             <li style="margin-bottom: 0.8rem;"><strong>Backend:</strong> {{ techspec.architecture.backend }}</li>
@@ -41,7 +41,7 @@
 
     <!-- Tech Stack -->
     <div style="margin-bottom: 2.5rem;">
-        <h3 style="color: #58a6ff; border-bottom: 1px solid #30363d; padding-bottom: 0.5rem; margin-bottom: 1rem;">🛠️ Технологічний стек</h3>
+        <h3 style="color: #58a6ff; border-bottom: 1px solid #30363d; padding-bottom: 0.5rem; margin-bottom: 1rem;">🛠️ {{ t('techspec.section.stack') }}</h3>
         <div style="display: flex; flex-direction: column; gap: 1rem;">
             <div>
                 <strong style="color: #3fb950;">Must Have:</strong>
@@ -64,7 +64,7 @@
 
     <!-- 48H Timeline -->
     <div style="margin-bottom: 2.5rem;">
-        <h3 style="color: #58a6ff; border-bottom: 1px solid #30363d; padding-bottom: 0.5rem; margin-bottom: 1rem;">⏱️ Development Timeline (Adaptive)</h3>
+        <h3 style="color: #58a6ff; border-bottom: 1px solid #30363d; padding-bottom: 0.5rem; margin-bottom: 1rem;">⏱️ {{ t('techspec.section.timeline') }}</h3>
         <div style="background: #0d1117; padding: 1.5rem; border-radius: 8px; border: 1px solid #30363d;">
             <p><strong>Phase 1 (Setup):</strong> {{ techspec.timeline_plan.phase_1_setup }}</p>
             <p><strong>Phase 2 (Core):</strong> {{ techspec.timeline_plan.phase_2_core }}</p>
@@ -80,7 +80,7 @@
         <p style="color: #8b949e; margin-bottom: 1rem;">AI створить готову структуру проекту (Bash-скрипт) та промпти для Midjourney/RunwayML.</p>
         
         <button id="gen-assets-btn" onclick="generateAssets()" class="btn btn-primary" style="background: #bc8cff; color: #0d1117; font-weight: bold; padding: 0.8rem 1.5rem; border: none; border-radius: 6px; cursor: pointer;">
-            ⚡ Згенерувати кодовий стек
+            ⚡ Створити стартовий код
         </button>
         
         <div id="status-box" style="margin-top: 1.5rem; display: none; text-align: center; padding: 1rem; border: 1px solid #30363d; border-radius: 6px; background: #0d1117;">
@@ -113,7 +113,7 @@
 
     <!-- Demo Script -->
     <div style="margin-bottom: 2.5rem;">
-        <h3 style="color: #bc8cff; border-bottom: 1px solid #30363d; padding-bottom: 0.5rem; margin-bottom: 1rem;">🎤 Demo Script (60 секунд)</h3>
+        <h3 style="color: #bc8cff; border-bottom: 1px solid #30363d; padding-bottom: 0.5rem; margin-bottom: 1rem;">🎤 {{ t('techspec.section.demo') }}</h3>
         <div style="background: rgba(188, 140, 255, 0.1); border-left: 4px solid #bc8cff; padding: 1.5rem; color: #e6edf3; font-style: italic;">
             {{ techspec.demo_script }}
         </div>

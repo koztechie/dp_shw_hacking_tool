@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 
-{% block title %} - Історія{% endblock %}
+{% block title %} - {{ t('nav.history') }}{% endblock %}
 
 {% block content %}
 <div class="container section">
     <div class="card stack">
         <h2 class="fluid-h2" style="color: var(--color-accent-2); display: flex; align-items: center; gap: var(--space-2);">
-            📚 Історія аналізу
+            📚 {{ t('history.title') }}
         </h2>
     
     {% if predictions %}
@@ -39,12 +39,13 @@
                             {{ (p.idea_1_score * 100)|round(1) }}%
                         </strong>
                     </td>
-                    <td style="padding: 1rem 0.5rem;">
+                    <td style="padding: 1rem 0.5rem; display: flex; gap: 0.5rem; align-items: center;">
                         {% if p.selected_idea %}
                             <a href="/techspec/{{ p.id }}" class="btn" style="display: inline-block; text-decoration: none; text-align: center; background: rgba(63, 185, 80, 0.1); color: #3fb950; border: 1px solid #3fb950; padding: 0.4rem 0.8rem;">📄 Відкрити ТЗ</a>
                         {% else %}
                             <a href="/ideas/{{ p.id }}" class="btn" style="display: inline-block; text-decoration: none; text-align: center; background: rgba(247, 129, 102, 0.1); color: #f78166; border: 1px solid #f78166; padding: 0.4rem 0.8rem;">💡 Вибрати ідею</a>
                         {% endif %}
+                        <button onclick="confirmDeletePrediction('{{ p.id }}')" class="btn btn-danger" style="padding: 0.4rem 0.6rem; border: none; background: rgba(248, 81, 73, 0.1); color: #f85149; border-radius: 4px; cursor: pointer; font-size: 1rem;" title="Видалити">🗑</button>
                     </td>
                     <td style="padding: 1rem 0.5rem;">
                         {% if p.feedback_won is not none %}
@@ -68,14 +69,13 @@
     {% else %}
     <div class="empty-state">
         <div class="empty-state__icon">📚</div>
-        <h2 class="empty-state__title">Історія порожня</h2>
+        <h2 class="empty-state__title">{{ t('empty.history.title') }}</h2>
         <p class="empty-state__description">
-            Ви ще не аналізували жодного хакатону. Почніть з аналізу URL, 
-            щоб система згенерувала переможні ідеї та зберегла їх тут.
+            {{ t('empty.history.description') }}
         </p>
         <div class="empty-state__actions">
             <a href="/analyze" class="btn btn-primary">
-                🔍 Проаналізувати перший хакатон
+                🔍 {{ t('empty.history.cta') }}
             </a>
         </div>
     </div>
@@ -87,7 +87,7 @@
 
 <script nonce="{{ request.state.csp_nonce }}">
     async function submitFeedback(predictionId, won) {
-        if (!confirm(`Підтвердити результат: проект ${won ? 'ВИГРАВ 🏆' : 'ПРОГРАВ ❌'}?`)) return;
+        if (!confirm(`Підтвердити результат: проект ${won ? 'ВИГРАВ 🏆' : 'ПРОГРАВ ❌'}?\n\n{{ t('cta.confirm') }}`)) return;
         
         const formData = new FormData();
         formData.append('won', won ? 'true' : 'false');
@@ -103,6 +103,29 @@
         } catch(e) {
             alert("Помилка мережі: " + e);
         }
+    }
+    
+    function confirmDeletePrediction(predictionId) {
+        if (!window.ConfirmModal) return alert("Модуль ConfirmModal не завантажено");
+        ConfirmModal.show({
+            title: "{{ t('history.delete.confirm.title') }}",
+            body: "{{ t('history.delete.confirm.body') }}",
+            consequences: [
+                "Ви втратите доступ до згенерованих ідей та ТЗ",
+                "ML-модель не зможе вчитись на цьому проекті в майбутньому"
+            ],
+            confirmText: "{{ t('history.delete.confirm.yes') }}",
+            cancelText: "{{ t('history.delete.confirm.no') }}",
+            onConfirm: async () => {
+                try {
+                    const res = await fetch(`/history/${predictionId}`, { method: 'DELETE' });
+                    if (res.ok) location.reload();
+                    else alert("Помилка видалення.");
+                } catch (e) {
+                    alert("Помилка мережі: " + e);
+                }
+            }
+        });
     }
 </script>
 {% endblock %}

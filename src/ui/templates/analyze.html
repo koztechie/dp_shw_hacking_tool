@@ -4,39 +4,39 @@
 {% block content %}
 <div class="container section">
     <div class="analyze-container stack">
-        <h1 class="fluid-h1">🔍 Аналіз нового хакатону</h1>
+        <h1 class="fluid-h1">🔍 {{ t('analyze.title') }}</h1>
         <p class="page-description">
-            Введіть URL-адресу або завантажте HTML-файл. Система згенерує 3 переможні ідеї.
+            {{ t('analyze.subtitle') }}
         </p>
     
     <div class="analyze-tabs" role="tablist">
         <button class="tab-btn active" data-tab="url" role="tab" aria-selected="true" aria-controls="tab-url">
-            🌐 URL
+            🌐 {{ t('analyze.tab.url') }}
         </button>
         <button class="tab-btn" data-tab="html" role="tab" aria-selected="false" aria-controls="tab-html">
-            📄 HTML
+            📄 {{ t('analyze.tab.html') }}
         </button>
     </div>
     
     <div class="tab-content active" id="tab-url" role="tabpanel">
         <form id="analyze-form" class="analyze-form">
             <label for="hackathon-url" class="form-label">
-                URL хакатону на Devpost
+                {{ t('analyze.input.label') }}
                 <span class="help-icon" data-tooltip="Наприклад: https://devpost.com/software/gen-ai-hackathon" aria-label="Підказка">ⓘ</span>
             </label>
             <input 
                 type="url" 
                 id="hackathon-url" 
                 name="url" 
-                placeholder="https://devpost.com/..." 
+                placeholder="{{ t('analyze.input.placeholder') }}" 
                 required
                 autocomplete="url"
                 aria-describedby="url-hint"
             >
-            <p id="url-hint" class="form-hint">Тільки HTTPS URL з домену devpost.com</p>
+            <p id="url-hint" class="form-hint">{{ t('analyze.input.hint') }}</p>
             
             <button type="submit" class="btn btn-primary btn-large" id="analyze-btn">
-                🔮 Запустити аналіз
+                {{ t('analyze.submit') }}
             </button>
         </form>
     </div>
@@ -53,8 +53,8 @@
     <!-- АНТИКРИХКІСТЬ: Деталізований loading state -->
     <div id="loading-state" class="loading-state" hidden aria-live="polite">
         <div class="loading-header">
-            <h2 id="loading-title">🔮 Аналіз хакатону...</h2>
-            <p class="loading-subtitle" id="loading-subtitle">Це може зайняти до 90 секунд</p>
+            <h2 id="loading-title">🔮 {{ t('loading.title') }}</h2>
+            <p class="loading-subtitle" id="loading-subtitle">{{ t('loading.subtitle') }}</p>
         </div>
         
         <div class="progress-container">
@@ -70,7 +70,7 @@
                     <div class="spinner" aria-hidden="true"></div>
                 </div>
                 <div class="step-text">
-                    <div class="step-name">Збір даних з Devpost</div>
+                    <div class="step-name">{{ t('loading.step.scraping') }}</div>
                     <div class="step-detail">Обхід Cloudflare, парсинг HTML...</div>
                 </div>
                 <div class="step-time">~5-10 сек</div>
@@ -81,7 +81,7 @@
                     <div class="pending-dot" aria-hidden="true"></div>
                 </div>
                 <div class="step-text">
-                    <div class="step-name">Витягнення правил</div>
+                    <div class="step-name">{{ t('loading.step.constraints') }}</div>
                     <div class="step-detail">Аналіз юридичних обмежень...</div>
                 </div>
                 <div class="step-time">~5-8 сек</div>
@@ -92,7 +92,7 @@
                     <div class="pending-dot" aria-hidden="true"></div>
                 </div>
                 <div class="step-text">
-                    <div class="step-name">AI-аналіз контексту</div>
+                    <div class="step-name">{{ t('loading.step.osint') }}</div>
                     <div class="step-detail">OSINT, спонсори, судді...</div>
                 </div>
                 <div class="step-time">~10-15 сек</div>
@@ -103,7 +103,7 @@
                     <div class="pending-dot" aria-hidden="true"></div>
                 </div>
                 <div class="step-text">
-                    <div class="step-name">Генерація ідей</div>
+                    <div class="step-name">{{ t('loading.step.ideas') }}</div>
                     <div class="step-detail">Multi-agent brainstorming...</div>
                 </div>
                 <div class="step-time">~15-25 сек</div>
@@ -114,8 +114,8 @@
                     <div class="pending-dot" aria-hidden="true"></div>
                 </div>
                 <div class="step-text">
-                    <div class="step-name">ML-скоринг</div>
-                    <div class="step-detail">Stacking Ensemble + SHAP...</div>
+                    <div class="step-name">{{ t('loading.step.scoring') }}</div>
+                    <div class="step-detail">Готово. Тепер можу пояснити, чому кожна ідея має такі шанси.</div>
                 </div>
                 <div class="step-time">~3-5 сек</div>
             </div>
@@ -129,27 +129,27 @@
         </div>
         
         <button class="btn btn-ghost" id="cancel-btn">
-            Скасувати аналіз
+            {{ t('loading.cancel') }}
         </button>
     </div>
     
     <!-- Error state -->
     <div id="error-state" class="error-state" hidden role="alert">
         <div class="error-icon">⚠️</div>
-        <h2 id="error-title">Щось пішло не так</h2>
+        <h2 id="error-title">{{ t('error.generic.title') }}</h2>
         <p id="error-message"></p>
         
         <div class="error-actions">
             <button class="btn btn-primary" id="retry-btn">
-                🔄 Спробувати ще раз
+                {{ t('error.generic.retry') }}
             </button>
             <button class="btn btn-ghost" id="back-btn">
-                ← Повернутися
+                {{ t('error.generic.home') }}
             </button>
         </div>
         
         <details class="error-details">
-            <summary>Технічна інформація</summary>
+            <summary>{{ t('error.generic.details') }}</summary>
             <pre id="error-technical"></pre>
         </details>
     </div>
@@ -158,6 +158,7 @@
 {% endblock %}
 
 {% block scripts %}
+<script src="{{ url_for('static', path='js/loading-copy.js') }}"></script>
 <script>
 (function() {
     'use strict';
@@ -184,7 +185,7 @@
         "Перевіряється відповідність технологіям спонсорів...",
         "Аналізуються тренди з Hacker News та ArXiv...",
         "Враховується щільність конкуренції на призах...",
-        "Застосовується Focal Loss для дисбалансованих класів..."
+        "Модель тепер краще бачить рідкісних переможців"
     ];
     
     // АНТИКРИХКІСТЬ: Ротація підказок кожні 5 секунд
@@ -230,10 +231,22 @@
         if (status === 'active') {
             step.classList.add('active');
             indicator.innerHTML = '<div class="spinner" aria-hidden="true"></div>';
+            updateStepText(stepName, 0);
         } else if (status === 'completed') {
             step.classList.add('completed');
             indicator.innerHTML = '<div class="checkmark" aria-hidden="true">✓</div>';
         }
+    }
+    
+    function updateStepText(stepName, elapsedSeconds) {
+        if (!window.LoadingCopy) return;
+        const msg = window.LoadingCopy.getCurrentMessage(stepName, elapsedSeconds);
+        const step = document.querySelector(`[data-step="${stepName}"]`);
+        if (!step) return;
+        const nameEl = step.querySelector('.step-name');
+        const detailEl = step.querySelector('.step-detail');
+        if (nameEl && msg.title) nameEl.textContent = msg.title;
+        if (detailEl && msg.detail) detailEl.textContent = msg.detail;
     }
     
     function updateProgress(percent) {
@@ -269,38 +282,67 @@
         ];
         
         try {
-            for (let i = 0; i < steps.length; i++) {
-                const step = steps[i];
-                updateStep(step.name, 'active');
+            // Запускаємо реальний запит
+            const fetchPromise = fetch('/analyze/url', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `url=${encodeURIComponent(url)}`,
+                signal: abortController.signal
+            });
+            
+            // Симулюємо проходження кроків на UI для користувача
+            let currentStepIdx = 0;
+            let stepStartTime = Date.now();
+            let analysisStartTime = Date.now();
+            let timerInterval = setInterval(() => {
+                if (currentStepIdx >= steps.length) return;
                 
-                // Симулюємо запит до API
-                const response = await fetch('/analyze/url', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `url=${encodeURIComponent(url)}`,
-                    signal: abortController.signal
-                });
+                const step = steps[currentStepIdx];
+                const elapsedStep = Date.now() - stepStartTime;
+                const elapsedTotal = Date.now() - analysisStartTime;
                 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || 'Невідома помилка');
+                updateStepText(step.name, Math.floor(elapsedTotal / 1000));
+                
+                if (elapsedStep > step.duration && currentStepIdx < steps.length - 1) {
+                    updateStep(step.name, 'completed');
+                    currentStepIdx++;
+                    const nextStep = steps[currentStepIdx];
+                    updateStep(nextStep.name, 'active');
+                    updateProgress(nextStep.progress);
+                    stepStartTime = Date.now(); // reset time for next step
                 }
-                
-                updateStep(step.name, 'completed');
-                updateProgress(step.progress);
-                
-                // Тільки перший крок робить реальний запит, решта - імітація
-                if (i === 0) {
-                    const data = await response.json();
-                    if (data.prediction_id) {
-                        window.location.href = `/ideas/${data.prediction_id}`;
-                        return;
-                    }
+            }, 1000);
+            
+            updateStep(steps[0].name, 'active');
+            
+            const response = await fetchPromise;
+            clearInterval(timerInterval);
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                if (errorData.title) {
+                    const err = new Error(errorData.body);
+                    err.title = errorData.title;
+                    err.technical = errorData.technical || '';
+                    throw err;
                 }
+                throw new Error(errorData.error || 'Невідома помилка');
+            }
+            
+            // Коли запит успішно завершився, заповнюємо всі кроки
+            steps.forEach(s => updateStep(s.name, 'completed'));
+            updateProgress(100);
+            
+            const data = await response.json();
+            if (data.prediction_id) {
+                window.location.href = `/ideas/${data.prediction_id}`;
+                return;
             }
         } catch (error) {
             if (error.name === 'AbortError') {
                 showError('Аналіз скасовано', 'Ви скасували операцію. Можете спробувати ще раз.', '');
+            } else if (error.title) {
+                showError(error.title, error.message, error.technical || '');
             } else {
                 showError('Помилка аналізу', error.message, error.stack || '');
             }

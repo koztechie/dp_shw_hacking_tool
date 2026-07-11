@@ -132,9 +132,7 @@ def detect_drift() -> bool:
     drift_threshold = max(3, int(len(numeric_features + categorical_features) * 0.3))
 
     if drift_count >= drift_threshold or psi_score > 0.2:
-        logger.warning(
-            f"🚨 Виявлено Data Drift у фічах: {drifted_features}. PSI={psi_score:.3f}. Потрібне перенавчання!"
-        )
+        logger.info(f"📊 Нові хакатони відрізняються від історичних. Система ініціює перенавчання моделі.")
 
         # Автоматичний запуск перетренування
         trigger_retraining()

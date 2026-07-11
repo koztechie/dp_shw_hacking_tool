@@ -1,0 +1,19 @@
+<template id="confirm-modal-template">
+    <div class="modal-overlay" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+        <div class="modal">
+            <div class="modal__icon modal__icon--warning">⚠️</div>
+            <h2 class="modal__title" id="modal-title"></h2>
+            <p class="modal__body"></p>
+            
+            <div class="modal__consequences">
+                <strong>Що відбудеться:</strong>
+                <ul class="modal__consequences-list"></ul>
+            </div>
+            
+            <div class="modal__actions">
+                <button class="btn btn-ghost" data-action="cancel"></button>
+                <button class="btn btn-danger" data-action="confirm"></button>
+            </div>
+        </div>
+    </div>
+</template>

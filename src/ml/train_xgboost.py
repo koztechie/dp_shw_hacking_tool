@@ -25,7 +25,7 @@ def train_xgboost():
 
     # 1. ЗАСТОСУВАННЯ SMOTE + TOMEK LINKS
     # Антикрихкість: n_jobs=1, щоб AMD A4-4020 не завис від паралельних обчислень дистанцій
-    logger.info("Генерація синтетичних даних (SMOTETomek)... Це може зайняти ~10-20 секунд.")
+    logger.info("Балансую дані між переможцями та іншими... Це може зайняти ~10-20 секунд.")
     smt = SMOTETomek(random_state=42, n_jobs=1)
     try:
         X_res, y_res = smt.fit_resample(X_train, y_train)
@@ -80,7 +80,7 @@ def train_xgboost():
     print("\n=== РЕЗУЛЬТАТИ XGBOOST (З ОПТИМІЗОВАНИМ ПОРОГОМ) ===")
     print(classification_report(y_test, y_pred_tuned, target_names=["Програв", "Переможець"]))
     
-    print(f"🌟 PR-AUC Score (Average Precision): {pr_auc:.4f}")
+    print(f"🌟 Точність моделі: {pr_auc * 100:.0f}% (середня). Бажано >50%.")
     
     # --- EXPERIMENT TRACKING ---
     params = {

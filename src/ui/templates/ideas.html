@@ -5,12 +5,13 @@
 {% block content %}
 <div class="container section stack stack--loose">
     <div class="stack stack--tight">
-        <h2 class="fluid-h2">💡 Переможні ідеї для хакатону</h2>
+        <h2 class="fluid-h2">💡 {{ t('ideas.title') }}</h2>
         <a href="{{ hackathon_url }}" target="_blank" style="color: var(--color-accent-2); text-decoration: underline;">
             Відкрити сторінку хакатону ↗
         </a>
     </div>
 
+    {% if ideas %}
     <div class="grid grid--2 ideas-grid">
     {% for idea in ideas %}
     {% if loop.index == 1 %}
@@ -22,7 +23,7 @@
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
             <h3 style="color: #e6edf3; font-size: 1.3rem; margin: 0;">{{ idea.title }}</h3>
             {% if loop.index == 1 %}
-                <span style="background: rgba(63, 185, 80, 0.2); color: #3fb950; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.8rem; font-weight: bold;">Top Choice</span>
+                <span style="background: rgba(63, 185, 80, 0.2); color: #3fb950; padding: 0.2rem 0.6rem; border-radius: 12px; font-size: 0.8rem; font-weight: bold;">{{ t('ideas.top_pick') }}</span>
             {% endif %}
         </div>
         
@@ -86,12 +87,12 @@
         <!-- ML Scoring -->
         <div style="margin-top: auto; padding-top: 1.5rem; border-top: 1px solid var(--color-border);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.3rem;">
-                <span style="font-size: 0.9rem; color: var(--color-text-muted);">Ймовірність перемоги (ML Score):</span>
+                <span style="font-size: 0.9rem; color: var(--color-text-muted);">{{ t('ideas.score_label') }}:</span>
                 {% if idea.win_probability >= 0.75 %}
                     <span class="score-badge score-badge--top">
                         <span class="score-badge__icon">🏆</span>
                         <span>{{ (idea.win_probability * 100)|round|int }}%</span>
-                        <span class="score-badge__label">Top Pick</span>
+                        <span class="score-badge__label">{{ t('ideas.top_pick') }}</span>
                     </span>
                 {% elif idea.win_probability >= 0.5 %}
                     <span class="score-badge score-badge--high">
@@ -123,12 +124,26 @@
             </div>
 
             <button id="btn-{{ loop.index }}" class="btn btn-primary btn-generate-techspec" data-prediction-id="{{ prediction_id }}" data-idea-index="{{ loop.index }}" style="width: 100%; background: #f78166; color: white; border: none; padding: 0.8rem; border-radius: 6px; font-weight: bold; cursor: pointer;">
-                ⚙️ Згенерувати TechSpec
+                ⚙️ {{ t('ideas.cta.spec') }}
             </button>
         </div>
     </div>
     {% endfor %}
     </div>
+    {% else %}
+    <div class="empty-state">
+        <div class="empty-state__icon">💡</div>
+        <h2 class="empty-state__title">{{ t('empty.ideas.title') }}</h2>
+        <p class="empty-state__description">
+            {{ t('empty.ideas.description') }}
+        </p>
+        <div class="empty-state__actions">
+            <a href="/analyze" class="btn btn-primary">
+                {{ t('empty.ideas.cta') }} →
+            </a>
+        </div>
+    </div>
+    {% endif %}
 </div>
 
 <script nonce="{{ request.state.csp_nonce }}">

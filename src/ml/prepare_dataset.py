@@ -9,7 +9,7 @@ from src.ml.feature_store import LightweightFeatureStore  # noqa: E402
 
 
 def prepare_dataset():
-    logger.info("Зчитування даних для Temporal Validation (Out-of-Time Split)...")
+    logger.info("Модель тестується тільки на майбутніх даних — як у реальному житті.")
     try:
         store = LightweightFeatureStore()
         # 1. Автоматично робимо Parquet-зліпок перед кожним перенавчанням (Feature Versioning)

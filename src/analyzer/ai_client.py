@@ -48,7 +48,7 @@ class CircuitBreaker:
         logger.error(f"⚠️ Зафіксовано збій API Xiaomi. Помилок поспіль: {self.failure_count}/{self.failure_threshold}")
         if self.failure_count >= self.failure_threshold:
             logger.critical(
-                f"🚨 CIRCUIT BREAKER ВІДЧИНЕНО! Доступ до API блокується на {self.recovery_timeout} секунд."
+                f"🚨 AI-сервіс перевантажений. Зачекайте 5 хв"
             )
 
     def reset(self):
@@ -106,7 +106,7 @@ def _call_api(
 
     # АНТИКРИХКІСТЬ: Миттєвий фолбек, якщо запобіжник відкритий (заощаджує час та ресурси)
     if mimo_circuit_breaker.is_open():
-        logger.warning("🔌 Запит заблоковано запобіжником (Circuit Breaker OPEN). Миттєве перемикання на офлайн.")
+        logger.warning("🔌 AI-сервіс перевантажений. Зачекайте 5 хв. Миттєве перемикання на офлайн.")
         return {"error": "Circuit breaker is OPEN", "fallback": True}
 
     # КРИТИЧНИЙ ФІКС: Додаємо JSON Schema в промпт для структурованого виводу

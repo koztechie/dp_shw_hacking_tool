@@ -1,13 +1,13 @@
 {% extends "base.html" %}
 
-{% block title %} - Навчання{% endblock %}
+{% block title %} - {{ t('nav.training') }}{% endblock %}
 
 {% block content %}
 <div class="container container--narrow section">
     <div class="card stack">
-        <h2 class="fluid-h2" style="color: var(--color-accent-2);">🛠 Тренування моделі (Збір даних)</h2>
+        <h2 class="fluid-h2" style="color: var(--color-accent-2);">🛠 {{ t('training.title') }}</h2>
         <p style="color: var(--color-text-secondary);">
-            Запустіть фоновий збір даних з Devpost. Процес автоматично збагатить базу фічами та метриками GitHub.
+            {{ t('training.subtitle') }}
         </p>
 
     <!-- ФОРМА ЗАПУСКУ ЗБОРУ -->
@@ -18,12 +18,25 @@
                    style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid #30363d; background: #0d1117; color: #e6edf3; font-size: 1rem;">
         </div>
         <button type="submit" class="btn btn-primary" id="start-btn" style="width: 100%; padding: 0.9rem; font-size: 1.1rem; font-weight: bold; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer;">
-            🚀 Запустити оркестратор
+            {{ t('training.start') }}
         </button>
     </form>
 
+    {% if hackathons_collected == 0 %}
+    <div class="empty-state" id="training-empty-state" style="margin-top: 2rem;">
+        <div class="empty-state__icon">🤖</div>
+        <h2 class="empty-state__title">{{ t('empty.training.title') }}</h2>
+        <p class="empty-state__description">
+            {{ t('empty.training.description') }}
+        </p>
+        <p class="empty-state__description" style="font-size: 0.85rem; margin-top: 0.5rem; color: var(--muted);">
+            {{ t('empty.training.footnote') }}
+        </p>
+    </div>
+    {% endif %}
+
     <!-- БЛОК СТАТУСУ ЗБОРУ (Показується за замовчуванням) -->
-    <div id="status-box" style="margin-top: 2rem; display: block; text-align: center; padding: 1.5rem; border: 1px solid #30363d; border-radius: 8px; background: #0d1117;">
+    <div id="status-box" style="margin-top: 2rem; display: {% if hackathons_collected > 0 %}block{% else %}none{% endif %}; text-align: center; padding: 1.5rem; border: 1px solid #30363d; border-radius: 8px; background: #0d1117;">
         <div style="font-size: 1.2rem; color: var(--muted); margin-bottom: 0.5rem;">
             Зібрано хакатонів у базі:
         </div>
@@ -31,7 +44,7 @@
             0
         </div>
         <p style="margin-top: 1rem; font-size: 0.9rem; color: var(--muted);">
-            Ви можете перейти на інші вкладки, збір продовжиться у фоні.
+            {{ t('training.warning') }}
         </p>
     </div>
 
@@ -50,6 +63,19 @@
             ✅ Перенавчання запущено у фоні (~30 сек). Ви можете закрити цю сторінку.
         </p>
     </div>
+    
+    <!-- БЛОК ОЧИЩЕННЯ БД -->
+    <div style="margin-top: 2rem; padding: 1.5rem; border: 1px solid var(--danger); border-radius: 8px; background: rgba(248, 81, 73, 0.1);">
+        <h3 style="color: var(--danger); margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+            ⚠️ Небезпечна зона
+        </h3>
+        <p style="color: var(--text); font-size: 0.95rem; margin-bottom: 1rem; line-height: 1.4;">
+            Видалити всі зібрані дані про хакатони. Це незворотна дія.
+        </p>
+        <button onclick="confirmResetDB()" class="btn btn-danger" style="width: 100%; border: none; padding: 0.8rem; border-radius: 6px; cursor: pointer;">
+            Очистити базу даних
+        </button>
+    </div>
     </div>
 </div>
 
@@ -61,6 +87,11 @@
             const res = await fetch('/training/status');
             const data = await res.json();
             document.getElementById('training-count').innerText = data.hackathons_collected;
+            if (data.hackathons_collected > 0) {
+                const emptyState = document.getElementById('training-empty-state');
+                if (emptyState) emptyState.style.display = 'none';
+                document.getElementById('status-box').style.display = 'block';
+            }
         } catch (e) {
             console.error("Помилка опитування статусу:", e);
         }
@@ -110,6 +141,30 @@
         await fetch('/ml/retrain', { method: 'POST' });
         
         setTimeout(checkRetrain, 15000);
+    }
+    
+    function confirmResetDB() {
+        if (!window.ConfirmModal) return alert("Модуль ConfirmModal не завантажено");
+        ConfirmModal.show({
+            title: "{{ t('confirm.reset_db.title') }}",
+            body: "{{ t('confirm.reset_db.body') }}",
+            consequences: [
+                "Усі зібрані хакатони (~10 000 проектів) буде видалено",
+                "ML-модель втратить точність і потребуватиме перенавчання",
+                "Історія прогнозів зникне назавжди"
+            ],
+            confirmText: "{{ t('confirm.reset_db.yes') }}",
+            cancelText: "{{ t('confirm.reset_db.no') }}",
+            onConfirm: async () => {
+                try {
+                    const res = await fetch('/training/reset', { method: 'POST' });
+                    if (res.ok) location.reload();
+                    else alert("Помилка очищення БД.");
+                } catch (e) {
+                    alert("Помилка мережі: " + e);
+                }
+            }
+        });
     }
     
     // Ініціалізація сторінки

@@ -34,7 +34,7 @@ def optimize_hyperparameters(X_train, y_train):
     Bayesian Optimization: Автоматичний підбір ідеальних гіперпараметрів
     через бібліотеку Optuna з жорстким обмеженням пам'яті (n_jobs=1).
     """
-    logger.info("🔍 Запуск Optuna для пошуку ідеальних гіперпараметрів (50 ітерацій)...")
+    logger.info("🔍 Підбираю найкращі параметри моделі…")
     optuna.logging.set_verbosity(optuna.logging.WARNING)
 
     def objective(trial):
@@ -107,7 +107,7 @@ def train_ensemble():
         objective=focal_loss_objective,
     )
 
-    logger.info("Генерація синтетичних даних (SMOTETomek)...")
+    logger.info("Балансую дані між переможцями та іншими...")
     smt = SMOTETomek(random_state=42, n_jobs=1)
     X_res, y_res = smt.fit_resample(X_train, y_train)
 
@@ -161,7 +161,7 @@ def train_ensemble():
 
     print("\n=== РЕЗУЛЬТАТИ АНТИКРИХКОГО АНСАМБЛЮ (Soft Voting) ===")
     print(classification_report(y_test, y_pred_tuned, target_names=["Програв", "Переможець"]))
-    print(f"🌟 Ensemble PR-AUC: {pr_auc:.4f} (Оптимальний поріг: {best_threshold:.4f})")
+    print(f"🌟 Точність моделі: {pr_auc * 100:.0f}% (середня). Бажано >50%. (Оптимальний поріг: {best_threshold:.4f})")
 
     # Зберігаємо як єдиний об'єкт
     models_dir = Path("data/models")
