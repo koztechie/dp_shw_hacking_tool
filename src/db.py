@@ -156,9 +156,10 @@ def init_db():
             )
         """)
         # 7. Таблиця аудиту
+        con.execute("CREATE SEQUENCE IF NOT EXISTS audit_log_id_seq START 1")
         con.execute("""
             CREATE TABLE IF NOT EXISTS audit_log (
-                id INTEGER PRIMARY KEY,
+                id INTEGER PRIMARY KEY DEFAULT nextval('audit_log_id_seq'),
                 timestamp TIMESTAMP DEFAULT current_timestamp,
                 user_ip VARCHAR,
                 endpoint VARCHAR,

@@ -67,7 +67,9 @@ class TestAnalyzeURLEndpoint:
         
         assert response.status_code == 400
         data = response.json()
-        assert "error" in data
+        # API повертає структуровану помилку: {status, error_type, title, body, ...}
+        assert data.get("status") == "error"
+        assert "error_type" in data or "error" in data
     
     def test_analyze_http_url_rejected(self, client):
         """HTTP URL (не HTTPS) відхиляється."""
