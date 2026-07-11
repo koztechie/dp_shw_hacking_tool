@@ -20,6 +20,7 @@ class PromptManager:
 
     def _init_prompts_table(self):
         """Створює таблицю для зберігання промптів в DuckDB."""
+        Path(DB_PATH).parent.mkdir(parents=True, exist_ok=True)
         con = duckdb.connect(DB_PATH)
         con.execute("""
             CREATE TABLE IF NOT EXISTS prompts (
