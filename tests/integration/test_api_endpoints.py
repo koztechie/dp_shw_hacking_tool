@@ -146,8 +146,10 @@ class TestAnalyzeHTMLEndpoint:
 class TestCSRFProtection:
     """Тести для CSRF захисту."""
     
-    def test_csrf_allows_localhost(self, client):
+    @patch("src.analyzer.pipeline.analyze_hackathon")
+    def test_csrf_allows_localhost(self, mock_analyze, client):
         """CSRF захист пропускає запити з localhost."""
+        mock_analyze.return_value = {"prediction_id": "test_id"}
         response = client.post(
             "/analyze/url",
             data={"url": "https://devpost.com/test"},
@@ -157,8 +159,10 @@ class TestCSRFProtection:
         # Має пройти CSRF перевірку (може бути 400 через інші причини)
         assert response.status_code != 403
     
-    def test_csrf_blocks_external_origin(self, client):
+    @patch("src.analyzer.pipeline.analyze_hackathon")
+    def test_csrf_blocks_external_origin(self, mock_analyze, client):
         """CSRF захист блокує запити з зовнішніх доменів."""
+        mock_analyze.return_value = {"prediction_id": "test_id"}
         response = client.post(
             "/analyze/url",
             data={"url": "https://devpost.com/test"},

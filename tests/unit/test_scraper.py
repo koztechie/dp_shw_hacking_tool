@@ -237,6 +237,20 @@ class TestScraperSuite:
         # Перевіримо, чи відбувся запис
         m.assert_called_once()
 
+    @patch("src.scraper.trend_scraper.httpx.Client.get")
+    def test_fetch_hacker_news_error(self, mock_get):
+        """Hacker News збір обробляє помилки API."""
+        mock_get.side_effect = Exception("API error")
+        trends = fetch_hacker_news()
+        assert trends == []
+
+    @patch("src.scraper.trend_scraper.safe_get")
+    def test_fetch_arxiv_ai_error(self, mock_safe_get):
+        """ArXiv збір обробляє помилки API."""
+        mock_safe_get.side_effect = Exception("Network error")
+        papers = fetch_arxiv_ai()
+        assert papers == []
+
     @patch("src.scraper.validate_data.duckdb.connect")
     def test_validate(self, mock_connect):
         """Перевірка аналітики бази даних DuckDB."""
@@ -259,6 +273,34 @@ class TestScraperSuite:
         
         mock_connect.assert_called_once()
         mock_con.close.assert_called_once()
+
+    def test_validate_no_db(self):
+        """validate повертає None, якщо файл БД не існує."""
+        with patch("src.scraper.validate_data.Path.exists", return_value=False):
+            validate()
+
+    @patch("src.scraper.validate_data.duckdb.connect")
+    def test_validate_empty_result(self, mock_connect):
+        """validate обробляє порожній список технологій переможців."""
+        mock_con = MagicMock()
+        mock_con.execute.return_value.fetchone.side_effect = [
+            (5,),
+            (100,),
+            (20,),
+            (0.20,)
+        ]
+        mock_con.execute.return_value.fetchall.return_value = []
+        mock_connect.return_value = mock_con
+
+        with patch("src.scraper.validate_data.Path.exists", return_value=True):
+            validate()
+
+    @patch("src.scraper.validate_data.duckdb.connect")
+    def test_validate_error(self, mock_connect):
+        """validate обробляє виключення під час зчитування."""
+        mock_connect.side_effect = Exception("duckdb error")
+        with patch("src.scraper.validate_data.Path.exists", return_value=True):
+            validate()
 
     @patch("src.scraper.orchestrator.get_connection")
     @patch("src.scraper.orchestrator.fetch_ended_hackathons")

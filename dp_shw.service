@@ -20,7 +20,7 @@ MemoryHigh=2G
 MemoryMax=3G
 CPUQuota=150%
 
-ExecStart=/home/koztechie/dev/dp_shw_hacking_tool/venv/bin/python main.py
+ExecStart=/home/koztechie/dev/dp_shw_hacking_tool/venv/bin/python src/api/main.py
 
 [Install]
 WantedBy=multi-user.target
