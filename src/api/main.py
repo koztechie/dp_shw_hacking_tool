@@ -107,12 +107,12 @@ async def security_headers_middleware(request: Request, call_next):
     """
     АНТИКРИХКІСТЬ: Суворі HTTP-заголовки безпеки за стандартом OWASP.
     """
-    response = await call_next(request)
-
     # Суворий CSP без unsafe-inline/unsafe-eval
     # Використовуємо nonce для inline скриптів (потрібно додати в templates)
     nonce = base64.b64encode(os.urandom(16)).decode("utf-8")
     request.state.csp_nonce = nonce
+
+    response = await call_next(request)
 
     response.headers["Content-Security-Policy"] = (
         f"default-src 'self'; "
@@ -236,7 +236,10 @@ async def csrf_protection_middleware(request: Request, call_next):
         referer = request.headers.get("Referer")
         csrf_token = request.headers.get("X-CSRF-Token")
 
-        allowed_hosts = ("127.0.0.1:8000", "localhost:8000", "localhost:5173", "localhost:3000")
+        allowed_hosts = ["127.0.0.1:8000", "localhost:8000", "localhost:5173", "localhost:3000"]
+        host = request.headers.get("Host")
+        if host and host not in allowed_hosts:
+            allowed_hosts.append(host)
 
         from urllib.parse import urlparse
 

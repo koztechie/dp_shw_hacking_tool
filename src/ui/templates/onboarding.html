@@ -73,9 +73,12 @@ document.addEventListener('DOMContentLoaded', () => {
     
     async function markCompleted() {
         try {
-            await fetch('/onboarding/complete', {
+            const res = await fetch('/onboarding/complete', {
                 method: 'POST'
             });
+            if (!res.ok) {
+                console.error('Failed to mark onboarding as completed, status:', res.status);
+            }
         } catch (e) {
             console.error('Failed to mark onboarding as completed', e);
         }
@@ -85,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
         skipCheckbox.addEventListener('change', async (e) => {
             if (e.target.checked) {
                 await markCompleted();
-                window.location.href = '/';
+                window.location.reload();
             }
         });
     }
