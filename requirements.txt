@@ -45,3 +45,4 @@ PyYAML==6.0.3
 python-magic==0.4.27
 cryptography==49.0.0
 jsonschema==4.26.0
+tiktoken==0.13.0
