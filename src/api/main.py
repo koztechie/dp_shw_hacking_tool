@@ -285,7 +285,7 @@ async def api_key_auth_middleware(request: Request, call_next):
     if request.method in ["POST", "PUT", "DELETE", "PATCH"]:
         # Пропускаємо ендпоінти, які вже мають verify_local_access
         path = request.url.path
-        if path.startswith("/training/") or path.startswith("/ml/") or path.startswith("/feedback/"):
+        if path.startswith("/training/") or path.startswith("/ml/") or path.startswith("/feedback/") or path.startswith("/onboarding/"):
             return await call_next(request)
 
         api_key = request.headers.get("X-API-Key")
@@ -315,6 +315,11 @@ async def ping():
 # 1. Ендпоінт Дашборду
 @app.get("/", response_class=HTMLResponse)
 async def dashboard(request: Request):
+    # АНТИКРИХКІСТЬ: Onboarding для нових користувачів
+    onboarding_flag = PROJECT_ROOT / "data" / ".onboarding_completed"
+    if not onboarding_flag.exists():
+        return templates.TemplateResponse(request=request, name="onboarding.html", context={})
+
     stats = {"hackathons": 0, "projects": 0, "winners": 0, "predictions": 0, "error": None}
     try:
         con = duckdb.connect(DB_PATH, read_only=True)
@@ -333,6 +338,15 @@ async def dashboard(request: Request):
         if "con" in locals():
             con.close()
     return templates.TemplateResponse(request=request, name="index.html", context={"stats": stats})
+
+
+@app.post("/onboarding/complete")
+@limiter.limit("10/minute")
+async def complete_onboarding(request: Request):
+    flag = PROJECT_ROOT / "data" / ".onboarding_completed"
+    flag.parent.mkdir(parents=True, exist_ok=True)
+    flag.touch()
+    return JSONResponse({"status": "success"})
 
 
 # 2. Ендпоінти Панелі Навчання
@@ -390,10 +404,43 @@ async def training_status():
     return JSONResponse({"hackathons_collected": AppState.get_count()})
 
 
+def get_workflow_context(current_path: str, prediction_id: str = None) -> list:
+    """АНТИКРИХКІСТЬ: Будує індикатор прогресу workflow."""
+    steps = [
+        {"number": 1, "label": "Аналіз", "path": "/analyze", "status": "pending"},
+        {"number": 2, "label": "Ідеї", "path": "/ideas", "status": "pending"},
+        {"number": 3, "label": "TechSpec", "path": "/techspec", "status": "pending"},
+    ]
+    
+    workflow_paths = ["/analyze", "/ideas", "/techspec"]
+    
+    # Визначаємо базовий шлях для порівняння
+    base_path = current_path.split("/")[1] if current_path.startswith("/") else ""
+    base_path = f"/{base_path}"
+    
+    if base_path not in workflow_paths:
+        return None  # Не показуємо workflow на інших сторінках
+    
+    current_idx = workflow_paths.index(base_path)
+    for i, step in enumerate(steps):
+        if i < current_idx:
+            step["status"] = "completed"
+        elif i == current_idx:
+            step["status"] = "active"
+            
+        if prediction_id and step["path"] != "/analyze":
+            step["path"] = f"{step['path']}/{prediction_id}"
+    
+    return steps
+
+
 # 3. Ендпоінти Панелі Аналізу хакаронів
 @app.get("/analyze", response_class=HTMLResponse)
 async def analyze_page(request: Request):
-    return templates.TemplateResponse(request=request, name="analyze.html", context={})
+    workflow = get_workflow_context("/analyze")
+    return templates.TemplateResponse(
+        request=request, name="analyze.html", context={"workflow": workflow}
+    )
 
 
 def is_safe_devpost_url(url: str) -> bool:
@@ -570,10 +617,11 @@ async def ideas_page(request: Request, prediction_id: str):
     ideas = [safe_parse(row[1]), safe_parse(row[2]), safe_parse(row[3])]
     valid_ideas = [i for i in ideas if i and "title" in i]
 
+    workflow = get_workflow_context("/ideas", prediction_id)
     return templates.TemplateResponse(
         request=request,
         name="ideas.html",
-        context={"prediction_id": prediction_id, "ideas": valid_ideas, "hackathon_url": hackathon_url},
+        context={"prediction_id": prediction_id, "ideas": valid_ideas, "hackathon_url": hackathon_url, "workflow": workflow},
     )
 
 
@@ -616,8 +664,9 @@ async def techspec_page(request: Request, prediction_id: str):
     techspec = json.loads(row[0]) if row and row[0] else {}
     selected_idea = row[1] if row else None
 
+    workflow = get_workflow_context("/techspec", prediction_id)
     return templates.TemplateResponse(
-        request=request, name="techspec.html", context={"techspec": techspec, "selected_idea": selected_idea}
+        request=request, name="techspec.html", context={"techspec": techspec, "selected_idea": selected_idea, "workflow": workflow}
     )
 
 

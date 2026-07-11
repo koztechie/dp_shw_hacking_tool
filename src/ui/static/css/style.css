@@ -5,9 +5,53 @@
     --accent: #f78166;
     --accent2: #79c0ff;
     --text: #e6edf3;
-    --muted: #8b949e;
+    --muted: #a3adb8;  /* АНТИКРИХКІСТЬ: підвищено контраст з 4.1:1 до 5.7:1 */
     --success: #3fb950;
     --warning: #d29922;
+    --error: #f85149;
+}
+
+/* АНТИКРИХКІСТЬ: Focus styles для клавіатурної навігації */
+:focus {
+    outline: none;
+}
+
+:focus-visible {
+    outline: 2px solid var(--accent2);
+    outline-offset: 2px;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+    outline: 2px solid var(--accent2);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* АНТИКРИХКІСТЬ: Зменшена анімація для користувачів з vestibular disorders */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+
+/* АНТИКРИХКІСТЬ: Високий контраст для користувачів з вадами зору */
+@media (prefers-contrast: high) {
+    :root {
+        --border: #8b949e;
+        --muted: #e6edf3;
+    }
+    
+    .btn {
+        border: 2px solid var(--text);
+    }
 }
 
 * { 
@@ -23,13 +67,59 @@ body {
     line-height: 1.6;
 }
 
-.navbar { 
-    background: var(--surface); 
+.navbar {
+    background: var(--surface);
     border-bottom: 1px solid var(--border);
-    padding: 1rem 2rem; 
-    display: flex; 
-    justify-content: space-between; 
-    align-items: center; 
+    padding: 1rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+/* АНТИКРИХКІСТЬ: Hamburger меню для мобільних */
+.nav-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text);
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .navbar {
+        padding: 1rem;
+    }
+    
+    .nav-toggle {
+        display: block;
+    }
+    
+    .nav-links {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+    
+    .nav-links.open {
+        display: flex;
+    }
+    
+    .nav-links a {
+        margin-left: 0;
+        padding: 0.75rem;
+        border-radius: 6px;
+        background: var(--bg);
+    }
+    
+    .nav-links a:hover {
+        background: var(--border);
+    }
 }
 
 .brand { 
@@ -159,4 +249,581 @@ input, textarea {
 input:focus, textarea:focus {
     outline: none;
     border-color: var(--accent2);
+}
+
+/* src/ui/static/css/style.css - додайте в кінець */
+.onboarding-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+}
+
+.onboarding-title {
+    font-size: 2rem;
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+}
+
+.onboarding-subtitle {
+    color: var(--muted);
+    margin-bottom: 2rem;
+}
+
+.onboarding-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.step-card {
+    display: flex;
+    gap: 1.5rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: border-color 0.2s, transform 0.2s;
+}
+
+.step-card:hover {
+    border-color: var(--accent2);
+    transform: translateX(4px);
+}
+
+.step-number {
+    flex-shrink: 0;
+    width: 48px;
+    height: 48px;
+    background: var(--accent);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+.step-content h3 {
+    margin-bottom: 0.5rem;
+    color: var(--text);
+}
+
+.step-content p {
+    color: var(--muted);
+    margin-bottom: 1rem;
+}
+
+.step-meta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+
+.meta-item {
+    background: var(--bg);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: var(--accent2);
+}
+
+.checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--muted);
+    cursor: pointer;
+}
+
+@media (max-width: 600px) {
+    .step-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
+/* src/ui/static/css/style.css (Breadcrumbs + Progress) */
+.skip-nav {
+    position: absolute;
+    left: -10000px;
+    top: auto;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+.skip-nav:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: 0.5rem 1rem;
+    background: var(--accent);
+    color: white;
+    z-index: 1000;
+}
+
+.workflow-indicator {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 1rem 2rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.workflow-steps {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.workflow-step {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.step-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--border);
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    transition: all 0.3s ease;
+}
+
+.workflow-step.completed .step-circle {
+    background: var(--success);
+    color: white;
+}
+
+.workflow-step.active .step-circle {
+    background: var(--accent);
+    color: white;
+    box-shadow: 0 0 0 4px rgba(247, 129, 102, 0.2);
+}
+
+.step-label {
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+
+.workflow-step.active .step-label {
+    color: var(--text);
+    font-weight: 600;
+}
+
+.workflow-step.completed .step-label {
+    color: var(--success);
+}
+
+.step-connector {
+    flex: 1;
+    height: 2px;
+    background: var(--border);
+    min-width: 40px;
+}
+
+.workflow-step.completed + .workflow-step .step-connector,
+.workflow-step.completed .step-connector {
+    background: var(--success);
+}
+
+.footer {
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    padding: 1rem 2rem;
+    margin-top: 3rem;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.system-status {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--muted);
+}
+
+.status-dot[data-status="ok"] {
+    background: var(--success);
+    box-shadow: 0 0 8px var(--success);
+}
+
+.status-dot[data-status="warning"] {
+    background: var(--warning);
+}
+
+.status-dot[data-status="error"] {
+    background: #f85149;
+}
+
+.footer-meta {
+    color: var(--muted);
+    font-size: 0.85rem;
+    display: flex;
+    gap: 0.5rem;
+}
+
+@media (max-width: 768px) {
+    .workflow-steps {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .step-connector {
+        display: none;
+    }
+}
+
+/* src/ui/static/css/style.css (Loading State) */
+.analyze-container {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.page-description {
+    color: var(--muted);
+    margin-bottom: 2rem;
+}
+
+.analyze-tabs {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.tab-btn {
+    background: none;
+    border: none;
+    color: var(--muted);
+    padding: 0.75rem 1.5rem;
+    cursor: pointer;
+    font-size: 1rem;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+}
+
+.tab-btn:hover {
+    color: var(--text);
+}
+
+.tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.form-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text);
+}
+
+.help-icon {
+    display: inline-block;
+    margin-left: 0.5rem;
+    color: var(--accent2);
+    cursor: help;
+    position: relative;
+}
+
+.help-icon[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    white-space: nowrap;
+    font-size: 0.85rem;
+    font-weight: 400;
+    z-index: 100;
+}
+
+.form-hint {
+    font-size: 0.85rem;
+    color: var(--muted);
+    margin-top: -0.5rem;
+    margin-bottom: 1rem;
+}
+
+.btn-large {
+    padding: 0.875rem 1.75rem;
+    font-size: 1.1rem;
+}
+
+.loading-state {
+    padding: 2rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+.loading-header {
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.loading-header h2 {
+    color: var(--accent);
+    margin-bottom: 0.5rem;
+}
+
+.loading-subtitle {
+    color: var(--muted);
+}
+
+.progress-container {
+    margin-bottom: 2rem;
+}
+
+.progress-bar {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 0.5rem;
+}
+
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+.progress-percent {
+    text-align: right;
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+
+.loading-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.loading-step {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: var(--bg);
+    border-radius: 8px;
+    opacity: 0.5;
+    transition: all 0.3s;
+}
+
+.loading-step.active {
+    opacity: 1;
+    border-left: 3px solid var(--accent);
+}
+
+.loading-step.completed {
+    opacity: 0.8;
+}
+
+.step-indicator {
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.spinner {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.pending-dot {
+    width: 12px;
+    height: 12px;
+    background: var(--border);
+    border-radius: 50%;
+}
+
+.checkmark {
+    color: var(--success);
+    font-weight: 700;
+}
+
+.step-text {
+    flex: 1;
+}
+
+.step-name {
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 0.25rem;
+}
+
+.step-detail {
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+.step-time {
+    color: var(--muted);
+    font-size: 0.85rem;
+}
+
+.loading-tips {
+    display: flex;
+    gap: 0.75rem;
+    padding: 1rem;
+    background: rgba(121, 192, 255, 0.1);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.tip-icon {
+    font-size: 1.25rem;
+}
+
+.tip-text {
+    color: var(--accent2);
+    font-size: 0.9rem;
+}
+
+.btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--border);
+}
+
+.btn-ghost:hover {
+    color: var(--text);
+    border-color: var(--muted);
+}
+
+.error-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+}
+
+.error-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.error-state h2 {
+    margin-bottom: 0.5rem;
+}
+
+.error-state p {
+    color: var(--muted);
+    margin-bottom: 2rem;
+}
+
+.error-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    margin-bottom: 2rem;
+}
+
+.error-details {
+    text-align: left;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.error-details summary {
+    cursor: pointer;
+    color: var(--muted);
+    padding: 0.5rem;
+}
+
+.error-details pre {
+    background: var(--bg);
+    padding: 1rem;
+    border-radius: 6px;
+    overflow-x: auto;
+    font-size: 0.8rem;
+    margin-top: 0.5rem;
+}
+
+.drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.drop-zone:hover,
+.drop-zone.dragover {
+    border-color: var(--accent);
+    background: rgba(247, 129, 102, 0.05);
+}
+
+.drop-icon {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+.drop-text {
+    color: var(--text);
+    margin-bottom: 0.5rem;
+}
+
+.drop-hint {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+.drop-link {
+    color: var(--accent2);
+    text-decoration: underline;
 }

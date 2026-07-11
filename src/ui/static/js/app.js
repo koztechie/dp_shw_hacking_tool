@@ -9,6 +9,15 @@
 document.addEventListener("DOMContentLoaded", () => {
     console.log("⚡ DP_SHW Global JS успішно завантажено.");
     
-    // Тут у майбутньому можна додати глобальні утиліти, 
-    // наприклад, перемикач світлої/темної теми або глобальні сповіщення.
+    // АНТИКРИХКІСТЬ: Мобільне меню
+    const navToggle = document.querySelector('.nav-toggle');
+    const navLinks = document.querySelector('.nav-links');
+    
+    if (navToggle && navLinks) {
+        navToggle.addEventListener('click', () => {
+            const isOpen = navLinks.classList.toggle('open');
+            navToggle.setAttribute('aria-expanded', isOpen);
+            navToggle.textContent = isOpen ? '✕' : '☰';
+        });
+    }
 });

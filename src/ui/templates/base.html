@@ -3,25 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>DP_SHW_Hacking_Tool {% block title %}{% endblock %}</title>
-    <!-- Антикрихке підключення стилів через url_for -->
+    <title>DP_SHW Hacking Tool{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
+    <meta name="description" content="Локальна MLOps-машина для AI-аналізу хакатонів">
 </head>
 <body>
-    <nav class="navbar">
+    <a href="#main-content" class="skip-nav">Перейти до основного контенту</a>
+    
+    <nav class="navbar" role="navigation" aria-label="Головна навігація">
         <div class="brand">⚡ DP_SHW</div>
-        <div class="nav-links">
-            <a href="/">Головна</a>
-            <a href="/training">Навчання</a>
-            <a href="/analyze">Аналіз</a>
-            <a href="/history">Історія</a>
+        <button class="nav-toggle" aria-label="Відкрити меню" aria-expanded="false" aria-controls="nav-links">
+            ☰
+        </button>
+        <div class="nav-links" id="nav-links">
+            <a href="/" aria-current="{% if request.url.path == '/' %}page{% endif %}">📊 Дашборд</a>
+            <a href="/training" aria-current="{% if '/training' in request.url.path %}page{% endif %}">🧠 Навчання</a>
+            <a href="/analyze" aria-current="{% if '/analyze' in request.url.path %}page{% endif %}">🔍 Аналіз</a>
+            <a href="/history" aria-current="{% if '/history' in request.url.path %}page{% endif %}">📚 Історія</a>
         </div>
     </nav>
-    <main class="container">
-        <!-- Сюди буде ін'єктуватися контент інших сторінок -->
+    
+    {% if workflow %}
+    <div class="workflow-indicator" role="navigation" aria-label="Прогрес робочого процесу">
+        <div class="workflow-steps">
+            {% for step in workflow %}
+            <div class="workflow-step {{ step.status }}" data-step="{{ step.number }}">
+                <div class="step-circle">
+                    {% if step.status == 'completed' %}
+                        ✓
+                    {% elif step.status == 'active' %}
+                        {{ step.number }}
+                    {% else %}
+                        {{ step.number }}
+                    {% endif %}
+                </div>
+                {% if step.status == 'completed' and step.path %}
+                <a href="{{ step.path }}" class="step-label" style="text-decoration: none;">{{ step.label }}</a>
+                {% else %}
+                <div class="step-label">{{ step.label }}</div>
+                {% endif %}
+                {% if not loop.last %}
+                <div class="step-connector"></div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+    
+    <main id="main-content" class="container" tabindex="-1">
         {% block content %}{% endblock %}
     </main>
-    <!-- Антикрихке підключення скриптів через url_for -->
+    
+    <footer class="footer" role="contentinfo">
+        <div class="footer-content">
+            <div class="system-status" id="system-status" aria-live="polite">
+                <span class="status-dot" data-status="loading"></span>
+                <span class="status-text">Перевірка системи...</span>
+            </div>
+            <div class="footer-meta">
+                <span>⚡ AMD A4 • 6GB RAM</span>
+                <span>•</span>
+                <span id="response-time">— мс</span>
+            </div>
+        </div>
+    </footer>
+    
+    <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+    
     <script nonce="{{ request.state.csp_nonce }}" src="{{ url_for('static', path='js/app.js') }}"></script>
+    {% block scripts %}{% endblock %}
 </body>
 </html>

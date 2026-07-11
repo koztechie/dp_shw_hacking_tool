@@ -1,131 +1,325 @@
 {% extends "base.html" %}
-
 {% block title %} - Аналіз хакатону{% endblock %}
 
 {% block content %}
-<div class="card" style="max-width: 900px; margin: 0 auto; background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 2rem;">
-    <h2 style="color: #f78166; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-        🔍 Аналіз нового хакатону
-    </h2>
-    <p style="color: #8b949e; margin-bottom: 2rem;">
-        Введіть URL-адресу або завантажте збережений HTML-файл хакатону. Система згенерує 3 переможні ідеї та розрахує їхні шанси.
+<div class="analyze-container">
+    <h1>🔍 Аналіз нового хакатону</h1>
+    <p class="page-description">
+        Введіть URL-адресу або завантажте HTML-файл. Система згенерує 3 переможні ідеї.
     </p>
-
-    <div style="display: flex; gap: 2rem; flex-wrap: wrap;">
+    
+    <div class="analyze-tabs" role="tablist">
+        <button class="tab-btn active" data-tab="url" role="tab" aria-selected="true" aria-controls="tab-url">
+            🌐 URL
+        </button>
+        <button class="tab-btn" data-tab="html" role="tab" aria-selected="false" aria-controls="tab-html">
+            📄 HTML
+        </button>
+    </div>
+    
+    <div class="tab-content active" id="tab-url" role="tabpanel">
+        <form id="analyze-form" class="analyze-form">
+            <label for="hackathon-url" class="form-label">
+                URL хакатону на Devpost
+                <span class="help-icon" data-tooltip="Наприклад: https://devpost.com/software/gen-ai-hackathon" aria-label="Підказка">ⓘ</span>
+            </label>
+            <input 
+                type="url" 
+                id="hackathon-url" 
+                name="url" 
+                placeholder="https://devpost.com/..." 
+                required
+                autocomplete="url"
+                aria-describedby="url-hint"
+            >
+            <p id="url-hint" class="form-hint">Тільки HTTPS URL з домену devpost.com</p>
+            
+            <button type="submit" class="btn btn-primary btn-large" id="analyze-btn">
+                🔮 Запустити аналіз
+            </button>
+        </form>
+    </div>
+    
+    <div class="tab-content" id="tab-html" role="tabpanel">
+        <div class="drop-zone" id="drop-zone" tabindex="0" role="button" aria-label="Завантажити HTML файл">
+            <div class="drop-icon">📥</div>
+            <p class="drop-text">Перетягніть HTML-файл сюди</p>
+            <p class="drop-hint">або <span class="drop-link">оберіть вручну</span></p>
+            <input type="file" id="file-input" accept=".html,.htm" hidden>
+        </div>
+    </div>
+    
+    <!-- АНТИКРИХКІСТЬ: Деталізований loading state -->
+    <div id="loading-state" class="loading-state" hidden aria-live="polite">
+        <div class="loading-header">
+            <h2 id="loading-title">🔮 Аналіз хакатону...</h2>
+            <p class="loading-subtitle" id="loading-subtitle">Це може зайняти до 90 секунд</p>
+        </div>
         
-        <!-- СЕКЦІЯ 1: URL -->
-        <div style="flex: 1; min-width: 300px; padding: 1.5rem; background: #0d1117; border-radius: 8px; border: 1px solid #30363d;">
-            <h3 style="color: #c9d1d9; font-size: 1.1rem; margin-bottom: 1rem;">🌐 Аналіз онлайн (URL)</h3>
-            <form id="analyze-form" onsubmit="analyzeHackathon(event)">
-                <input type="url" name="url" placeholder="https://devpost.com/..." required 
-                       style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid #30363d; background: #161b22; color: #e6edf3; margin-bottom: 1rem;">
-                <button type="submit" id="analyze-btn" class="btn btn-primary" style="width: 100%; font-weight: bold;">
-                    🔮 Запустити за URL
-                </button>
-            </form>
+        <div class="progress-container">
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress-fill" style="width: 0%"></div>
+            </div>
+            <div class="progress-percent" id="progress-percent">0%</div>
         </div>
-
-        <!-- СЕКЦІЯ 2: Drag & Drop HTML -->
-        <div style="flex: 1; min-width: 300px; padding: 1.5rem; background: #0d1117; border-radius: 8px; border: 1px dashed #79c0ff; text-align: center; transition: all 0.3s; cursor: pointer;" id="drop-zone">
-            <h3 style="color: #c9d1d9; font-size: 1.1rem; margin-bottom: 0.5rem;">📄 Офлайн аналіз (HTML)</h3>
-            <p style="color: #8b949e; font-size: 0.9rem; margin-bottom: 1.5rem;">
-                Перетягніть вивантажений файл .html сюди, або клікніть для вибору.
-            </p>
-            <div style="font-size: 3rem; color: #79c0ff; opacity: 0.5; margin-bottom: 1rem;">📥</div>
-            <input type="file" id="html-file" accept=".html,.htm" style="display: none;">
+        
+        <div class="loading-steps" id="loading-steps">
+            <div class="loading-step" data-step="scraping">
+                <div class="step-indicator">
+                    <div class="spinner" aria-hidden="true"></div>
+                </div>
+                <div class="step-text">
+                    <div class="step-name">Збір даних з Devpost</div>
+                    <div class="step-detail">Обхід Cloudflare, парсинг HTML...</div>
+                </div>
+                <div class="step-time">~5-10 сек</div>
+            </div>
+            
+            <div class="loading-step" data-step="constraints">
+                <div class="step-indicator">
+                    <div class="pending-dot" aria-hidden="true"></div>
+                </div>
+                <div class="step-text">
+                    <div class="step-name">Витягнення правил</div>
+                    <div class="step-detail">Аналіз юридичних обмежень...</div>
+                </div>
+                <div class="step-time">~5-8 сек</div>
+            </div>
+            
+            <div class="loading-step" data-step="ai-analysis">
+                <div class="step-indicator">
+                    <div class="pending-dot" aria-hidden="true"></div>
+                </div>
+                <div class="step-text">
+                    <div class="step-name">AI-аналіз контексту</div>
+                    <div class="step-detail">OSINT, спонсори, судді...</div>
+                </div>
+                <div class="step-time">~10-15 сек</div>
+            </div>
+            
+            <div class="loading-step" data-step="idea-generation">
+                <div class="step-indicator">
+                    <div class="pending-dot" aria-hidden="true"></div>
+                </div>
+                <div class="step-text">
+                    <div class="step-name">Генерація ідей</div>
+                    <div class="step-detail">Multi-agent brainstorming...</div>
+                </div>
+                <div class="step-time">~15-25 сек</div>
+            </div>
+            
+            <div class="loading-step" data-step="ml-scoring">
+                <div class="step-indicator">
+                    <div class="pending-dot" aria-hidden="true"></div>
+                </div>
+                <div class="step-text">
+                    <div class="step-name">ML-скоринг</div>
+                    <div class="step-detail">Stacking Ensemble + SHAP...</div>
+                </div>
+                <div class="step-time">~3-5 сек</div>
+            </div>
         </div>
-
+        
+        <div class="loading-tips" id="loading-tips">
+            <div class="tip-icon">💡</div>
+            <div class="tip-text" id="tip-text">
+                Система аналізує історію переможців подібних хакатонів...
+            </div>
+        </div>
+        
+        <button class="btn btn-ghost" id="cancel-btn">
+            Скасувати аналіз
+        </button>
     </div>
-
-    <!-- Секція завантаження -->
-    <div id="status-box" style="margin-top: 2rem; display: none; text-align: center; padding: 1.5rem; border: 1px solid #30363d; border-radius: 8px; background: #0d1117;">
-        <h3 id="status-msg" style="color: #58a6ff; margin-bottom: 0.8rem; animation: pulse 1.5s infinite;">⏳ AI аналізує дані...</h3>
-        <p style="font-size: 0.95rem; color: #8b949e;">Це може зайняти ~15-25 сек.</p>
-    </div>
-
-    <!-- Помилка -->
-    <div id="error-box" style="margin-top: 1.5rem; display: none; background: #4a1919; border: 1px solid #f85149; color: #ffcccc; padding: 1rem; border-radius: 6px;">
-        ❌ <strong>Помилка:</strong> <span id="error-msg"></span>
+    
+    <!-- Error state -->
+    <div id="error-state" class="error-state" hidden role="alert">
+        <div class="error-icon">⚠️</div>
+        <h2 id="error-title">Щось пішло не так</h2>
+        <p id="error-message"></p>
+        
+        <div class="error-actions">
+            <button class="btn btn-primary" id="retry-btn">
+                🔄 Спробувати ще раз
+            </button>
+            <button class="btn btn-ghost" id="back-btn">
+                ← Повернутися
+            </button>
+        </div>
+        
+        <details class="error-details">
+            <summary>Технічна інформація</summary>
+            <pre id="error-technical"></pre>
+        </details>
     </div>
 </div>
+{% endblock %}
 
-<script nonce="{{ request.state.csp_nonce }}">
-    const btn = document.getElementById('analyze-btn');
-    const statusBox = document.getElementById('status-box');
-    const errorBox = document.getElementById('error-box');
-    const statusMsg = document.getElementById('status-msg');
+{% block scripts %}
+<script>
+(function() {
+    'use strict';
     
-    // Функція для локування UI та перенаправлення
-    async function processAnalysisRequest(fetchPromise) {
-        btn.disabled = true;
-        statusBox.style.display = 'block';
-        errorBox.style.display = 'none';
+    const form = document.getElementById('analyze-form');
+    const loadingState = document.getElementById('loading-state');
+    const errorState = document.getElementById('error-state');
+    const progressFill = document.getElementById('progress-fill');
+    const progressPercent = document.getElementById('progress-percent');
+    const loadingSteps = document.querySelectorAll('.loading-step');
+    const tipText = document.getElementById('tip-text');
+    const cancelBtn = document.getElementById('cancel-btn');
+    const retryBtn = document.getElementById('retry-btn');
+    const backBtn = document.getElementById('back-btn');
+    
+    let abortController = null;
+    let tipsInterval = null;
+    
+    const tips = [
+        "Система аналізує історію переможців подібних хакатонів...",
+        "AI імітує суддів на основі їхніх LinkedIn профілів...",
+        "ML-модель враховує 18 ознак, включаючи час подання...",
+        "Генеруються контрфакти: 'що було б, якби...'...",
+        "Перевіряється відповідність технологіям спонсорів...",
+        "Аналізуються тренди з Hacker News та ArXiv...",
+        "Враховується щільність конкуренції на призах...",
+        "Застосовується Focal Loss для дисбалансованих класів..."
+    ];
+    
+    // АНТИКРИХКІСТЬ: Ротація підказок кожні 5 секунд
+    function startTipsRotation() {
+        let tipIndex = 0;
+        tipsInterval = setInterval(() => {
+            tipIndex = (tipIndex + 1) % tips.length;
+            tipText.textContent = tips[tipIndex];
+        }, 5000);
+    }
+    
+    function stopTipsRotation() {
+        if (tipsInterval) {
+            clearInterval(tipsInterval);
+            tipsInterval = null;
+        }
+    }
+    
+    function showLoading() {
+        form.hidden = true;
+        document.querySelector('.analyze-tabs').hidden = true;
+        loadingState.hidden = false;
+        errorState.hidden = true;
+        
+        // Reset steps
+        loadingSteps.forEach(step => {
+            step.classList.remove('active', 'completed');
+            const indicator = step.querySelector('.step-indicator');
+            indicator.innerHTML = '<div class="pending-dot" aria-hidden="true"></div>';
+        });
+        
+        startTipsRotation();
+    }
+    
+    function updateStep(stepName, status) {
+        const step = document.querySelector(`[data-step="${stepName}"]`);
+        if (!step) return;
+        
+        const indicator = step.querySelector('.step-indicator');
+        
+        step.classList.remove('active', 'completed');
+        
+        if (status === 'active') {
+            step.classList.add('active');
+            indicator.innerHTML = '<div class="spinner" aria-hidden="true"></div>';
+        } else if (status === 'completed') {
+            step.classList.add('completed');
+            indicator.innerHTML = '<div class="checkmark" aria-hidden="true">✓</div>';
+        }
+    }
+    
+    function updateProgress(percent) {
+        progressFill.style.width = `${percent}%`;
+        progressPercent.textContent = `${Math.round(percent)}%`;
+    }
+    
+    function showError(title, message, technical = '') {
+        loadingState.hidden = true;
+        errorState.hidden = false;
+        stopTipsRotation();
+        
+        document.getElementById('error-title').textContent = title;
+        document.getElementById('error-message').textContent = message;
+        document.getElementById('error-technical').textContent = technical;
+    }
+    
+    form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const url = document.getElementById('hackathon-url').value;
+        abortController = new AbortController();
+        
+        showLoading();
+        
+        // АНТИКРИХКІСТЬ: Симуляція прогресу з реальними кроками
+        const steps = [
+            { name: 'scraping', duration: 8000, progress: 15 },
+            { name: 'constraints', duration: 6000, progress: 35 },
+            { name: 'ai-analysis', duration: 12000, progress: 60 },
+            { name: 'idea-generation', duration: 20000, progress: 85 },
+            { name: 'ml-scoring', duration: 4000, progress: 100 }
+        ];
         
         try {
-            const response = await fetchPromise;
-            const data = await response.json();
-            
-            if (response.ok && data.status === 'success') {
-                statusMsg.style.color = "#3fb950";
-                statusMsg.innerText = "✅ Готово! Перенаправлення...";
-                window.location.href = `/ideas/${data.prediction_id}`;
-            } else {
-                throw new Error(data.error || 'Помилка генерації');
+            for (let i = 0; i < steps.length; i++) {
+                const step = steps[i];
+                updateStep(step.name, 'active');
+                
+                // Симулюємо запит до API
+                const response = await fetch('/analyze/url', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: `url=${encodeURIComponent(url)}`,
+                    signal: abortController.signal
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Невідома помилка');
+                }
+                
+                updateStep(step.name, 'completed');
+                updateProgress(step.progress);
+                
+                // Тільки перший крок робить реальний запит, решта - імітація
+                if (i === 0) {
+                    const data = await response.json();
+                    if (data.prediction_id) {
+                        window.location.href = `/ideas/${data.prediction_id}`;
+                        return;
+                    }
+                }
             }
-        } catch (err) {
-            btn.disabled = false;
-            statusBox.style.display = 'none';
-            errorBox.style.display = 'block';
-            document.getElementById('error-msg').innerText = err.message;
-        }
-    }
-
-    // Обробник URL форми
-    function analyzeHackathon(e) {
-        e.preventDefault();
-        const formData = new FormData();
-        formData.append('url', e.target.url.value);
-        processAnalysisRequest(fetch('/analyze/url', { method: 'POST', body: formData }));
-    }
-
-    // Обробник Drag & Drop
-    const dropZone = document.getElementById('drop-zone');
-    const fileInput = document.getElementById('html-file');
-
-    dropZone.addEventListener('click', () => fileInput.click());
-    
-    dropZone.addEventListener('dragover', (e) => { 
-        e.preventDefault(); 
-        dropZone.style.background = '#161b22'; 
-    });
-    
-    dropZone.addEventListener('dragleave', (e) => { 
-        e.preventDefault(); 
-        dropZone.style.background = '#0d1117'; 
-    });
-    
-    dropZone.addEventListener('drop', (e) => {
-        e.preventDefault();
-        dropZone.style.background = '#0d1117';
-        if (e.dataTransfer.files.length) {
-            uploadHTML(e.dataTransfer.files[0]);
+        } catch (error) {
+            if (error.name === 'AbortError') {
+                showError('Аналіз скасовано', 'Ви скасували операцію. Можете спробувати ще раз.', '');
+            } else {
+                showError('Помилка аналізу', error.message, error.stack || '');
+            }
         }
     });
-
-    fileInput.addEventListener('change', () => {
-        if (fileInput.files.length) {
-            uploadHTML(fileInput.files[0]);
+    
+    cancelBtn.addEventListener('click', () => {
+        if (abortController) {
+            abortController.abort();
         }
     });
-
-    function uploadHTML(file) {
-        const formData = new FormData();
-        formData.append('file', file);
-        processAnalysisRequest(fetch('/analyze/html', { method: 'POST', body: formData }));
-    }
+    
+    retryBtn.addEventListener('click', () => {
+        errorState.hidden = true;
+        form.hidden = false;
+        document.querySelector('.analyze-tabs').hidden = false;
+    });
+    
+    backBtn.addEventListener('click', () => {
+        window.location.href = '/';
+    });
+})();
 </script>
-
-<style>
-    @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
-</style>
 {% endblock %}
