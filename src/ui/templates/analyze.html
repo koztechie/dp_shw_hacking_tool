@@ -2,11 +2,12 @@
 {% block title %} - Аналіз хакатону{% endblock %}
 
 {% block content %}
-<div class="analyze-container">
-    <h1>🔍 Аналіз нового хакатону</h1>
-    <p class="page-description">
-        Введіть URL-адресу або завантажте HTML-файл. Система згенерує 3 переможні ідеї.
-    </p>
+<div class="container section">
+    <div class="analyze-container stack">
+        <h1 class="fluid-h1">🔍 Аналіз нового хакатону</h1>
+        <p class="page-description">
+            Введіть URL-адресу або завантажте HTML-файл. Система згенерує 3 переможні ідеї.
+        </p>
     
     <div class="analyze-tabs" role="tablist">
         <button class="tab-btn active" data-tab="url" role="tab" aria-selected="true" aria-controls="tab-url">
@@ -151,6 +152,7 @@
             <summary>Технічна інформація</summary>
             <pre id="error-technical"></pre>
         </details>
+    </div>
     </div>
 </div>
 {% endblock %}

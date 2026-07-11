@@ -3,19 +3,20 @@
 {% block title %} - Технічне Завдання{% endblock %}
 
 {% block content %}
-<div class="techspec-container" style="background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 2.5rem; max-width: 900px; margin: 0 auto;">
-    <!-- Прихований контейнер для передачі JSON даних у JS без синтаксичних помилок -->
-    <div id="techspec-data" data-json="{{ techspec | tojson | forceescape }}" style="display: none;"></div>
-    
-    <!-- Панель керування експортом -->
-    <div class="print-controls" style="display: flex; justify-content: flex-end; gap: 1rem; margin-bottom: 1.5rem;">
-        <button onclick="exportToMarkdown()" class="btn btn-primary" style="background: #238636; border: 1px solid #30363d; color: white; padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer; font-weight: bold;">
-            💾 Зберегти як Markdown (.md)
-        </button>
-        <button onclick="window.print()" class="btn btn-secondary" style="background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 0.6rem 1.2rem; border-radius: 6px; cursor: pointer;">
-            🖨️ Друк / PDF
-        </button>
-    </div>
+<div class="container section">
+    <div class="techspec-container card stack stack--loose" style="max-width: 900px; margin: 0 auto;">
+        <!-- Прихований контейнер для передачі JSON даних у JS без синтаксичних помилок -->
+        <div id="techspec-data" data-json="{{ techspec | tojson | forceescape }}" style="display: none;"></div>
+        
+        <!-- Панель керування експортом -->
+        <div class="print-controls" style="display: flex; justify-content: flex-end; gap: var(--space-4); margin-bottom: var(--space-6);">
+            <button onclick="exportToMarkdown()" class="btn btn-primary">
+                💾 Зберегти як Markdown (.md)
+            </button>
+            <button onclick="window.print()" class="btn btn-secondary">
+                🖨️ Друк / PDF
+            </button>
+        </div>
 
     <!-- Заголовок -->
     <div style="border-bottom: 2px solid #30363d; padding-bottom: 1.5rem; margin-bottom: 2rem;">
@@ -116,6 +117,7 @@
         <div style="background: rgba(188, 140, 255, 0.1); border-left: 4px solid #bc8cff; padding: 1.5rem; color: #e6edf3; font-style: italic;">
             {{ techspec.demo_script }}
         </div>
+    </div>
     </div>
 </div>
 

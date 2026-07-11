@@ -3,11 +3,12 @@
 {% block title %} - Навчання{% endblock %}
 
 {% block content %}
-<div class="card" style="max-width: 600px; margin: 0 auto; background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 2rem;">
-    <h2 style="color: var(--accent2); margin-bottom: 1rem;">🛠 Тренування моделі (Збір даних)</h2>
-    <p style="color: var(--muted); margin-bottom: 1.5rem;">
-        Запустіть фоновий збір даних з Devpost. Процес автоматично збагатить базу фічами та метриками GitHub.
-    </p>
+<div class="container container--narrow section">
+    <div class="card stack">
+        <h2 class="fluid-h2" style="color: var(--color-accent-2);">🛠 Тренування моделі (Збір даних)</h2>
+        <p style="color: var(--color-text-secondary);">
+            Запустіть фоновий збір даних з Devpost. Процес автоматично збагатить базу фічами та метриками GitHub.
+        </p>
 
     <!-- ФОРМА ЗАПУСКУ ЗБОРУ -->
     <form id="training-form" onsubmit="startTraining(event)">
@@ -48,6 +49,7 @@
         <p id="retrain-status" style="color: var(--success); margin-top: 1rem; font-size: 0.9rem; display: none; text-align: center; font-weight: bold;">
             ✅ Перенавчання запущено у фоні (~30 сек). Ви можете закрити цю сторінку.
         </p>
+    </div>
     </div>
 </div>
 

@@ -1,41 +1,79 @@
 {% extends "base.html" %}
-
 {% block title %} - Дашборд{% endblock %}
 
 {% block content %}
-<div style="margin-bottom: 2rem;">
-    <h2>📊 Аналітика бази даних</h2>
-    <p style="color: var(--muted);">Поточний стан зібраних даних для ML-моделі</p>
-</div>
-
-{% if stats.error %}
-    <div style="background: #4a1919; color: #ffcccc; padding: 1rem; border-radius: 6px; margin-bottom: 1rem;">
-        <strong>Помилка БД:</strong> {{ stats.error }}
-    </div>
-{% endif %}
-
-<!-- Використовуємо класи, які ми додамо у style.css на Етапі 49 -->
-<div class="stat-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+<div class="dashboard">
+    <header class="dashboard__header">
+        <div>
+            <h1>📊 Analytics Dashboard</h1>
+            <p class="dashboard__subtitle">
+                Стан ML-моделі та бази даних в реальному часі
+            </p>
+        </div>
+        <div class="freshness-indicator freshness-indicator--{{ stats.freshness }}">
+            <span class="freshness-indicator__dot"></span>
+            <span>Оновлено {{ stats.last_updated }}</span>
+        </div>
+    </header>
     
-    <div class="stat-card card" style="background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1.5rem; text-align: center;">
-        <h3 style="color: #8b949e; font-size: 1rem; margin-bottom: 0.5rem;">Хакатонів</h3>
-        <div class="stat-number" style="font-size: 2.5rem; font-weight: bold; color: #79c0ff;">{{ stats.hackathons }}</div>
-    </div>
+    <!-- Ключові метрики з ring charts -->
+    <section class="metrics-section">
+        <div class="stat-card">
+            <div class="ring-chart" style="--progress: {{ stats.win_rate }}; --color: var(--color-success);">
+                <div class="ring-chart__value">{{ stats.win_rate }}%</div>
+                <div class="ring-chart__label">Win Rate</div>
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-card__label">Хакатонів</div>
+            <div class="stat-card__value">{{ stats.hackathons }}</div>
+            <div class="sparkline">
+                {% for val in stats.hackathons_trend %}
+                <div class="sparkline__bar" style="height: {{ val }}%"></div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-card__label">Проектів</div>
+            <!-- Removed undefined filter format_number to prevent crashes -->
+            <div class="stat-card__value">{{ stats.projects }}</div>
+            <div class="sparkline">
+                {% for val in stats.projects_trend %}
+                <div class="sparkline__bar" style="height: {{ val }}%"></div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-card__label">Передбачень</div>
+            <div class="stat-card__value">{{ stats.predictions }}</div>
+        </div>
+    </section>
     
-    <div class="stat-card card" style="background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1.5rem; text-align: center;">
-        <h3 style="color: #8b949e; font-size: 1rem; margin-bottom: 0.5rem;">Проектів</h3>
-        <div class="stat-number" style="font-size: 2.5rem; font-weight: bold; color: #79c0ff;">{{ stats.projects }}</div>
-    </div>
-    
-    <div class="stat-card card" style="background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1.5rem; text-align: center;">
-        <h3 style="color: #8b949e; font-size: 1rem; margin-bottom: 0.5rem;">Переможців</h3>
-        <div class="stat-number" style="font-size: 2.5rem; font-weight: bold; color: #3fb950;">{{ stats.winners }}</div>
-    </div>
-    
-    <div class="stat-card card" style="background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 1.5rem; text-align: center;">
-        <h3 style="color: #8b949e; font-size: 1rem; margin-bottom: 0.5rem;">Передбачень</h3>
-        <div class="stat-number" style="font-size: 2.5rem; font-weight: bold; color: #f78166;">{{ stats.predictions }}</div>
-    </div>
-    
+    <!-- ML Model Health -->
+    <section class="ml-health">
+        <h2>🧠 ML Model Health</h2>
+        <div class="ml-metrics">
+            <div class="ml-metric">
+                <span class="ml-metric__label">PR-AUC</span>
+                <span class="ml-metric__value">{{ stats.ml_metrics.pr_auc }}</span>
+                <span class="ml-metric__trend ml-metric__trend--up">▲ 0.03</span>
+            </div>
+            <div class="ml-metric">
+                <span class="ml-metric__label">F1-Score</span>
+                <span class="ml-metric__value">{{ stats.ml_metrics.f1 }}</span>
+            </div>
+            <div class="ml-metric">
+                <span class="ml-metric__label">Data Drift</span>
+                <span class="ml-metric__value">{{ stats.ml_metrics.drift }}</span>
+            </div>
+            <div class="ml-metric">
+                <span class="ml-metric__label">Model Version</span>
+                <span class="ml-metric__value">v{{ stats.ml_metrics.version }}</span>
+            </div>
+        </div>
+    </section>
 </div>
 {% endblock %}

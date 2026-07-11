@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DP_SHW Hacking Tool{% block title %}{% endblock %}</title>
+    <link rel="icon" type="image/svg+xml" href="/static/img/logo.svg">
+    <meta name="theme-color" content="#0d1117">
+    <meta property="og:image" content="/static/img/og-cover.png">
     <link rel="stylesheet" href="{{ url_for('static', path='css/style.css') }}">
     <meta name="description" content="Локальна MLOps-машина для AI-аналізу хакатонів">
 </head>
@@ -11,7 +14,24 @@
     <a href="#main-content" class="skip-nav">Перейти до основного контенту</a>
     
     <nav class="navbar" role="navigation" aria-label="Головна навігація">
-        <div class="brand">⚡ DP_SHW</div>
+        <a href="/" class="brand" aria-label="DP_SHW Hacking Tool - На головну">
+            <svg class="brand__logo" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+                <defs>
+                    <linearGradient id="brandGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#f78166"/>
+                        <stop offset="100%" stop-color="#79c0ff"/>
+                    </linearGradient>
+                </defs>
+                <path d="M20 2 L36 11 L36 29 L20 38 L4 29 L4 11 Z" 
+                      stroke="url(#brandGrad)" stroke-width="2" fill="none"/>
+                <path d="M22 8 L12 22 L18 22 L16 32 L28 18 L22 18 Z" 
+                      fill="url(#brandGrad)"/>
+            </svg>
+            <span class="brand__text">
+                <span class="brand__name">DP_SHW</span>
+                <span class="brand__tagline">MLOps Hacking Tool</span>
+            </span>
+        </a>
         <button class="nav-toggle" aria-label="Відкрити меню" aria-expanded="false" aria-controls="nav-links">
             ☰
         </button>

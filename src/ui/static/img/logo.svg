@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="none">
+  <!-- Антикриткий геометричний логотип: блискавка + графік зростання -->
+  <defs>
+    <linearGradient id="brandGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f78166"/>
+      <stop offset="100%" stop-color="#79c0ff"/>
+    </linearGradient>
+  </defs>
+  <!-- Зовнішній шестикутник (ML neural network symbol) -->
+  <path d="M20 2 L36 11 L36 29 L20 38 L4 29 L4 11 Z" 
+        stroke="url(#brandGradient)" stroke-width="2" fill="none"/>
+  <!-- Внутрішня блискавка (hackathon speed) -->
+  <path d="M22 8 L12 22 L18 22 L16 32 L28 18 L22 18 Z" 
+        fill="url(#brandGradient)"/>
+</svg>

@@ -3,10 +3,11 @@
 {% block title %} - Історія{% endblock %}
 
 {% block content %}
-<div class="card" style="background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 2rem;">
-    <h2 style="color: #79c0ff; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
-        📚 Історія аналізу
-    </h2>
+<div class="container section">
+    <div class="card stack">
+        <h2 class="fluid-h2" style="color: var(--color-accent-2); display: flex; align-items: center; gap: var(--space-2);">
+            📚 Історія аналізу
+        </h2>
     
     {% if predictions %}
     <div style="overflow-x: auto;">
@@ -65,12 +66,23 @@
         </table>
     </div>
     {% else %}
-    <div style="text-align: center; padding: 3rem; color: #8b949e;">
-        <h3>Поки що порожньо</h3>
-        <p>Ви ще не аналізували жодного хакатону.</p>
-        <a href="/analyze" class="btn btn-primary" style="display: inline-block; margin-top: 1rem; text-decoration: none;">Перейти до аналізу</a>
+    <div class="empty-state">
+        <div class="empty-state__icon">📚</div>
+        <h2 class="empty-state__title">Історія порожня</h2>
+        <p class="empty-state__description">
+            Ви ще не аналізували жодного хакатону. Почніть з аналізу URL, 
+            щоб система згенерувала переможні ідеї та зберегла їх тут.
+        </p>
+        <div class="empty-state__actions">
+            <a href="/analyze" class="btn btn-primary">
+                🔍 Проаналізувати перший хакатон
+            </a>
+        </div>
+    </div>
+        </div>
     </div>
     {% endif %}
+    </div>
 </div>
 
 <script nonce="{{ request.state.csp_nonce }}">
