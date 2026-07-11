@@ -10,10 +10,10 @@
         
         <!-- Панель керування експортом -->
         <div class="print-controls" style="display: flex; justify-content: flex-end; gap: var(--space-4); margin-bottom: var(--space-6);">
-            <button onclick="exportToMarkdown()" class="btn btn-primary">
+            <button id="export-md-btn" class="btn btn-primary">
                 {{ t('techspec.export.md') }}
             </button>
-            <button onclick="window.print()" class="btn btn-ghost">
+            <button id="print-btn" class="btn btn-ghost">
                 🖨️ Друк / PDF
             </button>
         </div>
@@ -79,7 +79,7 @@
         <h3 style="color: #bc8cff; margin-bottom: 1rem;">💻 Генерація стартового коду та Медіа-промптів</h3>
         <p style="color: #8b949e; margin-bottom: 1rem;">AI створить готову структуру проекту (Bash-скрипт) та промпти для Midjourney/RunwayML.</p>
         
-        <button id="gen-assets-btn" onclick="generateAssets()" class="btn btn-primary" style="background: #bc8cff; color: #0d1117; font-weight: bold; padding: 0.8rem 1.5rem; border: none; border-radius: 6px; cursor: pointer;">
+        <button id="gen-assets-btn" class="btn btn-primary" style="background: #bc8cff; color: #0d1117; font-weight: bold; padding: 0.8rem 1.5rem; border: none; border-radius: 6px; cursor: pointer;">
             ⚡ Створити стартовий код
         </button>
         
@@ -222,6 +222,24 @@
             statusBox.style.display = "none";
         }
     }
+
+    // Event listeners для кнопок (CSP fix)
+    document.addEventListener('DOMContentLoaded', () => {
+        const exportMdBtn = document.getElementById('export-md-btn');
+        if (exportMdBtn) {
+            exportMdBtn.addEventListener('click', exportToMarkdown);
+        }
+
+        const printBtn = document.getElementById('print-btn');
+        if (printBtn) {
+            printBtn.addEventListener('click', () => window.print());
+        }
+
+        const genAssetsBtn = document.getElementById('gen-assets-btn');
+        if (genAssetsBtn) {
+            genAssetsBtn.addEventListener('click', generateAssets);
+        }
+    });
 </script>
 
 <style>

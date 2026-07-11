@@ -60,7 +60,7 @@ class LightweightFeatureStore:
                     f.commit_count_48h, f.novelty_score, f.sponsor_challenge_match,
                     f.has_video_demo, f.competition_density, f.prize_numeric,
                     f.semantic_pca_1, f.semantic_pca_2, f.semantic_pca_3, f.github_stars,
-                    p.likes, p.team_size, p.is_winner
+                    p.likes, p.team_size, p.is_winner, p.scraped_at
                 FROM features f
                 JOIN projects p ON f.project_id = p.id
                 WHERE p.description IS NOT NULL AND length(p.description) > 10

@@ -11,10 +11,10 @@
         </p>
 
     <!-- ФОРМА ЗАПУСКУ ЗБОРУ -->
-    <form id="training-form" onsubmit="startTraining(event)">
+    <form id="training-form">
         <div style="margin-bottom: 1.5rem;">
             <label style="display: block; margin-bottom: 0.5rem; color: var(--text); font-weight: 500;">Кількість сторінок для парсингу (1 стор. = 24 хакатони):</label>
-            <input type="number" name="pages" value="1" min="1" max="100" required
+            <input type="number" name="pages" value="1" min="1" max="10" required
                    style="width: 100%; padding: 0.8rem; border-radius: 6px; border: 1px solid #30363d; background: #0d1117; color: #e6edf3; font-size: 1rem;">
         </div>
         <button type="submit" class="btn btn-primary" id="start-btn" style="width: 100%; padding: 0.9rem; font-size: 1.1rem; font-weight: bold; background: var(--accent); color: white; border: none; border-radius: 6px; cursor: pointer;">
@@ -56,7 +56,7 @@
         <p style="color: var(--text); font-size: 0.95rem; margin-bottom: 1rem; line-height: 1.4;">
             У базі накопичилися нові дані. Рекомендуємо перенавчити штучний інтелект для підвищення точності прогнозів.
         </p>
-        <button onclick="startRetraining()" id="retrain-btn" class="btn" style="background: var(--warning); color: #0d1117; font-weight: bold; width: 100%; border: none; padding: 0.8rem; border-radius: 6px; cursor: pointer; transition: opacity 0.2s;">
+        <button id="retrain-btn" class="btn" style="background: var(--warning); color: #0d1117; font-weight: bold; width: 100%; border: none; padding: 0.8rem; border-radius: 6px; cursor: pointer; transition: opacity 0.2s;">
             🔄 Запустити перенавчання (MLOps)
         </button>
         <p id="retrain-status" style="color: var(--success); margin-top: 1rem; font-size: 0.9rem; display: none; text-align: center; font-weight: bold;">
@@ -72,7 +72,7 @@
         <p style="color: var(--text); font-size: 0.95rem; margin-bottom: 1rem; line-height: 1.4;">
             Видалити всі зібрані дані про хакатони. Це незворотна дія.
         </p>
-        <button onclick="confirmResetDB()" class="btn btn-danger" style="width: 100%; border: none; padding: 0.8rem; border-radius: 6px; cursor: pointer;">
+        <button id="reset-db-btn" class="btn btn-danger" style="width: 100%; border: none; padding: 0.8rem; border-radius: 6px; cursor: pointer;">
             Очистити базу даних
         </button>
     </div>
@@ -109,11 +109,30 @@
         const formData = new FormData();
         formData.append('pages', e.target.pages.value);
 
-        await fetch('/training/start', { method: 'POST', body: formData });
-        await updateStatus();
-        
-        if (pollInterval) clearInterval(pollInterval);
-        pollInterval = setInterval(updateStatus, 3000);
+        try {
+            const res = await fetch('/training/start', { method: 'POST', body: formData });
+            const data = await res.json();
+            
+            if (!res.ok || data.status === 'error') {
+                alert(data.error || "Помилка запуску збору даних");
+                btn.disabled = false;
+                btn.innerText = "{{ t('training.start') }}";
+                btn.style.opacity = "1";
+                btn.style.cursor = "pointer";
+                return;
+            }
+
+            await updateStatus();
+            
+            if (pollInterval) clearInterval(pollInterval);
+            pollInterval = setInterval(updateStatus, 3000);
+        } catch (e) {
+            alert("Помилка мережі при запуску: " + e.message);
+            btn.disabled = false;
+            btn.innerText = "{{ t('training.start') }}";
+            btn.style.opacity = "1";
+            btn.style.cursor = "pointer";
+        }
     }
 
     async function checkRetrain() {
@@ -170,5 +189,23 @@
     // Ініціалізація сторінки
     updateStatus();
     checkRetrain();
+
+    // Event listeners для кнопок і форм (CSP fix)
+    document.addEventListener('DOMContentLoaded', () => {
+        const trainingForm = document.getElementById('training-form');
+        if (trainingForm) {
+            trainingForm.addEventListener('submit', startTraining);
+        }
+
+        const retrainBtn = document.getElementById('retrain-btn');
+        if (retrainBtn) {
+            retrainBtn.addEventListener('click', startRetraining);
+        }
+
+        const resetDbBtn = document.getElementById('reset-db-btn');
+        if (resetDbBtn) {
+            resetDbBtn.addEventListener('click', confirmResetDB);
+        }
+    });
 </script>
 {% endblock %}
