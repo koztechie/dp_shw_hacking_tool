@@ -30,9 +30,17 @@ class Toast {
     
     static init() {
         if (!this.container) {
-            this.container = document.createElement('div');
-            this.container.className = 'toast-container';
-            document.body.appendChild(this.container);
+            // Reuse existing toast container from base.html to avoid duplicates
+            this.container = document.getElementById('toast-container')
+                || document.querySelector('.toast-container');
+            if (!this.container) {
+                this.container = document.createElement('div');
+                this.container.id = 'toast-container';
+                this.container.className = 'toast-container';
+                this.container.setAttribute('aria-live', 'polite');
+                this.container.setAttribute('aria-atomic', 'true');
+                document.body.appendChild(this.container);
+            }
         }
     }
     

@@ -5,7 +5,7 @@
 {% block content %}
 <div class="container section stack stack--loose">
     <div class="stack stack--tight">
-        <h2 class="fluid-h2">💡 {{ t('ideas.title') }}</h2>
+        <h1 class="fluid-h1">💡 {{ t('ideas.title') }}</h1>
         <a href="{{ hackathon_url }}" target="_blank" style="color: var(--color-accent-2); text-decoration: underline;">
             Відкрити сторінку хакатону ↗
         </a>
@@ -147,10 +147,7 @@
 </div>
 
 <script nonce="{{ request.state.csp_nonce }}">
-    // Встановлюємо ширину прогрес-барів при завантаженні сторінки
-    document.querySelectorAll('.score-fill').forEach(fill => {
-        fill.style.width = fill.getAttribute('data-width');
-    });
+
 
     // Навішуємо обробники кліків на кнопки генерації ТЗ
     document.querySelectorAll('.btn-generate-techspec').forEach(btn => {

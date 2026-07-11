@@ -11,9 +11,9 @@
 <div class="container section">
     <div class="card stack">
         <div style="display: flex; justify-content: space-between; align-items: center;">
-            <h2 class="fluid-h2" style="color: var(--color-accent-2); display: flex; align-items: center; gap: var(--space-2); margin: 0;">
+            <h1 class="fluid-h1" style="margin: 0;">
                 📚 {{ t('history.title') }}
-            </h2>
+            </h1>
             {% if predictions %}
             <button id="btn-delete-all" class="btn btn-danger" style="background: rgba(248, 81, 73, 0.1); color: #f85149; border: 1px solid #f85149; border-radius: 4px; padding: 0.4rem 0.8rem; cursor: pointer;">🗑 Видалити все</button>
             {% endif %}
@@ -87,8 +87,6 @@
             <a href="/analyze" class="btn btn-primary">
                 🔍 {{ t('empty.history.cta') }}
             </a>
-        </div>
-    </div>
         </div>
     </div>
     {% endif %}

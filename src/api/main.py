@@ -93,7 +93,7 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://127.0.0.1:8000", "http://localhost:8000", "http://localhost:3000", "http://localhost:5173"],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_methods=["GET", "POST", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"],
     max_age=600,
 )
@@ -771,7 +771,7 @@ async def history_page(request: Request, page: int = 1, limit: int = 50):
         df = con.execute(
             """
             SELECT p.id, p.hackathon_url,
-                   strftime(p.generated_at, '%Y-%m-%d %H:%M') as gen_date,
+                   strftime('%Y-%m-%d %H:%M', p.generated_at) as gen_date,
                    p.idea_1_title, p.idea_1_score, p.selected_idea, f.won as feedback_won
             FROM predictions p
             LEFT JOIN feedback f ON p.id = f.prediction_id

@@ -425,7 +425,7 @@ body {
 
 .btn-secondary { 
     background: var(--surface); 
-    color: var(--c9d1d9); 
+    color: var(--color-text-primary); 
     border: 1px solid var(--border);
 }
 

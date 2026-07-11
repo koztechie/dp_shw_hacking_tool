@@ -158,8 +158,8 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="{{ url_for('static', path='js/loading-copy.js') }}"></script>
-<script>
+<script nonce="{{ request.state.csp_nonce }}" src="{{ url_for('static', path='js/loading-copy.js') }}"></script>
+<script nonce="{{ request.state.csp_nonce }}">
 (function() {
     'use strict';
     
@@ -364,6 +364,94 @@
     backBtn.addEventListener('click', () => {
         window.location.href = '/';
     });
+    // Tab switching logic
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const target = btn.getAttribute('data-tab');
+            document.querySelectorAll('.tab-btn').forEach(b => {
+                b.classList.remove('active');
+                b.setAttribute('aria-selected', 'false');
+            });
+            document.querySelectorAll('.tab-content').forEach(panel => {
+                panel.classList.remove('active');
+            });
+            btn.classList.add('active');
+            btn.setAttribute('aria-selected', 'true');
+            const panel = document.getElementById(`tab-${target}`);
+            if (panel) panel.classList.add('active');
+        });
+    });
+
+    // Drop zone: file input and drag-and-drop
+    const dropZone = document.getElementById('drop-zone');
+    const fileInput = document.getElementById('file-input');
+
+    if (dropZone && fileInput) {
+        // Click / keyboard open file picker
+        dropZone.addEventListener('click', () => fileInput.click());
+        dropZone.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                fileInput.click();
+            }
+        });
+
+        // Drag-and-drop
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) handleHtmlFile(file);
+        });
+
+        // Manual file selection
+        fileInput.addEventListener('change', () => {
+            const file = fileInput.files[0];
+            if (file) handleHtmlFile(file);
+        });
+    }
+
+    function handleHtmlFile(file) {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        abortController = new AbortController();
+        showLoading();
+
+        fetch('/analyze/html', {
+            method: 'POST',
+            body: formData,
+            signal: abortController.signal
+        })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error || data.title) {
+                    const err = new Error(data.body || data.error || 'Невідома помилка');
+                    err.title = data.title || 'Помилка аналізу';
+                    err.technical = data.technical || '';
+                    throw err;
+                }
+                if (data.prediction_id) {
+                    window.location.href = `/ideas/${data.prediction_id}`;
+                }
+            })
+            .catch(error => {
+                if (error.name === 'AbortError') {
+                    showError('Аналіз скасовано', 'Ви скасували операцію.', '');
+                } else if (error.title) {
+                    showError(error.title, error.message, error.technical || '');
+                } else {
+                    showError('Помилка аналізу', error.message, error.stack || '');
+                }
+            });
+    }
 })();
 </script>
 {% endblock %}
