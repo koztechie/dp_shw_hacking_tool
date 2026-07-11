@@ -42,3 +42,7 @@ OPENROUTER_API_KEY = (
     secret_manager.decrypt(enc_openrouter.encode()) if enc_openrouter else os.getenv("OPENROUTER_API_KEY")
 )
 OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
+
+# Scraper settings
+SCRAPE_DELAY_SECONDS = 1.0
+MAX_PROJECTS_PER_HACKATHON = 1000

@@ -1,6 +1,6 @@
 """tests/test_predictor.py — Unit-тести для ML-предиктора."""
 import pytest
-from unittest.mock import patch, MagicMock
+
 from pathlib import Path
 import sys
 
