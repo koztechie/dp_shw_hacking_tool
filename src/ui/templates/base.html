@@ -40,6 +40,7 @@
             <a href="/training" aria-current="{% if '/training' in request.url.path %}page{% endif %}">🧠 {{ t('nav.training') }}</a>
             <a href="/analyze" aria-current="{% if '/analyze' in request.url.path %}page{% endif %}">🔍 {{ t('nav.analyze') }}</a>
             <a href="/history" aria-current="{% if '/history' in request.url.path %}page{% endif %}">📚 {{ t('nav.history') }}</a>
+            <button id="clear-cache-btn" class="btn btn-sm btn-outline" style="margin-left: 1rem; cursor: pointer; background: transparent; border: 1px solid #79c0ff; color: #79c0ff; padding: 0.3rem 0.6rem; border-radius: 4px;" title="Очистити старий кеш (JSON)">🧹 Кеш</button>
         </div>
     </nav>
     
@@ -95,6 +96,28 @@
     
     <script nonce="{{ request.state.csp_nonce }}" src="{{ url_for('static', path='js/modal.js') }}"></script>
     <script nonce="{{ request.state.csp_nonce }}" src="{{ url_for('static', path='js/app.js') }}"></script>
+    <script nonce="{{ request.state.csp_nonce }}">
+        document.addEventListener("DOMContentLoaded", () => {
+            const clearBtn = document.getElementById("clear-cache-btn");
+            if (clearBtn) {
+                clearBtn.addEventListener("click", async () => {
+                    if (confirm("Ви дійсно хочете очистити старий файловий кеш? Це видалить усі збережені JSON-файли кешу.")) {
+                        try {
+                            const response = await fetch("/cache/clear", { method: "POST" });
+                            const data = await response.json();
+                            if (data.status === "success") {
+                                alert(data.message);
+                            } else {
+                                alert("Помилка: " + data.error);
+                            }
+                        } catch (e) {
+                            alert("Помилка з'єднання: " + e);
+                        }
+                    }
+                });
+            }
+        });
+    </script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

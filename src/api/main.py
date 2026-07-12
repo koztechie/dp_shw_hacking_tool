@@ -1220,6 +1220,27 @@ async def generate_assets(prediction_id: str):
         logger.error(f"Помилка генерації активів: {e}")
         return JSONResponse({"error": str(e)}, status_code=500)
 
+@app.post("/cache/clear", dependencies=[Depends(verify_local_access)])
+async def clear_cache():
+    try:
+        from src.analyzer.cache import CACHE_DIR
+        import shutil
+        import os
+        if CACHE_DIR.exists():
+            for filename in os.listdir(CACHE_DIR):
+                file_path = os.path.join(CACHE_DIR, filename)
+                try:
+                    if os.path.isfile(file_path) or os.path.islink(file_path):
+                        os.unlink(file_path)
+                    elif os.path.isdir(file_path):
+                        shutil.rmtree(file_path)
+                except Exception:
+                    pass
+        return JSONResponse({"status": "success", "message": "Кеш успішно очищено!"})
+    except Exception as e:
+        logger.error(f"Помилка очищення кешу: {e}")
+        return JSONResponse({"status": "error", "error": str(e)}, status_code=500)
+
 
 @app.get("/metrics")
 async def metrics():

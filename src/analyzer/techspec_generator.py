@@ -24,11 +24,12 @@ def generate_techspec(idea: dict, hackathon_data: dict, hard_constraints: dict =
     variables = {
         "idea_json": json.dumps(idea, ensure_ascii=False, indent=2),
         "hackathon_title": hackathon_data.get("title", "Unknown"),
-        "hardware_constraints": """The developer uses a weak dual-core AMD A4 with 6GB RAM.
-Local compilation of native mobile apps will crash the PC.
-1. IF MOBILE STORES ARE REQUIRED: Architect the app using Capacitor or Expo. MANDATE the use of CLOUD BUILDS.
-2. MONETIZATION RULES: NEVER use Web Billing SDKs. You MUST specify native in-app purchase plugins.
-3. NO local Docker clusters. Use serverless DBs (Supabase/Firebase).""",
+        "hardware_constraints": """The developer uses a weak dual-core AMD A4 with 6GB RAM. Local compilation via Android Studio/Xcode will crash the PC.
+1. IF MOBILE STORES (App Store/Google Play) ARE REQUIRED: Use Capacitor or Expo with CLOUD BUILDS (EAS/Appflow) for final builds.
+2. LIGHTWEIGHT ADB DEBUGGING: Instruct the developer to install ONLY the lightweight Android SDK CLI (Command Line Tools) and ADB. Force them to run and debug the app directly on a physical Android device connected via USB (`npx cap run android`), completely bypassing the heavy Android Studio IDE to save RAM (uses <150MB).
+3. SKELETON RELEASES: In the timeline, you MUST dedicate "Phase 1" to submitting an empty skeleton app with integrated RevenueCat SDK to Google Play / App Store Connect immediately. This allows parallel store review while developing.
+4. MONETIZATION: Specify native plugins (e.g., `@revenuecat/purchases-capacitor`). Never use Web Billing SDKs inside mobile stores.
+5. NO local Docker. Use Supabase.""",
         "constraints_text": constraints_text,
         "realtime_news": realtime_news,
         "schema_json": json.dumps(PromptSchemaValidator.get_schema("techspec"), indent=2),

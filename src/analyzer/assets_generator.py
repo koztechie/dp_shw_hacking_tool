@@ -25,7 +25,7 @@ def generate_project_assets(techspec: dict) -> dict:
     
     Return EXACTLY a JSON object matching this schema:
     {{
-      "bash_setup_script": "A valid, highly CONCISE bash script (using mkdir, touch, and cat << 'EOF') that creates the project structure. CRITICAL: If the tech stack relies on a proprietary platform (like Reddit Devvit), ONLY use their native CLI commands (e.g., `devvit new`) and DO NOT generate Dockerfile or Vercel configs. If it is a standard web app, generate Dockerfile/deploy.yml. Keep the code compact and focused on boilerplate.",
+      "bash_setup_script": "A valid, highly CONCISE bash script (using mkdir, touch, and cat << 'EOF') that creates the project structure. CRITICAL: DO NOT GENERATE Dockerfiles unless explicitly requested. If the project targets mobile stores, include lightweight bash commands in the setup script to: 1) Verify physical device connection via `adb devices`. 2) Add android platform: `npx cap add android`. 3) Run on device: `npx cap run android`. Instruct the developer to avoid Android Studio. Keep files under 15 lines.",
       "ui_prompts": ["Highly detailed Midjourney prompt for the app dashboard", "Prompt for the mobile view"],
       "video_prompts": ["RunwayML Gen-2 prompt for the intro video shot", "Prompt for the app UI animation"]
     }}

@@ -198,7 +198,7 @@ CRITICAL INSTRUCTIONS:
 2. PLATFORM AWARENESS: If Reddit Devvit is required, specify "Devvit Web (WebViews)".
 3. SPONSOR AWARENESS: NEVER reject a sponsor's technology if there is a specific prize for it.
 4. Suggest 3 robust alternative architectures in "antifragile_features".
-5. Formulate a highly persuasive 60-second "demo_script".
+5. Formulate an incredibly persuasive 2-minute "demo_script" focusing first on the user pain point, then a live mobile-screen demo (not web simulator!), and finally the business/monetization logic (RevenueCat paywall integration).
 
 🚨 CRITICAL: Your response MUST strictly match this JSON Schema:
 {schema_json}
