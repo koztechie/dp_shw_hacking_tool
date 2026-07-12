@@ -184,7 +184,14 @@ def _call_api(
 
             result_text = re.sub(r'\\(?!["\\/bfnrtu])', r"\\\\", result_text)
 
-            parsed_result = json.loads(result_text)
+            try:
+                parsed_result = json.loads(result_text)
+            except json.JSONDecodeError as e:
+                # АНТИКРИХКІСТЬ: Якщо є зайві дані (Extra data), витягуємо лише перший валідний JSON-об'єкт
+                if "Extra data" in str(e):
+                    parsed_result, _ = json.JSONDecoder().raw_decode(result_text.lstrip())
+                else:
+                    raise
 
             # КРИТИЧНИЙ ФІКС: Валідація схеми
             if schema_name:
