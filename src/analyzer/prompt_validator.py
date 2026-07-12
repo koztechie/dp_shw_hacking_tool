@@ -112,6 +112,16 @@ class PromptSchemaValidator:
                 "judge_score": {"type": "number", "minimum": 0.0, "maximum": 1.0},
                 "critique": {"type": "string"}
             }
+        },
+        "idea_uniqueness_check": {
+            "type": "object",
+            "required": ["reasoning", "is_unique", "max_similarity_percentage", "prompt_modification"],
+            "properties": {
+                "reasoning": {"type": "string"},
+                "is_unique": {"type": "boolean"},
+                "max_similarity_percentage": {"type": "integer", "minimum": 0, "maximum": 100},
+                "prompt_modification": {"type": "string"}
+            }
         }
     }
 

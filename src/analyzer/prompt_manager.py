@@ -219,7 +219,7 @@ ORGANIZER OSINT: {osint_data}
 
 Return EXACTLY a JSON object matching this schema: {schema}
 """,
-            "judge_simulator": """You are the official judging panel for the "{hackathon_title}" hackathon.
+        "judge_simulator": """You are the official judging panel for the "{hackathon_title}" hackathon.
 Judging Criteria: {criteria}
 Judges Background: {judges}
 
@@ -230,6 +230,23 @@ Solution: {solution}
 Tech Stack: {tech_stack}
 
 Return EXACTLY a JSON object with your evaluation: {schema}
+""",
+            "idea_uniqueness_checker": """You are a strict market researcher and App Store / Google Play Store reviewer.
+Check if anything similar to the following ideas already exists on the Google Play Store, Apple App Store, or in general as a well-known product.
+
+DRAFT IDEAS TO REVIEW:
+{draft_ideas}
+
+LIVE APP STORE SCRAPED CONTEXT (Real data fetched right now):
+{store_context}
+
+Analyze how similar these ideas are to existing applications (both from the live scraped context and your internal knowledge base).
+First, write your detailed step-by-step reasoning in the `reasoning` field. Compare the core mechanic, target audience, and features against the live context and your internal database.
+Give a maximum similarity percentage across all ideas in `max_similarity_percentage`.
+If the maximum similarity percentage is greater than {threshold}%, set is_unique to false, and provide a string in `prompt_modification` with specific instructions on what NOT to generate next time to avoid these existing concepts.
+If it is truly unique (similarity <= {threshold}%), set is_unique to true, and leave `prompt_modification` empty.
+
+Return EXACTLY a JSON object matching this schema: {schema}
 """,
         }
 
