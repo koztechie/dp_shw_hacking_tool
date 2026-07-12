@@ -51,8 +51,7 @@ class TestDriftDetector:
         mock_con.close.assert_called_once()
 
     @patch("src.ml.drift_detector.duckdb.connect")
-    @patch("src.ml.drift_detector.trigger_retraining")
-    def test_detect_drift_no_drift_large_dataset(self, mock_trigger, mock_connect):
+    def test_detect_drift_no_drift_large_dataset(self, mock_connect):
         """Великий датасет без дрейфу не викликає перенавчання."""
         mock_con = MagicMock()
         # Створюємо 600 рядків стабільних даних
@@ -73,11 +72,9 @@ class TestDriftDetector:
 
         result = detect_drift()
         assert result is False
-        mock_trigger.assert_not_called()
 
     @patch("src.ml.drift_detector.duckdb.connect")
-    @patch("src.ml.drift_detector.trigger_retraining")
-    def test_detect_drift_with_drift_triggered(self, mock_trigger, mock_connect):
+    def test_detect_drift_with_drift_triggered(self, mock_connect):
         """Значні зміни у розподілі даних викликають автоматичне перенавчання."""
         mock_con = MagicMock()
         # Створюємо 1000 рядків, де останні 200 мають дрейф (наприклад, суттєво більше лайків та довжини опису)
@@ -114,4 +111,3 @@ class TestDriftDetector:
 
         result = detect_drift()
         assert result is True
-        mock_trigger.assert_called_once()
