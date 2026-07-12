@@ -834,7 +834,7 @@ async def delete_history_item(request: Request, prediction_id: str):
 # 6.5 Ендпоінт для Смарт-вибору хакатону
 @app.get("/selector", response_class=HTMLResponse)
 async def hackathon_selector_page(request: Request):
-    return templates.TemplateResponse(request=request, name="hackathon_selector.html")
+    return templates.TemplateResponse(request=request, name="hackathon_selector.html", context={"t": t})
 
 
 @app.get("/api/hackathon/recommend")
