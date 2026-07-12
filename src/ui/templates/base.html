@@ -37,6 +37,7 @@
         </button>
         <div class="nav-links" id="nav-links">
             <a href="/" aria-current="{% if request.url.path == '/' %}page{% endif %}">📊 {{ t('nav.dashboard') }}</a>
+            <a href="/selector" aria-current="{% if '/selector' in request.url.path %}page{% endif %}">🎯 Смарт-вибір</a>
             <a href="/training" aria-current="{% if '/training' in request.url.path %}page{% endif %}">🧠 {{ t('nav.training') }}</a>
             <a href="/analyze" aria-current="{% if '/analyze' in request.url.path %}page{% endif %}">🔍 {{ t('nav.analyze') }}</a>
             <a href="/history" aria-current="{% if '/history' in request.url.path %}page{% endif %}">📚 {{ t('nav.history') }}</a>

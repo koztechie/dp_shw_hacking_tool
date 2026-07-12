@@ -831,6 +831,25 @@ async def delete_history_item(request: Request, prediction_id: str):
         logger.error(f"Помилка видалення запису з історії: {e}")
         return JSONResponse({"error": str(e)}, status_code=500)
 
+# 6.5 Ендпоінт для Смарт-вибору хакатону
+@app.get("/selector", response_class=HTMLResponse)
+async def hackathon_selector_page(request: Request):
+    return templates.TemplateResponse(request=request, name="hackathon_selector.html")
+
+
+@app.get("/api/hackathon/recommend")
+@limiter.limit("10/minute")
+async def recommend_hackathon(request: Request):
+    try:
+        from src.analyzer.hackathon_selector import get_best_hackathon
+        result = get_best_hackathon()
+        if not result:
+            return JSONResponse({"error": "Не знайдено жодного відповідного хакатону."}, status_code=404)
+        return JSONResponse(result)
+    except Exception as e:
+        logger.error(f"Помилка вибору хакатону: {e}")
+        return JSONResponse({"error": str(e)}, status_code=500)
+
 
 # 7. Ендпоінт системи самодіагностики (Health Check)
 

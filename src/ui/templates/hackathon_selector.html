@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="uk" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Смарт Вибір Хакатону - DP SHW</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#10b981', // emerald-500
+                        darkbg: '#0f172a', // slate-900
+                        cardbg: '#1e293b' // slate-800
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glow-button {
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.5);
+            transition: all 0.3s ease;
+        }
+        .glow-button:hover {
+            box-shadow: 0 0 25px rgba(16, 185, 129, 0.8);
+            transform: translateY(-2px);
+        }
+        .loader {
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-left-color: #10b981;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-darkbg text-slate-200 min-h-screen flex flex-col items-center justify-center font-sans">
+
+    <div class="max-w-3xl w-full p-8 bg-cardbg rounded-2xl border border-slate-700 shadow-2xl text-center">
+        <h1 class="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400 mb-6">
+            Автоматичний Вибір Хакатону 🏆
+        </h1>
+        
+        <p class="text-slate-400 mb-8 text-lg">
+            Xiaomi MiMo AI проаналізує всі відкриті хакатони на Devpost за допомогою суперпотужних наукових формул і обере найкращий для вас, враховуючи призовий фонд, конкуренцію та доступність для України.
+        </p>
+
+        <button id="selectBtn" onclick="selectHackathon()" class="glow-button bg-primary text-white font-bold py-4 px-10 rounded-full text-xl flex items-center justify-center mx-auto w-full max-w-md">
+            <span>Обрати наступний хакатон</span>
+        </button>
+
+        <div id="loading" class="hidden mt-12 flex-col items-center">
+            <div class="loader mb-4"></div>
+            <p class="text-emerald-400 animate-pulse font-mono" id="loadingText">Аналізуємо сотні хакатонів...</p>
+        </div>
+
+        <div id="result" class="hidden mt-10 p-6 bg-slate-900 rounded-xl border border-emerald-500/30 text-left">
+            <h2 class="text-2xl font-bold text-emerald-400 mb-2">Знайдено ідеальний хакатон!</h2>
+            <a id="resTitle" href="#" target="_blank" class="text-3xl font-extrabold text-white hover:text-emerald-300 transition-colors mb-4 block underline decoration-emerald-500/50 underline-offset-4"></a>
+            
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+                    <span class="block text-slate-400 text-sm uppercase tracking-wider mb-1">Ймовірність перемоги</span>
+                    <span id="resProb" class="text-3xl font-bold text-cyan-400"></span>
+                </div>
+                <div class="bg-slate-800 p-4 rounded-lg border border-slate-700">
+                    <span class="block text-slate-400 text-sm uppercase tracking-wider mb-1">Призовий фонд</span>
+                    <span id="resPrize" class="text-3xl font-bold text-emerald-400"></span>
+                </div>
+            </div>
+
+            <h3 class="text-lg font-bold text-slate-300 mb-2 border-b border-slate-700 pb-2">Наукове Обґрунтування (Xiaomi MiMo AI):</h3>
+            <p id="resReasoning" class="text-slate-400 leading-relaxed"></p>
+        </div>
+    </div>
+
+    <script>
+        async function selectHackathon() {
+            const btn = document.getElementById('selectBtn');
+            const loading = document.getElementById('loading');
+            const result = document.getElementById('result');
+            const loadingTexts = [
+                "Фільтруємо Public та Online івенти...",
+                "Відкидаємо призи менше 100 USD...",
+                "Перевіряємо доступність для України...",
+                "Запускаємо Xiaomi MiMo AI...",
+                "Обчислюємо ймовірність перемоги..."
+            ];
+
+            btn.classList.add('hidden');
+            loading.classList.remove('hidden');
+            result.classList.add('hidden');
+
+            let textIndex = 0;
+            const textInterval = setInterval(() => {
+                textIndex = (textIndex + 1) % loadingTexts.length;
+                document.getElementById('loadingText').innerText = loadingTexts[textIndex];
+            }, 3000);
+
+            try {
+                const response = await fetch('/api/hackathon/recommend');
+                const data = await response.json();
+                
+                clearInterval(textInterval);
+                loading.classList.add('hidden');
+                
+                if (data.error || !data.best_hackathon_title) {
+                    alert('Не вдалося знайти ідеальний хакатон: ' + (data.error || 'Немає кандидатів'));
+                    btn.classList.remove('hidden');
+                    return;
+                }
+
+                document.getElementById('resTitle').innerText = data.best_hackathon_title;
+                document.getElementById('resTitle').href = data.best_hackathon_url;
+                document.getElementById('resProb').innerText = data.win_probability_score + '%';
+                document.getElementById('resPrize').innerText = data.prize_amount ? '$' + data.prize_amount.toLocaleString() : 'in cash';
+                document.getElementById('resReasoning').innerText = data.scientific_reasoning;
+                
+                result.classList.remove('hidden');
+                btn.classList.remove('hidden');
+                btn.querySelector('span').innerText = "Знайти інший варіант";
+
+            } catch (err) {
+                clearInterval(textInterval);
+                loading.classList.add('hidden');
+                alert('Помилка з\'єднання з сервером');
+                btn.classList.remove('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
