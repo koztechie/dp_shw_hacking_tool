@@ -122,6 +122,16 @@ class PromptSchemaValidator:
                 "max_similarity_percentage": {"type": "integer", "minimum": 0, "maximum": 100},
                 "prompt_modification": {"type": "string"}
             }
+        },
+        "hackathon_recommendation": {
+            "type": "object",
+            "required": ["best_hackathon_url", "best_hackathon_title", "win_probability_score", "scientific_reasoning"],
+            "properties": {
+                "best_hackathon_url": {"type": "string"},
+                "best_hackathon_title": {"type": "string"},
+                "win_probability_score": {"type": "number"},
+                "scientific_reasoning": {"type": "string"}
+            }
         }
     }
 

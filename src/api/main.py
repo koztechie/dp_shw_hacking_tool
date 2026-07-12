@@ -841,8 +841,8 @@ async def hackathon_selector_page(request: Request):
 @limiter.limit("10/minute")
 async def recommend_hackathon(request: Request):
     try:
-        from src.analyzer.hackathon_selector import get_best_hackathon
-        result = get_best_hackathon()
+        from src.analyzer.hackathon_selector import get_best_hackathon_async
+        result = await get_best_hackathon_async()
         if not result:
             return JSONResponse({"error": "Не знайдено жодного відповідного хакатону."}, status_code=404)
         return JSONResponse(result)
