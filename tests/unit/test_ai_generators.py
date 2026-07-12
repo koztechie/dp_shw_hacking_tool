@@ -6,13 +6,17 @@ from src.analyzer.techspec_generator import generate_techspec
 class TestAIGenerators:
     """Тести для AI генераторів ідей та технічних специфікацій."""
     
+    @patch("src.scraper.app_store_scraper.check_existing_apps")
     @patch("src.analyzer.idea_generator.prompt_manager")
     @patch("src.analyzer.idea_generator.generate_json_with_failover")
-    def test_generate_winning_ideas_success(self, mock_generate, mock_prompt_manager):
-        """Успішна генерація ідей через два агенти (Brainstormer + Critic)."""
-        # Мокуємо відповіді для обох агентів
+    def test_generate_winning_ideas_success(self, mock_generate, mock_prompt_manager, mock_check_apps):
+        """Успішна генерація ідей через три агенти (Brainstormer -> Uniqueness -> Critic)."""
+        mock_check_apps.return_value = [{"title": "Competitor App"}]
+        
+        # Мокуємо відповіді для агентів
         mock_generate.side_effect = [
-            {"draft": "draft idea"},  # Відповідь Brainstormer
+            {"draft_ideas": [{"title": "Draft Idea"}]},  # Відповідь Brainstormer
+            {"reasoning": "Unique", "is_unique": True, "max_similarity_percentage": 10, "prompt_modification": ""}, # Відповідь Uniqueness Checker
             {"ideas": [{"title": "Super Idea", "tech_stack": ["Python"]}]}  # Відповідь Critic
         ]
         
@@ -23,16 +27,40 @@ class TestAIGenerators:
         
         assert len(result) == 1
         assert result[0]["title"] == "Super Idea"
-        assert mock_generate.call_count == 2
+        assert mock_generate.call_count == 3
         mock_prompt_manager.update_prompt_metrics.assert_called()
 
+    @patch("src.scraper.app_store_scraper.check_existing_apps")
     @patch("src.analyzer.idea_generator.prompt_manager")
     @patch("src.analyzer.idea_generator.generate_json_with_failover")
-    def test_generate_winning_ideas_fallback(self, mock_generate, mock_prompt_manager):
-        """Антикрихкість: при падінні API Critic'а повертаються дефолтні ідеї."""
-        # Другий агент повертає помилку fallback
+    def test_generate_winning_ideas_retry_uniqueness(self, mock_generate, mock_prompt_manager, mock_check_apps):
+        """Перевірка циклу регенерації, якщо ідея не унікальна."""
+        mock_check_apps.return_value = []
+        
         mock_generate.side_effect = [
-            {"draft": "draft idea"},
+            {"draft_ideas": [{"title": "Clone Idea"}]},  # Спроба 1
+            {"reasoning": "Too similar", "is_unique": False, "max_similarity_percentage": 85, "prompt_modification": "Avoid clones"}, # Не унікально
+            {"draft_ideas": [{"title": "Unique Idea"}]},  # Спроба 2
+            {"reasoning": "Okay", "is_unique": True, "max_similarity_percentage": 20, "prompt_modification": ""}, # Унікально
+            {"ideas": [{"title": "Super Unique Idea", "tech_stack": ["Rust"]}]}  # Critic
+        ]
+        
+        result = generate_winning_ideas({"title": "Hackathon"}, {}, {})
+        
+        assert len(result) == 1
+        assert result[0]["title"] == "Super Unique Idea"
+        assert mock_generate.call_count == 5
+
+    @patch("src.scraper.app_store_scraper.check_existing_apps")
+    @patch("src.analyzer.idea_generator.prompt_manager")
+    @patch("src.analyzer.idea_generator.generate_json_with_failover")
+    def test_generate_winning_ideas_fallback(self, mock_generate, mock_prompt_manager, mock_check_apps):
+        """Антикрихкість: при падінні API Critic'а повертаються дефолтні ідеї."""
+        mock_check_apps.return_value = []
+        
+        mock_generate.side_effect = [
+            {"draft_ideas": [{"title": "Draft Idea"}]},
+            {"reasoning": "Unique", "is_unique": True, "max_similarity_percentage": 10, "prompt_modification": ""},
             {"fallback": True, "error": "API failed"}
         ]
         
@@ -40,7 +68,7 @@ class TestAIGenerators:
         
         assert len(result) == 3
         assert result[0]["title"] == "Offline Web App"
-        assert mock_generate.call_count == 2
+        assert mock_generate.call_count == 3
 
     @patch("src.analyzer.techspec_generator.context_manager")
     @patch("src.analyzer.techspec_generator.generate_json_with_failover")
