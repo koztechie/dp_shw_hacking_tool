@@ -17,35 +17,8 @@ def generate_techspec(idea: dict, hackathon_data: dict, hard_constraints: dict =
 
     constraints_text = json.dumps(hard_constraints, indent=2) if hard_constraints else "None strict rules specified."
 
-    # Базовий шаблон промпту (без змінних)
-    prompt_template = """
-You are a senior full-stack architect and serial hackathon winner. Generate a HIGHLY DETAILED technical specification.
-
-IDEA: {idea_json}
-
-HACKATHON CONTEXT:
-Title: {hackathon_title}
-Time limit: Adapt to Hackathon Context duration
-
-CRITICAL HARDWARE CONSTRAINTS & MOBILE ARCHITECTURE (MANDATORY):
-{hardware_constraints}
-
-🚨 RULES & CONSTRAINTS (MANDATORY):
-{constraints_text}
-
-🔥 REAL-TIME SPONSOR NEWS (Breaking news from today):
-{realtime_news}
-
-CRITICAL INSTRUCTIONS:
-1. TIME AWARENESS: Adapt the timeline strictly to the actual hackathon length.
-2. PLATFORM AWARENESS: If Reddit Devvit is required, specify "Devvit Web (WebViews)".
-3. SPONSOR AWARENESS: NEVER reject a sponsor's technology if there is a specific prize for it.
-4. Suggest 3 robust alternative architectures in "antifragile_features".
-5. Formulate a highly persuasive 60-second "demo_script".
-
-🚨 CRITICAL: Your response MUST strictly match this JSON Schema:
-{schema_json}
-"""
+    from src.analyzer.prompt_manager import prompt_manager
+    prompt_template = prompt_manager.get_prompt("techspec_generator")
 
     # Змінні для підстановки
     variables = {

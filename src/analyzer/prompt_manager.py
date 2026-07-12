@@ -42,7 +42,7 @@ class PromptManager:
         """
         Отримує активний промпт за назвою та підставляє змінні.
         """
-        con = duckdb.connect(DB_PATH, read_only=True)
+        con = duckdb.connect(DB_PATH)
         try:
             result = con.execute(
                 """
@@ -176,17 +176,32 @@ Return EXACTLY a JSON object matching this schema: {schema}
 🚨 HARD CONSTRAINTS: {constraints}
 DRAFT IDEAS TO REVIEW: {draft_ideas}
 """,
-            "techspec_generator": """You are a senior full-stack architect
-and serial hackathon winner. Generate a HIGHLY DETAILED technical specification.
+            "techspec_generator": """You are a senior full-stack architect and serial hackathon winner. Generate a HIGHLY DETAILED technical specification.
 
-IDEA: {idea}
-HACKATHON CONTEXT: {hackathon_context}
+IDEA: {idea_json}
 
-CRITICAL HARDWARE CONSTRAINTS: {hardware_constraints}
+HACKATHON CONTEXT:
+Title: {hackathon_title}
+Time limit: Adapt to Hackathon Context duration
 
-🚨 RULES & CONSTRAINTS: {constraints}
+CRITICAL HARDWARE CONSTRAINTS & MOBILE ARCHITECTURE (MANDATORY):
+{hardware_constraints}
 
-Return EXACTLY a JSON object matching this schema: {schema}
+🚨 RULES & CONSTRAINTS (MANDATORY):
+{constraints_text}
+
+🔥 REAL-TIME SPONSOR NEWS (Breaking news from today):
+{realtime_news}
+
+CRITICAL INSTRUCTIONS:
+1. TIME AWARENESS: Adapt the timeline strictly to the actual hackathon length.
+2. PLATFORM AWARENESS: If Reddit Devvit is required, specify "Devvit Web (WebViews)".
+3. SPONSOR AWARENESS: NEVER reject a sponsor's technology if there is a specific prize for it.
+4. Suggest 3 robust alternative architectures in "antifragile_features".
+5. Formulate a highly persuasive 60-second "demo_script".
+
+🚨 CRITICAL: Your response MUST strictly match this JSON Schema:
+{schema_json}
 """,
             "hard_constraints_extractor": """Analyze the following hackathon rules text
 and extract ONLY the hard constraints.
