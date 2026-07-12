@@ -66,8 +66,10 @@ def generate_and_save_techspec(prediction_id: str, idea_index: int, hackathon_ur
         # Real-Time Data Ingestion: отримуємо найсвіжіші новини спонсорів з Hacker News
         realtime_news = get_realtime_sponsor_news(sponsors_list)
 
-        # Кешування ТЗ
-        ck = cache_key(f"{prediction_id}_{idea_index}_techspec")
+        # Кешування ТЗ (залежить від промпту)
+        from src.analyzer.prompt_manager import prompt_manager
+        prompt_techspec = prompt_manager.get_prompt("techspec_generator")
+        ck = cache_key(f"{prediction_id}_{idea_index}_techspec" + str(prompt_techspec))
         techspec = get_cached(ck)
         
         if not techspec:

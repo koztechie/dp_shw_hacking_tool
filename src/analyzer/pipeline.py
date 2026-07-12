@@ -45,14 +45,21 @@ def _run_analysis_pipeline(hackathon_data: dict, source_url: str) -> dict:
             banner_bytes = img_resp.content
             logger.info("📸 Банер успішно завантажено для AI Vision аналізу.")
 
-    ck_analysis = cache_key(source_url + "analysis")
+    from src.analyzer.prompt_manager import prompt_manager
+
+    # Кеш аналізу залежить від URL та промпту аналізатора
+    prompt_profile = prompt_manager.get_prompt("profile_analyzer")
+    ck_analysis = cache_key(source_url + "analysis" + str(prompt_profile))
     analysis = get_cached(ck_analysis)
     if not analysis:
         analysis = analyze_hackathon_profile(hackathon_data, osint, banner_bytes)
 
         set_cache(ck_analysis, analysis)
 
-    ck_ideas = cache_key(source_url + "ideas")
+    # Кеш ідей залежить від URL та промптів генератора/критика
+    prompt_brainstormer = prompt_manager.get_prompt("idea_brainstormer")
+    prompt_critic = prompt_manager.get_prompt("idea_critic")
+    ck_ideas = cache_key(source_url + "ideas" + str(prompt_brainstormer) + str(prompt_critic))
     ideas = get_cached(ck_ideas)
     if not ideas:
         ideas = generate_winning_ideas(hackathon_data, analysis, hard_constraints)
