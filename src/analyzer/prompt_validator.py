@@ -66,7 +66,17 @@ class PromptSchemaValidator:
                         "avoid": {"type": "array", "items": {"type": "string"}}
                     }
                 },
-                "timeline_plan": {"type": "object"},
+                "timeline_plan": {
+                    "type": "object",
+                    "properties": {
+                        "phase_1_setup": {"type": "string"},
+                        "phase_2_core": {"type": "string"},
+                        "phase_3_integration": {"type": "string"},
+                        "phase_4_polish": {"type": "string"},
+                        "phase_5_submission": {"type": "string"}
+                    },
+                    "required": ["phase_1_setup", "phase_2_core", "phase_3_integration", "phase_4_polish", "phase_5_submission"]
+                },
                 "ux_design": {"type": "object"},
                 "demo_script": {"type": "string"},
                 "antifragile_features": {"type": "array", "items": {"type": "string"}},

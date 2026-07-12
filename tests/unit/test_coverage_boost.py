@@ -135,7 +135,13 @@ class TestPromptSchemaValidator:
             "project_name": "BuildBot",
             "architecture": {"frontend": "React", "backend": "FastAPI", "database": "DuckDB"},
             "tech_stack": {"must_have": ["Python"]},
-            "timeline_plan": {"day1": "Setup"},
+            "timeline_plan": {
+                "phase_1_setup": "Setup",
+                "phase_2_core": "Core",
+                "phase_3_integration": "Integration",
+                "phase_4_polish": "Polish",
+                "phase_5_submission": "Submission"
+            },
         }
         ok, msg = self.validator.validate_response(valid, "techspec")
         assert ok is True
@@ -144,7 +150,13 @@ class TestPromptSchemaValidator:
         invalid = {
             "architecture": {"frontend": "React", "backend": "FastAPI", "database": "DuckDB"},
             "tech_stack": {"must_have": ["Python"]},
-            "timeline_plan": {},
+            "timeline_plan": {
+                "phase_1_setup": "Setup",
+                "phase_2_core": "Core",
+                "phase_3_integration": "Integration",
+                "phase_4_polish": "Polish",
+                "phase_5_submission": "Submission"
+            },
         }
         ok, msg = self.validator.validate_response(invalid, "techspec")
         assert ok is False
