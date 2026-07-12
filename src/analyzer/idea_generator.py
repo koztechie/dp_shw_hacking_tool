@@ -59,10 +59,15 @@ def generate_winning_ideas(hackathon_data: dict, hackathon_analysis: dict, hard_
                 if title:
                     # Search by title
                     results = check_existing_apps(title)
-                    # Search by broader concept (first few words of tagline)
+                    # Search by broader concept (extract 2-3 keywords from tagline)
                     if tagline:
-                        broad_query = " ".join(tagline.split()[:4])
-                        results += check_existing_apps(broad_query)
+                        import re
+                        words = re.findall(r'\b[a-zA-Z0-9]+\b', tagline.lower())
+                        stop_words = {"a", "an", "the", "and", "or", "but", "in", "on", "at", "to", "for", "with", "by", "about", "as", "of", "is", "it", "this", "that", "are", "you", "your", "app", "can", "will", "how", "what", "why"}
+                        keywords = [w for w in words if w not in stop_words and len(w) > 2]
+                        if keywords:
+                            broad_query = " ".join(keywords[:3])
+                            results += check_existing_apps(broad_query)
                         
                     # deduplicate results by URL
                     unique_results = {r['url']: r for r in results if 'url' in r}.values()
@@ -94,7 +99,7 @@ def generate_winning_ideas(hackathon_data: dict, hackathon_analysis: dict, hard_
             
         modification = uniqueness_result.get("prompt_modification", "")
         max_sim = uniqueness_result.get("max_similarity_percentage", 100)
-        logger.warning(f"⚠️ Ідеї занадто схожі на існуючі (схожість {max_sim}%). Оновлюємо промпт...")
+        logger.info(f"🔄 Ідеї занадто схожі на існуючі (схожість {max_sim}%). Оновлюємо промпт...")
         
         if modification:
             # Accumulate rejected instructions
