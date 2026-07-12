@@ -156,10 +156,9 @@ class PromptManager:
 Brainstorm 3 BRAND NEW, innovative project ideas.
 
 CRITICAL RULES (OBEY OR FAIL):
-1. PLATFORM CONSTRAINTS: The developer uses a weak AMD A4 CPU with 6GB RAM.
-If App Store publishing is required, you MUST propose web-technologies wrapped with
-Capacitor or Expo targeting CLOUD BUILDS.
-2. MONETIZATION: For RevenueCat, focus on subscriptions. NEVER use Web Billing SDKs for mobile apps.
+1. PLATFORM CONSTRAINTS: The developer uses a weak AMD A4 CPU with 6GB RAM. If App Store publishing is required (like RevenueCat), use Capacitor/Expo targeting CLOUD BUILDS. DO NOT propose Unity or heavy 3D.
+2. MOBILE-FIRST ERGONOMICS (CRITICAL): If proposing a mobile app, ensure the core interaction is realistic for a small touch screen. DO NOT propose tasks requiring pixel-perfect desktop precision (like professional UI drawing, heavy spreadsheet editing, 3D modeling). Focus on mobile-friendly interactions: capturing, pinning comments/notes, voting, simple block wireframing, or voice features.
+3. MONETIZATION: For RevenueCat, focus on subscriptions. NEVER use Web Billing SDKs for mobile apps.
 
 Output a JSON with a single key "draft_ideas" containing a list of 3 ideas.
 NEW HACKATHON TARGET: {hackathon_data}
@@ -167,9 +166,11 @@ NEW HACKATHON TARGET: {hackathon_data}
             "idea_critic": """You are an extremely strict Hackathon Judge.
 
 YOUR TASKS:
-1. HARDWARE & PLATFORM CHECK: Discard ANY idea containing Unity or pure PWA if App Store is required.
-2. THEME CHECK: Ensure the idea heavily uses the sponsor's tech.
-3. REFINE: Select the best 3 surviving ideas.
+1. CRITIQUE: Discard any idea that ignores the hackathon theme.
+2. ERGONOMIC CHECK: Discard any mobile app idea that requires unrealistic desktop-level precision (like drawing full UI screens on a phone). Force it to pivot into a mobile-friendly alternative (e.g., commenting, reviewing, low-fidelity wireframing).
+3. HARDWARE CHECK: Discard Unity/Unreal/ARCore. Ensure the tech stack uses Capacitor/Expo with Cloud Builds. Discard pure PWAs if App Store is required. Ensure native RevenueCat SDK is used.
+4. THEME CHECK: Ensure the idea heavily uses the sponsor's tech (e.g., RevenueCat for subscriptions).
+5. REFINE: Select the best 3 surviving ideas.
 
 Return EXACTLY a JSON object matching this schema: {schema}
 
@@ -196,9 +197,11 @@ CRITICAL HARDWARE CONSTRAINTS & MOBILE ARCHITECTURE (MANDATORY):
 CRITICAL INSTRUCTIONS:
 1. TIME AWARENESS: Adapt the timeline strictly to the actual hackathon length.
 2. PLATFORM AWARENESS: If Reddit Devvit is required, specify "Devvit Web (WebViews)".
-3. SPONSOR AWARENESS: NEVER reject a sponsor's technology if there is a specific prize for it.
-4. Suggest 3 robust alternative architectures in "antifragile_features".
-5. Formulate an incredibly persuasive 2-minute "demo_script" focusing first on the user pain point, then a live mobile-screen demo (not web simulator!), and finally the business/monetization logic (RevenueCat paywall integration).
+3. SPONSOR AWARENESS: NEVER reject a sponsor's technology (e.g., Phaser.js) if there is a specific prize for it.
+4. AGGRESSIVE SCOPE PRUNING (ANTI-CREEP): Keep the MVP extremely focused. Do NOT include auxiliary native plugins (like OneSignal for push, Linearity for PDF export, vector tracing) as "Must Have" unless they are the absolute core value. Put them in "Nice to Have" or "AVOID" to ensure the app is launch-ready and stable.
+5. MONETIZATION TRIGGERS: Ensure the RevenueCat subscription paywall blocks the core B2B value (e.g., real-time sharing, team spaces, advanced collaboration), rather than just basic personal usage. This is more attractive to judges.
+6. Suggest 3 robust alternative architectures in "antifragile_features".
+7. Formulate an incredibly persuasive 2-minute "demo_script" focusing first on the user pain point, then a live mobile-screen demo (not web simulator!), and finally the business/monetization logic (RevenueCat paywall integration).
 
 🚨 CRITICAL: Your response MUST strictly match this JSON Schema:
 {schema_json}
