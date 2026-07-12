@@ -76,19 +76,19 @@ def explain_prediction(features: dict, base_ml_score: float) -> dict:
         model, feature_names = load_model()
         
         # Вирівнюємо фічі за схемою моделі
-        row = [features.get(f, 0) for f in feature_names]
-        X_df = pd.DataFrame([row], columns=feature_names)
+        row = [float(features.get(f, 0)) if features.get(f) is not None else 0.0 for f in feature_names]
+        X_df = pd.DataFrame([row], columns=feature_names, dtype=float)
         
         # Створюємо базовий "нульовий" проект як бекграунд для KernelExplainer (оптимізація швидкості)
-        background = pd.DataFrame([np.zeros(len(feature_names))], columns=feature_names)
+        background = pd.DataFrame([np.zeros(len(feature_names))], columns=feature_names, dtype=float)
         
         # Функція передбачення для SHAP
         def predict_fn(x):
             # SHAP може передавати x як numpy array, що може викликати проблеми з назвами колонок
             if isinstance(x, np.ndarray):
-                x_df = pd.DataFrame(x, columns=feature_names)
+                x_df = pd.DataFrame(x, columns=feature_names, dtype=float)
             else:
-                x_df = x
+                x_df = x.copy().astype(float)
                 
             if isinstance(model, dict) and "rf" in model and "xgb" in model:
                 rf_prob = model["rf"].predict_proba(x_df)[:, 1]

@@ -13,6 +13,17 @@ class EmbedderSingleton:
     def get_model(cls):
         if cls._model is None:
             logger.info("🧠 Завантаження Sentence-BERT (all-MiniLM-L6-v2)...")
+            
+            import os
+            import logging
+            import warnings
+            
+            # Приховуємо попередження HF Hub про неавторизований доступ
+            os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
+            os.environ["HF_HUB_VERBOSITY"] = "error"
+            logging.getLogger("huggingface_hub").setLevel(logging.ERROR)
+            warnings.filterwarnings("ignore", module="huggingface_hub")
+
             from sentence_transformers import SentenceTransformer
 
             cls._model = SentenceTransformer("all-MiniLM-L6-v2")
