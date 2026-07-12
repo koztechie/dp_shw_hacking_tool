@@ -226,7 +226,7 @@
         </p>
     </div>
 
-    <button id="selectBtn" onclick="selectHackathon()" class="glow-button">
+    <button id="selectBtn" class="glow-button">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <circle cx="12" cy="12" r="10"></circle>
             <path d="M12 16v-4"></path>
@@ -265,7 +265,7 @@
     </div>
 </div>
 
-<script>
+<script nonce="{{ request.state.csp_nonce }}">
     async function selectHackathon() {
         const btn = document.getElementById('selectBtn');
         const btnText = document.getElementById('btnText');
@@ -319,5 +319,9 @@
             btn.classList.remove('hidden');
         }
     }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        document.getElementById('selectBtn').addEventListener('click', selectHackathon);
+    });
 </script>
 {% endblock %}
