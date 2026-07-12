@@ -84,7 +84,19 @@ def explain_prediction(features: dict, base_ml_score: float) -> dict:
         
         # Функція передбачення для SHAP
         def predict_fn(x):
-            return model.predict_proba(x)[:, 1]
+            # SHAP може передавати x як numpy array, що може викликати проблеми з назвами колонок
+            if isinstance(x, np.ndarray):
+                x_df = pd.DataFrame(x, columns=feature_names)
+            else:
+                x_df = x
+                
+            if isinstance(model, dict) and "rf" in model and "xgb" in model:
+                rf_prob = model["rf"].predict_proba(x_df)[:, 1]
+                xgb_prob = model["xgb"].predict_proba(x_df)[:, 1]
+                weights = model.get("weights", (0.4, 0.6))
+                return weights[0] * rf_prob + weights[1] * xgb_prob
+            else:
+                return model.predict_proba(x_df)[:, 1]
 
         # Використовуємо KernelExplainer (підтримує ансамблі та PyTorch). 
         explainer = shap.KernelExplainer(predict_fn, background)
