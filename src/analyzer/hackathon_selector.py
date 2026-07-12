@@ -73,9 +73,11 @@ async def fetch_detail_page(client: httpx.AsyncClient, candidate: dict):
         text = soup.get_text().lower()
         
         # Anti-fragile checks
-        if "must be a student" in text or "university students only" in text or "high school students only" in text:
+        if any(phrase in text for phrase in ["must be a student", "university students only", "high school students only", "students only"]):
             return None
         if "residents of ukraine are not eligible" in text:
+            return None
+        if re.search(r'team required:\s*[2-9]', text):
             return None
             
         candidate["details_text"] = text[:4000]
