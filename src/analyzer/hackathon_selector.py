@@ -77,6 +77,8 @@ async def fetch_detail_page(client: httpx.AsyncClient, candidate: dict):
             return None
         if "residents of ukraine are not eligible" in text:
             return None
+        if "only specific countries/territories included" in text:
+            return None
         if re.search(r'team required:\s*[2-9]', text):
             return None
             
@@ -117,7 +119,7 @@ async def _calculate_best_hackathon_impl():
             loc = h.get("displayed_location", {})
             loc_str = loc.get("location", "").lower() if isinstance(loc, dict) else str(loc).lower()
             
-            if "online" not in loc_str:
+            if loc_str.strip() != "online":
                 continue
             if h.get("invite_only"):
                 continue
