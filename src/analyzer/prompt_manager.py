@@ -195,13 +195,13 @@ CRITICAL HARDWARE CONSTRAINTS & MOBILE ARCHITECTURE (MANDATORY):
 {realtime_news}
 
 CRITICAL INSTRUCTIONS:
-1. TIME AWARENESS: Adapt the timeline strictly to the actual hackathon length.
-2. PLATFORM AWARENESS: If Reddit Devvit is required, specify "Devvit Web (WebViews)".
-3. SPONSOR AWARENESS: NEVER reject a sponsor's technology (e.g., Phaser.js) if there is a specific prize for it.
-4. AGGRESSIVE SCOPE PRUNING (ANTI-CREEP): Keep the MVP extremely focused. Do NOT include auxiliary native plugins (like OneSignal for push, Linearity for PDF export, vector tracing) as "Must Have" unless they are the absolute core value. Put them in "Nice to Have" or "AVOID" to ensure the app is launch-ready and stable.
-5. MONETIZATION TRIGGERS: Ensure the RevenueCat subscription paywall blocks the core B2B value (e.g., real-time sharing, team spaces, advanced collaboration), rather than just basic personal usage. This is more attractive to judges.
+1. TIME AWARENESS: Read the Hackathon Context carefully. If it spans multiple months (e.g., 2 months), the timeline MUST be in Weeks/Months. Allocate the first 2 weeks to MVP core development, and the remaining 6 weeks strictly to App Store review, marketing, and monetization tracking. Do NOT compress a 2-month hackathon into 48 hours.
+2. APP STORE REVIEW COMPLIANCE: NEVER suggest submitting empty "skeleton" or placeholder apps with "Coming Soon" pages. Under Apple Guideline 2.1 (App Completeness), these will get immediately rejected. The initial submission (even for TestFlight / Internal Testing) MUST be a fully functional MVP with core features working.
+3. PLATFORM & LIMIT AWARENESS: If Reddit Devvit is required, specify "Devvit Web (WebViews)". Acknowledge Devvit lacks WebSockets (use Redis polling).
+4. SPONSOR & SDK AWARENESS: For RevenueCat on Expo/React Native, the correct package is "react-native-purchases". For Capacitor, use "@revenuecat/purchases-capacitor". NEVER use non-existent package names like "purchases-entitlements". Always make sponsor tech a "Must Have" and build the business model around it.
+5. SCOPE MINIMALISM (ANTI-CREEP): Restrict the MVP to EXACTLY ONE core mechanic. Focus on polish and business value over feature quantity.
 6. Suggest 3 robust alternative architectures in "antifragile_features".
-7. Formulate an incredibly persuasive 2-minute "demo_script" focusing first on the user pain point, then a live mobile-screen demo (not web simulator!), and finally the business/monetization logic (RevenueCat paywall integration).
+7. Formulate a highly persuasive 2-minute "demo_script" focusing on user pain, live mobile demo (no simulators), and subscription flow.
 
 🚨 CRITICAL: Your response MUST strictly match this JSON Schema:
 {schema_json}

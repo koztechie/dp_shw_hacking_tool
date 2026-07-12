@@ -27,7 +27,7 @@ def generate_techspec(idea: dict, hackathon_data: dict, hard_constraints: dict =
         "hardware_constraints": """The developer uses a weak dual-core AMD A4 with 6GB RAM. Local compilation via Android Studio/Xcode will crash the PC.
 1. IF MOBILE STORES (App Store/Google Play) ARE REQUIRED: Use Capacitor or Expo with CLOUD BUILDS (EAS/Appflow) for final builds.
 2. LIGHTWEIGHT ADB DEBUGGING: Instruct the developer to install ONLY the lightweight Android SDK CLI (Command Line Tools) and ADB. Force them to run and debug the app directly on a physical Android device connected via USB (`npx cap run android`), completely bypassing the heavy Android Studio IDE to save RAM (uses <150MB).
-3. SKELETON RELEASES: In the timeline, you MUST dedicate "Phase 1" to submitting an empty skeleton app with integrated RevenueCat SDK to Google Play / App Store Connect immediately. This allows parallel store review while developing.
+3. APP STORE COMPLIANCE: Ensure MVP is functional before submission. Do NOT use empty skeleton apps.
 4. MONETIZATION: Specify native plugins (e.g., `@revenuecat/purchases-capacitor`). Never use Web Billing SDKs inside mobile stores.
 5. NO local Docker. Use Supabase.""",
         "constraints_text": constraints_text,

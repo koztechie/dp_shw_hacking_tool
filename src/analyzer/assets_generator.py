@@ -25,7 +25,7 @@ def generate_project_assets(techspec: dict) -> dict:
     
     Return EXACTLY a JSON object matching this schema:
     {{
-      "bash_setup_script": "A valid, highly CONCISE bash script (using mkdir, touch, and cat << 'EOF') that creates the project structure. CRITICAL: DO NOT GENERATE Dockerfiles unless explicitly requested. If the project targets mobile stores, include lightweight bash commands in the setup script to: 1) Verify physical device connection via `adb devices`. 2) Add android platform: `npx cap add android`. 3) Run on device: `npx cap run android`. Instruct the developer to avoid Android Studio. Keep files under 15 lines.",
+      "bash_setup_script": "A valid, highly CONCISE bash script (using mkdir, touch, and cat << 'EOF') that creates the project structure. CRITICAL: DO NOT GENERATE Dockerfiles unless explicitly requested. For React Native/Expo mobile apps, use standard `npx create-expo-app` and ensure `react-native-purchases` is used in package.json. If the project targets Capacitor, include lightweight bash commands: 1) Verify physical device via `adb devices`. 2) Add android platform: `npx cap add android`. 3) Run on device: `npx cap run android`. Instruct the developer to avoid Android Studio. For other stacks, use their native CLI commands. Keep files under 15 lines.",
       "ui_prompts": ["Highly detailed Midjourney prompt for the app dashboard", "Prompt for the mobile view"],
       "video_prompts": ["RunwayML Gen-2 prompt for the intro video shot", "Prompt for the app UI animation"]
     }}
