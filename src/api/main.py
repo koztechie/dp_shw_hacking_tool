@@ -292,18 +292,21 @@ async def api_key_auth_middleware(request: Request, call_next):
         if path.startswith("/training/") or path.startswith("/ml/") or path.startswith("/feedback/") or path.startswith("/onboarding/") or path.startswith("/history/"):
             return await call_next(request)
 
+        # Локальні запити пропускаємо без API ключа (захищені CSRF)
+        if request.client.host in ("127.0.0.1", "localhost", "::1"):
+            return await call_next(request)
+
         api_key = request.headers.get("X-API-Key")
         expected_key = os.getenv("API_SECRET_KEY")
 
         if not expected_key:
-            # Якщо ключ не налаштований - працюємо в режимі розробки (тільки localhost)
-            if request.client.host not in ("127.0.0.1", "localhost", "::1"):
-                logger.warning(f"🚨 Блоковано несанкціонований доступ з IP: {request.client.host}")
-                return JSONResponse(
-                    {"status": "error", "error": "API Key authentication required for remote access."}, status_code=401
-                )
+            # Якщо ключ не налаштований і це не localhost - блокуємо
+            logger.warning(f"🚨 Блоковано несанкціонований доступ з IP: {request.client.host}")
+            return JSONResponse(
+                {"status": "error", "error": "API Key authentication required for remote access."}, status_code=401
+            )
         else:
-            # Перевіряємо API ключ
+            # Перевіряємо API ключ для віддалених запитів
             if not api_key or api_key != expected_key:
                 logger.warning(f"🚨 Невалідний API Key з IP: {request.client.host}")
                 return JSONResponse({"status": "error", "error": "Invalid API Key."}, status_code=401)
