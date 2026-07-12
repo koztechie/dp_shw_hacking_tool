@@ -158,7 +158,7 @@ Brainstorm 3 BRAND NEW, innovative project ideas.
 CRITICAL RULES (OBEY OR FAIL):
 1. PLATFORM CONSTRAINTS: The developer uses a weak AMD A4 CPU with 6GB RAM. If App Store publishing is required (like RevenueCat), use Capacitor/Expo targeting CLOUD BUILDS. DO NOT propose Unity or heavy 3D.
 2. MOBILE-FIRST ERGONOMICS (CRITICAL): If proposing a mobile app, ensure the core interaction is realistic for a small touch screen. DO NOT propose tasks requiring pixel-perfect desktop precision (like professional UI drawing, heavy spreadsheet editing, 3D modeling). Focus on mobile-friendly interactions: capturing, pinning comments/notes, voting, simple block wireframing, or voice features.
-3. MONETIZATION: For RevenueCat, focus on subscriptions. NEVER use Web Billing SDKs for mobile apps.
+3. SPONSOR & MONETIZATION: The idea MUST heavily feature the sponsor's core product. For RevenueCat, if the idea is a hyper-casual or session-based game, focus strictly on consumable purchases (energy tokens, skin booster packs) or a one-time lifetime premium unlock instead of recurring monthly subscriptions to keep the business model highly realistic.
 
 Output a JSON with a single key "draft_ideas" containing a list of 3 ideas.
 NEW HACKATHON TARGET: {hackathon_data}
@@ -195,13 +195,16 @@ CRITICAL HARDWARE CONSTRAINTS & MOBILE ARCHITECTURE (MANDATORY):
 {realtime_news}
 
 CRITICAL INSTRUCTIONS:
-1. TIME AWARENESS: Read the Hackathon Context carefully. If it spans multiple months (e.g., 2 months), the timeline MUST be in Weeks/Months. Allocate the first 2 weeks to MVP core development, and the remaining 6 weeks strictly to App Store review, marketing, and monetization tracking. Do NOT compress a 2-month hackathon into 48 hours.
-2. APP STORE REVIEW COMPLIANCE: NEVER suggest submitting empty "skeleton" or placeholder apps with "Coming Soon" pages. Under Apple Guideline 2.1 (App Completeness), these will get immediately rejected. The initial submission (even for TestFlight / Internal Testing) MUST be a fully functional MVP with core features working.
-3. PLATFORM & LIMIT AWARENESS: If Reddit Devvit is required, specify "Devvit Web (WebViews)". Acknowledge Devvit lacks WebSockets (use Redis polling).
-4. SPONSOR & SDK AWARENESS: For RevenueCat on Expo/React Native, the correct package is "react-native-purchases". For Capacitor, use "@revenuecat/purchases-capacitor". NEVER use non-existent package names like "purchases-entitlements". Always make sponsor tech a "Must Have" and build the business model around it.
-5. SCOPE MINIMALISM (ANTI-CREEP): Restrict the MVP to EXACTLY ONE core mechanic. Focus on polish and business value over feature quantity.
-6. Suggest 3 robust alternative architectures in "antifragile_features".
-7. Formulate a highly persuasive 2-minute "demo_script" focusing on user pain, live mobile demo (no simulators), and subscription flow.
+1. TIME AWARENESS: Read the Hackathon Context. If it is a 2-month marathon, structure the timeline in Weeks. Allocate 2-3 weeks for polishing UI and Game Feel.
+2. APP STORE COMPLIANCE: NEVER submit empty "skeleton" apps with "Coming Soon" pages. Under Apple Guideline 2.1, they get rejected. Initial TestFlight/Play submission MUST be a working core MVP.
+3. MONETIZATION ALIGNMENT: Align the monetization model (RevenueCat) strictly with the project genre. If it is a hyper-casual or session-based game, DO NOT enforce monthly subscriptions. Propose consumables (e.g., energy/ticket packs, cosmetic unit skin booster packs) or a one-time lifetime premium unlock, as this is highly realistic for mobile gaming.
+4. VISUAL CONSISTENCY: The "Do NOT" list and visual instructions MUST be consistent with the generated UI/UX aesthetic. If the aesthetic is high-end neon/cyberpunk, do NOT suggest using plain flat shapes (like circles) in the assets or Do NOT list. Suggest procedurally drawn glowing SVG paths, drop-shadow filters, or lightweight vector assets to preserve visual appeal without heavy rendering engines.
+5. CROSS-PLATFORM TESTING: Even if developing primarily on Android due to hardware constraints, the timeline MUST allocate time (at least 2 days in Phase 3/4) to compile and test the iOS build in TestFlight via EAS Cloud Build to prevent Safe Area and gesture breakages on Apple devices.
+6. PLATFORM & LIMIT AWARENESS: If Reddit Devvit, specify "Devvit Web". Acknowledge Devvit lacks WebSockets (use Redis polling).
+7. SPONSOR AWARENESS: For RevenueCat on Expo, the correct package is "react-native-purchases".
+8. SCOPE MINIMALISM (ANTI-CREEP): Restrict the MVP to EXACTLY ONE core mechanic.
+9. Suggest 3 robust alternative architectures in "antifragile_features".
+10. Formulate a highly persuasive 2-minute "demo_script" focusing on user pain, live mobile demo (no simulators), and subscription/purchase flow.
 
 🚨 CRITICAL: Your response MUST strictly match this JSON Schema:
 {schema_json}
