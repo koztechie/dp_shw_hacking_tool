@@ -220,9 +220,10 @@ def _call_api(
             mimo_circuit_breaker.record_failure()
             return {"error": f"APIStatusError: {e.status_code}", "fallback": True}
         except Exception as e:
-            logger.error(f"❌ Неочікувана помилка (спроба {attempt + 1}): {e}")
             if attempt < max_retries:
+                logger.warning(f"🔄 Неочікувана помилка (спроба {attempt + 1}), повторюю запит: {e}")
                 continue
+            logger.error(f"❌ Всі спроби вичерпано. Остання помилка: {e}")
             return {"error": str(e), "fallback": True}
 
     return {"error": "Max retries exceeded", "fallback": True}
