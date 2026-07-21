@@ -5,8 +5,6 @@ from pathlib import Path
 import numpy as np
 
 # Гарантуємо правильні шляхи імпорту
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.analyzer.ai_client import generate_json_with_failover  # noqa: E402
 from src.analyzer.causal_inference import get_counterfactual_advice  # noqa: E402

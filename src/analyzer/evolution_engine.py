@@ -5,13 +5,40 @@ import os
 import sentry_sdk
 
 # Гарантуємо правильні шляхи імпорту
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
 
 import duckdb
 from src.logger import logger
 from src.analyzer.ai_client import generate_json_with_failover
 from config.settings import DB_PATH
+from scipy import stats
+
+def detect_data_drift() -> dict:
+    """
+    Виконує статистичний тест Колмогорова-Смирнова (KS-test) 
+    для виявлення дрейфу даних (Data Drift) на основі 'novelty_score'.
+    """
+    con = duckdb.connect(DB_PATH, read_only=True)
+    try:
+        # Порівнюємо розподіл novelty_score останніх 50 проектів vs перших 50
+        recent = con.execute("SELECT novelty_score FROM features ORDER BY project_id DESC LIMIT 50").fetchdf()
+        baseline = con.execute("SELECT novelty_score FROM features ORDER BY project_id ASC LIMIT 50").fetchdf()
+        
+        if recent.empty or baseline.empty or len(recent) < 10 or len(baseline) < 10:
+            return {"drift_detected": False, "reason": "Not enough data"}
+            
+        ks_stat, p_value = stats.ks_2samp(baseline['novelty_score'].dropna(), recent['novelty_score'].dropna())
+        
+        return {
+            "drift_detected": bool(p_value < 0.05),
+            "ks_statistic": float(ks_stat),
+            "p_value": float(p_value),
+            "recommendation": "Retrain model" if p_value < 0.05 else "No action"
+        }
+    except Exception as e:
+        logger.error(f"Помилка KS-test для Data Drift: {e}")
+        return {"drift_detected": False, "error": str(e)}
+    finally:
+        con.close()
 
 def analyze_system_performance() -> dict:
     """
@@ -83,7 +110,14 @@ def trigger_auto_evolution_check():
     Автоматично викликає аналіз точності моделі.
     У разі наявності рекомендацій - надсилає готовий промпт у Sentry (і на пошту).
     """
-    logger.info("🧠 Запуск автоматичної перевірки точності моделі...")
+    logger.info("🧠 Запуск автоматичної перевірки точності моделі та Data Drift...")
+    
+    drift_report = detect_data_drift()
+    if drift_report.get("drift_detected"):
+        logger.warning(f"🚨 DATA DRIFT ВИЯВЛЕНО! KS-статистика: {drift_report.get('ks_statistic')}, p_value: {drift_report.get('p_value')}")
+    else:
+        logger.info(f"📊 Дані стабільні (Data Drift не виявлено). Деталі: {drift_report}")
+
     report = analyze_system_performance()
     
     if report and report.get("antigravity_cli_prompt"):

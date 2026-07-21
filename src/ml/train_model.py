@@ -1,72 +1,73 @@
 import sys
 from pathlib import Path
-import pickle
+import joblib
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import classification_report, roc_auc_score
+from sklearn.model_selection import StratifiedKFold, cross_val_score
 
 # Гарантуємо правильні шляхи імпорту
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.ml.prepare_dataset import prepare_dataset
+from src.ml.prepare_dataset import prepare_dataset_full
 from src.logger import logger
+from config.settings import SETTINGS
 
 def train():
-    logger.info("Початок підготовки даних...")
-    X_train, X_test, y_train, y_test = prepare_dataset()
+    logger.info("Початок підготовки даних (Full Dataset для CV)...")
+    X, y = prepare_dataset_full()
 
     # Створюємо модель із вагою класів, пропорційною дисбалансу
     model = RandomForestClassifier(
-        n_estimators=200,
+        n_estimators=100,  # Зменшуємо для швидшості на слабкому залізі
         class_weight="balanced",  # Корекція дисбалансу 3.7%
-        max_depth=10,
+        max_depth=8,  # Менша глибина = менше RAM
         random_state=42,
-        n_jobs=-1  # Використовуємо всі доступні ядра процесора AMD A4
+        n_jobs=SETTINGS.cpu_cores  # Контрольовано!
     )
 
-    logger.info("Тренування моделі Random Forest... (зачекайте кілька секунд)")
-    model.fit(X_train, y_train)
-    logger.info("Тренування завершено. Оцінюємо якість...")
-
-    # Прогнозуємо класи та ймовірності
-    y_pred = model.predict(X_test)
-    y_prob = model.predict_proba(X_test)[:, 1]
-
-    print("\n=== РЕЗУЛЬТАТИ МОДЕЛІ RANDOM FOREST ===")
-    print(classification_report(y_test, y_pred, target_names=["Програв", "Переможець"]))
+    logger.info("Проведення крос-валідації (Stratified 5-Fold)...")
+    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+    cv_scores = cross_val_score(model, X, y, cv=skf, scoring='roc_auc')
     
-    auc_score = roc_auc_score(y_test, y_prob)
-    print(f"ROC-AUC Score: {auc_score:.4f}")
+    logger.info(f"CV ROC-AUC: {cv_scores.mean():.4f} (+/- {cv_scores.std()*2:.4f})")
+    
+    logger.info("Тренування фінальної моделі Random Forest на всіх даних... (зачекайте кілька секунд)")
+    model.fit(X, y)
+    logger.info("Тренування завершено.")
 
     # Обчислюємо важливість ознак
     print("\n=== ВАЖЛИВІСТЬ ОЗНАК (Feature Importance) ===")
     feature_importance = pd.Series(
         model.feature_importances_,
-        index=X_train.columns
+        index=X.columns
     ).sort_values(ascending=False)
     
     for feature, val in feature_importance.items():
         print(f"  {feature:<25}: {val:.4f}")
 
     # Безпечно створюємо папку для моделей
-    models_dir = Path("data/models")
+    models_dir = PROJECT_ROOT / "data" / "models"
     models_dir.mkdir(parents=True, exist_ok=True)
 
     # Зберігаємо модель
     model_path = models_dir / "random_forest.pkl"
-    with open(model_path, "wb") as f:
-        pickle.dump(model, f)
+    joblib.dump(model, model_path)
         
     # Створюємо копію як найкращу модель за замовчуванням
-    best_model_path = models_path = models_dir / "best_model.pkl"
-    with open(best_model_path, "wb") as f:
-        pickle.dump(model, f)
+    best_model_path = models_dir / "best_model.pkl"
+    joblib.dump(model, best_model_path)
 
     # Зберігаємо назви ознак для використання в майбутньому пайплайні
-    feature_names_path = models_dir = Path("data/models/feature_names.pkl")
-    with open(feature_names_path, "wb") as f:
-        pickle.dump(list(X_train.columns), f)
+    feature_names_path = models_dir / "feature_names.pkl"
+    joblib.dump(list(X_train.columns), feature_names_path)
+
+    # Генеруємо HMAC підпис
+    import hmac, hashlib, os
+    signature_path = models_dir / "best_model.sig"
+    secret = os.getenv("MODEL_SIGN_KEY", "dev-local-key").encode()
+    sig = hmac.new(secret, best_model_path.read_bytes(), hashlib.sha256).digest()
+    signature_path.write_bytes(sig)
 
     logger.info(f"Модель успішно збережено у {model_path}")
     return model

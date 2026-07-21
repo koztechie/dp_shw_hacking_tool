@@ -1,8 +1,6 @@
 import sys
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.logger import logger  # noqa: E402
 from src.ml.feature_store import LightweightFeatureStore  # noqa: E402
@@ -83,6 +81,40 @@ def prepare_dataset():
         )
 
     return X_train, X_test, y_train, y_test
+
+def prepare_dataset_full():
+    """Повертає весь датасет для крос-валідації та фінального тренування."""
+    try:
+        store = LightweightFeatureStore()
+        df = store.get_training_data()
+    except Exception as e:
+        logger.error(f"Помилка Feature Store: {e}")
+        raise e
+
+    if df.empty:
+        raise ValueError("Датасет порожній!")
+
+    if "scraped_at" in df.columns:
+        df = df.drop("scraped_at", axis=1)
+
+    df = df.fillna(0)
+
+    bool_cols = [
+        "uses_sponsor_tech",
+        "has_social_angle",
+        "has_github",
+        "sponsor_challenge_match",
+        "has_video_demo",
+        "is_winner",
+    ]
+    for col in bool_cols:
+        if col in df.columns:
+            df[col] = df[col].astype(int)
+
+    X = df.drop("is_winner", axis=1)
+    y = df["is_winner"]
+    
+    return X, y
 
 
 if __name__ == "__main__":

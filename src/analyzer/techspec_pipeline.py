@@ -4,14 +4,19 @@ import json
 import duckdb
 
 # Гарантуємо правильні шляхи імпорту
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.analyzer.techspec_generator import generate_techspec
 from src.analyzer.cache import cache_key, get_cached, set_cache
 from src.scraper.realtime_news import get_realtime_sponsor_news
 from src.db import get_connection
 from src.logger import logger
+
+# Явна карта колонок — єдине джерело істини
+IDEA_COLUMNS = {
+    1: "idea_1_description",
+    2: "idea_2_description", 
+    3: "idea_3_description"
+}
 
 def generate_and_save_techspec(prediction_id: str, idea_index: int, hackathon_url: str) -> dict:
     """
@@ -21,22 +26,22 @@ def generate_and_save_techspec(prediction_id: str, idea_index: int, hackathon_ur
     """
     logger.info(f"Запуск генерації ТЗ для передбачення {prediction_id} (Ідея #{idea_index})")
     
-    if idea_index not in [1, 2, 3]:
+    if idea_index not in IDEA_COLUMNS:
         return {"error": "Invalid idea_index. Must be 1, 2, or 3."}
+    
+    column_name = IDEA_COLUMNS[idea_index]
 
     try:
         con = get_connection()
         
         # АНТИКРИХКІСТЬ: Заміна JOIN на LEFT JOIN, щоб не втрачати ідею,
         # якщо хакатону ще немає в таблиці hackathons!
-        query = """
-            SELECT p.idea_1_description, h.sponsors 
+        query = f"""
+            SELECT p.{column_name}, h.sponsors 
             FROM predictions p 
             LEFT JOIN hackathons h ON p.hackathon_url = h.url 
             WHERE p.id = ?
         """
-        # Динамічно коригуємо назву стовпця ідеї
-        query = query.replace("p.idea_1_description", f"p.idea_{idea_index}_description")
         row = con.execute(query, [prediction_id]).fetchone()
 
         if not row or not row[0]:

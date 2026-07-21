@@ -3,11 +3,10 @@ from pathlib import Path
 import re
 import time
 import json
+import random
 from bs4 import BeautifulSoup
 
 # Гарантуємо правильні шляхи імпорту
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.logger import logger
 from src.scraper.http_client import safe_get
@@ -21,6 +20,11 @@ def extract_subdomain(url: str) -> str:
     clean = url.replace("https://", "").replace("http://", "").strip("/")
     parts = clean.split(".")
     return parts[0]
+
+def adaptive_delay(base: float = 2.0, attempt: int = 0):
+    """Експоненційна затримка з jitter-ом (випадковістю) для уникнення банів"""
+    delay = base * (2 ** attempt) + random.uniform(0, 1)
+    time.sleep(min(delay, 30))  # Max 30s
 
 def fetch_hackathon_projects(hackathon_subdomain: str) -> list[dict]:
     """
@@ -106,7 +110,7 @@ def fetch_hackathon_projects(hackathon_subdomain: str) -> list[dict]:
                 
             logger.info(f"Сторінка {page}: успішно зчитано {len(cards)} проектів.")
             page += 1
-            time.sleep(SCRAPE_DELAY_SECONDS)
+            adaptive_delay(SCRAPE_DELAY_SECONDS)
             
         except Exception as e:
             logger.error(f"Помилка під час обробки сторінки {page}: {e}")

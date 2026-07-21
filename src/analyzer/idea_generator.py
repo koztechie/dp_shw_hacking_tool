@@ -3,8 +3,6 @@ import sys
 import time
 from pathlib import Path
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.analyzer.ai_client import generate_json_with_failover  # noqa: E402
 from src.analyzer.prompt_manager import prompt_manager  # noqa: E402
@@ -126,6 +124,12 @@ def generate_winning_ideas(hackathon_data: dict, hackathon_analysis: dict, hard_
     prompt_manager.update_prompt_metrics("idea_critic", success, response_time_ms)
 
     if not success:
-        return [{"title": "Offline Web App", "tech_stack": ["HTML", "JS", "SQLite"]}] * 3
+        logger.warning("Застосування детермінованого офлайн-генератора ідей...")
+        base_idea = {
+            "title": f"Offline App Beta for {hackathon_data.get('title', 'Hackathon')}",
+            "tagline": "A reliable local-first solution.",
+            "tech_stack": ["HTML", "JS", "SQLite"]
+        }
+        return [base_idea.copy() for _ in range(3)]
 
     return final_result.get("ideas", [])

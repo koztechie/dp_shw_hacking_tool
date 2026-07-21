@@ -6,7 +6,6 @@ from datetime import datetime
 
 # Гарантуємо правильні шляхи
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.logger import logger
 from config.settings import DB_PATH

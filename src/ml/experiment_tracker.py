@@ -1,11 +1,10 @@
 import sys
 import uuid
 import json
-import pickle
+import joblib
 from pathlib import Path
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
 
 import duckdb
 from src.logger import logger
@@ -28,8 +27,7 @@ def log_experiment(model_name: str, params: dict, metrics: dict, model_obj) -> s
     
     # Зберігаємо фізичний файл (артефакт) моделі з унікальним ID
     model_path = registry_dir / f"{model_name}_{run_id}.pkl"
-    with open(model_path, "wb") as f:
-        pickle.dump(model_obj, f)
+    joblib.dump(model_obj, model_path)
         
     try:
         con = duckdb.connect(DB_PATH)

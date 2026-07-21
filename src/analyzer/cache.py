@@ -2,9 +2,8 @@ import sys
 from pathlib import Path
 import hashlib
 import json
+import time
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.logger import logger
 from config.settings import CACHE_DIR
@@ -12,6 +11,9 @@ from config.settings import CACHE_DIR
 # Гарантуємо існування директорії для кешу
 CACHE_PATH = Path(CACHE_DIR)
 CACHE_PATH.mkdir(parents=True, exist_ok=True)
+
+CACHE_TTL_SECONDS = 7 * 24 * 3600  # 7 днів
+MAX_CACHE_SIZE = 100  # Макс 100 файлів
 
 def cache_key(data) -> str:
     """
@@ -33,6 +35,11 @@ def get_cached(key: str):
     file_path = CACHE_PATH / f"{key}.json"
     
     if file_path.exists():
+        # Перевірка TTL
+        if time.time() - file_path.stat().st_mtime > CACHE_TTL_SECONDS:
+            file_path.unlink(missing_ok=True)
+            return None
+            
         try:
             with open(file_path, "r", encoding="utf-8") as f:
                 return json.load(f)
@@ -48,6 +55,12 @@ def get_cached(key: str):
 
 def set_cache(key: str, value):
     """Зберігає дані в кеш-файл."""
+    # Eviction якщо забагато файлів (LRU - видаляємо ті, що давно не читалися)
+    files = sorted(CACHE_PATH.glob("*.json"), key=lambda p: p.stat().st_atime)
+    while len(files) >= MAX_CACHE_SIZE:
+        files.pop(0).unlink(missing_ok=True)
+        files = sorted(CACHE_PATH.glob("*.json"), key=lambda p: p.stat().st_atime)
+        
     file_path = CACHE_PATH / f"{key}.json"
     try:
         with open(file_path, "w", encoding="utf-8") as f:

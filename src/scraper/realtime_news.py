@@ -2,8 +2,6 @@ import sys
 from pathlib import Path
 import urllib.parse
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.logger import logger
 from src.scraper.http_client import safe_get

@@ -4,10 +4,9 @@ import re
 import json
 import os
 import httpx
+from datetime import datetime, timedelta
 
 # Гарантуємо правильні шляхи імпорту
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.logger import logger
 
@@ -67,8 +66,12 @@ def get_github_metrics(github_url: str) -> dict:
         try:
             r = httpx.get(readme_url, headers=headers, timeout=10.0)
             if r.status_code == 200:
-                # Довжина закодованого Base64 вмісту файлу README
-                metrics["readme_length"] = len(r.json().get("content", ""))
+                # Декодуємо Base64 вміст файлу README для отримання реальної довжини
+                import base64
+                content = r.json().get("content", "")
+                if content:
+                    decoded = base64.b64decode(content).decode("utf-8", errors="ignore")
+                    metrics["readme_length"] = len(decoded)
             elif r.status_code in [403, 429]:
                 logger.warning(f"GitHub API повернув ліміт {r.status_code} для {owner}/{repo}. Метрики встановлено в 0.")
                 return metrics
@@ -80,7 +83,13 @@ def get_github_metrics(github_url: str) -> dict:
         try:
             r2 = httpx.get(commits_url, headers=headers, timeout=10.0)
             if r2.status_code == 200:
-                metrics["commit_count_48h"] = len(r2.json())
+                cutoff_time = datetime.now() - timedelta(hours=48)
+                commits = r2.json()
+                recent_commits = [
+                    c for c in commits 
+                    if datetime.fromisoformat(c["commit"]["committer"]["date"].replace("Z", "+00:00")).timestamp() > cutoff_time.timestamp()
+                ]
+                metrics["commit_count_48h"] = len(recent_commits)
             elif r2.status_code in [403, 429]:
                 logger.warning(f"GitHub API повернув ліміт {r2.status_code} при запиті комітів для {owner}/{repo}.")
         except Exception as e:

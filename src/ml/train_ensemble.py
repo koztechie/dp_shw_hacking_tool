@@ -1,12 +1,10 @@
 import hashlib
-import pickle
+import joblib
 import sys
 from pathlib import Path
 
 import numpy as np
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
 
 import optuna  # noqa: E402
 from imblearn.combine import SMOTETomek  # noqa: E402
@@ -25,7 +23,6 @@ from xgboost import XGBClassifier  # noqa: E402
 from src.logger import logger  # noqa: E402
 from src.ml.experiment_tracker import log_experiment  # noqa: E402
 from src.ml.focal_loss import focal_loss_objective  # noqa: E402
-from src.ml.predictor import safe_pickle_load  # noqa: E402
 from src.ml.prepare_dataset import prepare_dataset  # noqa: E402
 from src.utils.memory_guard import memory_guard  # noqa: E402
 
@@ -171,7 +168,7 @@ def train_ensemble():
     ensemble = {"rf": rf, "xgb": xgb, "weights": (0.4, 0.6), "threshold": best_threshold}
 
     with open(models_dir / "ensemble.pkl", "wb") as f:
-        pickle.dump(ensemble, f)
+        joblib.dump(ensemble, f)
 
     metrics = {"pr_auc": round(float(pr_auc), 4), "f1_score": round(float(best_f1), 4)}
     log_experiment("Antifragile_SoftVoting_RF_XGB", {"rf_weight": 0.4, "xgb_weight": 0.6}, metrics, ensemble)
@@ -180,7 +177,7 @@ def train_ensemble():
     best_model_path = models_dir / "best_model.pkl"
     if not best_model_path.exists():
         with open(best_model_path, "wb") as f:
-            pickle.dump(ensemble, f)
+            joblib.dump(ensemble, f)
     else:
         try:
             # Завантажуємо старого лідера БЕЗ перевірки чекс‑суми:
@@ -188,7 +185,7 @@ def train_ensemble():
             # тому safe_pickle_load дасть false positive "скомпрометовано".
             # Цілісність перевіряється лише при завантаженні для продакшену (load_model).
             with open(best_model_path, "rb") as f:
-                current_best = pickle.load(f)
+                current_best = joblib.load(f)
 
             # Безпечна перевірка старого формату
             if isinstance(current_best, dict) and "rf" in current_best:
@@ -206,29 +203,24 @@ def train_ensemble():
             if pr_auc >= current_auc:
                 print("🏆 Новий ансамбль очолив лідерство!")
                 with open(best_model_path, "wb") as f:
-                    pickle.dump(ensemble, f)
+                    joblib.dump(ensemble, f)
             else:
                 print("🏆 Поточний лідер зберіг першість!")
         except Exception as e:
             logger.warning(f"Не вдалось порівняти з попереднім лідером: {e}. Записую новий як лідера.")
             with open(best_model_path, "wb") as f:
-                pickle.dump(ensemble, f)
+                joblib.dump(ensemble, f)
 
 
     with open(models_dir / "feature_names.pkl", "wb") as f:
-        pickle.dump(list(X_train.columns), f)
+        joblib.dump(list(X_train.columns), f)
 
-    # SHA-256 checksums
-    checksums = {}
-    for fname in ["best_model.pkl", "feature_names.pkl", "ensemble.pkl"]:
-        fpath = models_dir / fname
-        if fpath.exists():
-            with open(fpath, "rb") as f:
-                checksums[fname] = hashlib.sha256(f.read()).hexdigest()
-
-    with open(models_dir / "checksums.txt", "w") as f:
-        for k, v in checksums.items():
-            f.write(f"{k}:{v}\n")
+    # Генеруємо HMAC підпис
+    import hmac, os
+    signature_path = models_dir / "best_model.sig"
+    secret = os.getenv("MODEL_SIGN_KEY", "dev-local-key").encode()
+    sig = hmac.new(secret, best_model_path.read_bytes(), hashlib.sha256).digest()
+    signature_path.write_bytes(sig)
 
     logger.info("🔒 Криптографічні хеші згенеровано. Тренування завершено!")
 

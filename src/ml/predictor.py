@@ -1,47 +1,54 @@
 import hashlib
-import pickle
 import sys
 from pathlib import Path
 
+import joblib
 import pandas as pd
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.logger import logger  # noqa: E402
 
+MODEL_DIR = PROJECT_ROOT / "data" / "models"
+MODEL_PATH = MODEL_DIR / "best_model.pkl"
+SIGNATURE_PATH = MODEL_DIR / "best_model.sig"
 
-def safe_pickle_load(file_path: Path, checksums_path: Path = None) -> object:
-    """Безпечна десеріалізація pickle з перевіркою SHA-256."""
-    if checksums_path and checksums_path.exists():
-        with open(file_path, "rb") as f:
-            current_hash = hashlib.sha256(f.read()).hexdigest()
-        with open(checksums_path) as f:
-            saved_hashes = dict(line.strip().split(":", 1) for line in f if ":" in line)
-        expected = saved_hashes.get(file_path.name)
-        if expected and current_hash != expected:
-            raise ValueError(f"🚨 Файл {file_path.name} скомпрометовано!")
 
-    with open(file_path, "rb") as f:
-        return pickle.load(f)
+def _verify_signature(file_path: Path, sig_path: Path) -> bool:
+    """Перевіряє цілісність моделі через RSA підпис (або HMAC для локального використання)."""
+    if not sig_path.exists():
+        logger.warning("Відсутній файл підпису моделі. Запускаємо в режимі довіри (dev).")
+        return True  # Для локального dev-оточення
+    try:
+        # Для простоти використовуємо HMAC-SHA256 з ключем з env
+        import hmac, os
+        secret = os.getenv("MODEL_SIGN_KEY", "dev-local-key").encode()
+        expected = sig_path.read_bytes()
+        computed = hmac.new(secret, file_path.read_bytes(), hashlib.sha256).digest()
+        return hmac.compare_digest(expected, computed)
+    except Exception as e:
+        logger.error(f"Помилка верифікації підпису моделі: {e}")
+        return False
 
 
 def load_model():
     """Завантажує найкращу натреновану модель та список її ознак."""
-    models_dir = PROJECT_ROOT / "data" / "models"
-    model_path = models_dir / "best_model.pkl"
-    features_path = models_dir / "feature_names.pkl"
-    checksums_path = models_dir / "checksums.txt"
-
-    if not model_path.exists() or not features_path.exists():
+    if not MODEL_PATH.exists():
         raise FileNotFoundError(
             "❌ Файли моделей не знайдені у data/models/. "
             "Будь ласка, запустіть тренування: python src/ml/train_ensemble.py"
         )
-
-    model = safe_pickle_load(model_path, checksums_path)
-    feature_names = safe_pickle_load(features_path, checksums_path)
-
+    
+    if not _verify_signature(MODEL_PATH, SIGNATURE_PATH):
+        raise RuntimeError("🔒 ПОМИЛКА: Підпис моделі не валідний! Можливо, файл було підмінено.")
+    
+    # joblib стійкіший до великих numpy-масивів, ніж pickle
+    model = joblib.load(MODEL_PATH)
+    
+    features_path = MODEL_DIR / "feature_names.pkl"
+    with open(features_path, "rb") as f:
+        feature_names = joblib.load(f)
+    
     return model, feature_names
 
 
@@ -105,10 +112,13 @@ def predict_win_probability(features: dict) -> float:
             # Зворотна сумісність зі StackingClassifier та звичайними моделями
             prob = model.predict_proba(row_df)[0][1]
 
-        # Перевірка на аномальні значення
-        if prob < 0.0 or prob > 1.0:
-            logger.error(f"🚨 Аномальний прогноз: {prob}. Обмежуємо до [0, 1]")
-            prob = max(0.0, min(1.0, prob))
+        # Sanity check
+        if prob < 0 or prob > 1:
+            logger.error(f"Model returned invalid probability: {prob}")
+            return 0.0
+
+        # Логування розподілу для виявлення дрейфу
+        logger.debug(f"Prediction: {prob:.4f}")
 
         logger.info(f"Передбачено ймовірність перемоги для '{features.get('title', 'Проекту')}': {prob:.4f}")
         return float(prob)

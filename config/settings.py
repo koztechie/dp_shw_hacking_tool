@@ -1,48 +1,67 @@
 import os
 from pathlib import Path
+from pydantic_settings import BaseSettings
+from pydantic import Field, validator
 
-from dotenv import load_dotenv
-
-# Автоматично завантажуємо змінні з .env файлу
-load_dotenv()
-
-# Гарантуємо можливість імпорту src
-import sys  # noqa: E402
-
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-if str(PROJECT_ROOT) not in sys.path:
-    sys.path.insert(0, str(PROJECT_ROOT))
-
-from src.utils import SecretManager, safe_path  # noqa: E402
-
-# АНТИКРИХКІСТЬ: Тільки абсолютні безпечні шляхи (Path Traversal Protection)
-DB_PATH = safe_path(PROJECT_ROOT, "data/dp_shw.duckdb")
-CACHE_DIR = safe_path(PROJECT_ROOT, "data/cache")
-
+from src.utils import SecretManager
 secret_manager = SecretManager()
 
-# Налаштування системи моніторингу помилок Sentry
-SENTRY_DSN = os.getenv("SENTRY_DSN")
+class Settings(BaseSettings):
+    gemini_api_key: str = Field(default="", env="GEMINI_API_KEY")
+    mimo_api_key: str = Field(default="", env="MIMO_API_KEY")
+    mimo_base_url: str = Field(default="https://api.xiaomimimo.com/v1", env="MIMO_BASE_URL")
+    mimo_rpm_limit: int = Field(default=100, env="MIMO_RPM_LIMIT")
+    mimo_daily_limit: int = Field(default=5000, env="MIMO_DAILY_LIMIT")
+    
+    openrouter_api_key: str = Field(default="", env="OPENROUTER_API_KEY")
+    openrouter_base_url: str = Field(default="https://openrouter.ai/api/v1", env="OPENROUTER_BASE_URL")
+    
+    sentry_dsn: str = Field(default="", env="SENTRY_DSN")
+    github_token: str = Field(default="", env="GITHUB_TOKEN")
+    model_sign_key: str = Field(default="dev-local-key", env="MODEL_SIGN_KEY")
+    
+    db_path: Path = Field(default=Path("data/dp_shw.duckdb"))
+    log_path: Path = Field(default=Path("logs/app.log"))
+    cache_dir: Path = Field(default=Path("data/cache"))
+    models_dir: Path = Field(default=Path("data/models"))
+    
+    scrape_delay_seconds: float = 2.0
+    max_projects_per_hackathon: int = 500
+    max_html_size: int = 5 * 1024 * 1024
+    
+    cpu_cores: int = Field(default=2, env="CPU_CORES")  # Обмеження для слабкого CPU (напр. AMD A4)
 
-# АНТИКРИХКІСТЬ: Каскадний AI-роутер (Primary → Fallback) з шифруванням
-# 1. Primary: Xiaomi MiMo v2.5 Pro
+    @validator('db_path', 'log_path', 'cache_dir', 'models_dir')
+    def ensure_absolute(cls, v):
+        return v if v.is_absolute() else Path(__file__).resolve().parent.parent / v
+    
+    class Config:
+        env_file = ".env"
+        env_file_encoding = "utf-8"
+        extra = "ignore"
+
+SETTINGS = Settings()
+
+# Post-processing for encrypted keys
 enc_mimo = os.getenv("MIMO_API_KEY_ENCRYPTED")
-MIMO_API_KEY = (
-    secret_manager.decrypt(enc_mimo.encode())
-    if enc_mimo
-    else (os.getenv("MIMO_API_KEY") or os.getenv("GEMINI_API_KEY"))
-)
-MIMO_BASE_URL = os.getenv("MIMO_BASE_URL", "https://api.xiaomimimo.com/v1")
-MIMO_RPM_LIMIT = int(os.getenv("MIMO_RPM_LIMIT", "100"))
-MIMO_DAILY_LIMIT = int(os.getenv("MIMO_DAILY_LIMIT", "5000"))
+if enc_mimo:
+    SETTINGS.mimo_api_key = secret_manager.decrypt(enc_mimo.encode())
+elif not SETTINGS.mimo_api_key:
+    SETTINGS.mimo_api_key = SETTINGS.gemini_api_key
 
-# 2. Fallback: OpenRouter (Llama 3.3, Qwen 2.5 — безкоштовні моделі)
 enc_openrouter = os.getenv("OPENROUTER_API_KEY_ENCRYPTED")
-OPENROUTER_API_KEY = (
-    secret_manager.decrypt(enc_openrouter.encode()) if enc_openrouter else os.getenv("OPENROUTER_API_KEY")
-)
-OPENROUTER_BASE_URL = "https://openrouter.ai/api/v1"
+if enc_openrouter:
+    SETTINGS.openrouter_api_key = secret_manager.decrypt(enc_openrouter.encode())
 
-# Scraper settings
-SCRAPE_DELAY_SECONDS = 1.0
-MAX_PROJECTS_PER_HACKATHON = 1000
+# Backward compatibility bindings
+DB_PATH = SETTINGS.db_path
+CACHE_DIR = SETTINGS.cache_dir
+SENTRY_DSN = SETTINGS.sentry_dsn
+MIMO_API_KEY = SETTINGS.mimo_api_key
+MIMO_BASE_URL = SETTINGS.mimo_base_url
+MIMO_RPM_LIMIT = SETTINGS.mimo_rpm_limit
+MIMO_DAILY_LIMIT = SETTINGS.mimo_daily_limit
+OPENROUTER_API_KEY = SETTINGS.openrouter_api_key
+OPENROUTER_BASE_URL = SETTINGS.openrouter_base_url
+SCRAPE_DELAY_SECONDS = SETTINGS.scrape_delay_seconds
+MAX_PROJECTS_PER_HACKATHON = SETTINGS.max_projects_per_hackathon

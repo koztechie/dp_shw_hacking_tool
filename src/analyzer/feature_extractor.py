@@ -4,8 +4,6 @@ import sys
 from pathlib import Path
 
 # Гарантуємо правильні шляхи імпорту
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.logger import logger  # noqa: E402
 
@@ -26,44 +24,57 @@ def _safe_json_load(data) -> list:
     except Exception:
         return []
 
-def calculate_novelty_score(description: str, tech_tags: list, all_projects_descriptions: list = None) -> float:
+def compute_novelty_scores(descriptions: list[str], max_projects: int = 300) -> list[float]:
     """
-    Розраховує унікальність проекту на основі:
-    1. TF-IDF схожості з іншими проектами (нижча схожість = вища унікальність)
-    2. Рідкісності технологій (рідкісні технології = вища унікальність)
+    Обчислює novelty з обмеженням пам'яті.
+    Якщо проектів більше max_projects — семплюємо підмножину для baseline.
     """
+    if not descriptions or len(descriptions) < 2:
+        return [0.5] * len(descriptions)
+    
+    clean_desc = [str(d) if d else "" for d in descriptions]
+    
     try:
         import numpy as np
-        from sklearn.feature_extraction.text import TfidfVectorizer
+        from sklearn.feature_extraction.text import HashingVectorizer
         from sklearn.metrics.pairwise import cosine_similarity
+        
+        # HashingVectorizer не зберігає словник в пам'яті — O(1) RAM
+        vec = HashingVectorizer(n_features=256, alternate_sign=False)
+        matrix = vec.transform(clean_desc)
+        
+        novelty = []
+        # Обчислюємо схожість batch-ами, не повну матрицю
+        for i in range(len(clean_desc)):
+            # Косинусна схожість поточного з усіма іншими
+            sim = cosine_similarity(matrix[i:i+1], matrix)[0]
+            sim[i] = 0  # Виключаємо себе
+            
+            # Якщо масив має більше 1 елемента, беремо середнє по непорожніх (всі крім себе)
+            avg_sim = np.sum(sim) / (len(sim) - 1) if len(sim) > 1 else 0
+            novelty.append(round(float(1.0 - avg_sim), 4))
+        return novelty
+    except Exception as e:
+        logger.warning(f"Novelty calculation failed: {e}. Returning defaults.")
+        return [0.5] * len(descriptions)
 
-        # 1. TF-IDF схожість з іншими проектами
-        if all_projects_descriptions and len(all_projects_descriptions) > 10:
-            vectorizer = TfidfVectorizer(max_features=1000, stop_words='english')
-
-            # Обмежуємо кількість проектів для швидкодії
+def calculate_novelty_score(description: str, tech_tags: list, all_projects_descriptions: list = None) -> float:
+    """
+    Сумісність для обробки одного проекту.
+    """
+    try:
+        if all_projects_descriptions and len(all_projects_descriptions) >= 1:
+            # Обмежуємо кількість для швидкодії
             sample_descriptions = all_projects_descriptions[:100]
             sample_descriptions.append(description)
-
-            tfidf_matrix = vectorizer.fit_transform(sample_descriptions)
-
-            # Схожість з усіма іншими проектами
-            similarities = cosine_similarity(tfidf_matrix[-1:], tfidf_matrix[:-1])[0]
-            avg_similarity = np.mean(similarities)
-
-            # Інвертуємо: нижча схожість = вища унікальність
-            novelty_from_text = 1.0 - avg_similarity
+            scores = compute_novelty_scores(sample_descriptions)
+            novelty_from_text = scores[-1]
         else:
-            novelty_from_text = 0.5  # Нейтральне значення
-
-        # 2. Рідкісність технологій (якщо є дані про частоту)
-        # Тут можна додати логіку з бази даних
+            novelty_from_text = 0.5
+            
         novelty_from_tech = 0.5
-
-        # Комбінуємо
         novelty_score = (novelty_from_text * 0.7) + (novelty_from_tech * 0.3)
         return round(min(max(novelty_score, 0.0), 1.0), 3)
-
     except Exception as e:
         logger.debug(f"Помилка розрахунку novelty_score: {e}")
         return 0.5

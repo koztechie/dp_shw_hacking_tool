@@ -3,12 +3,12 @@ import json
 import re
 import sys
 import time
-from datetime import datetime
+import html
+from datetime import datetime, timedelta
+from tenacity import retry, stop_after_attempt, wait_exponential
 from pathlib import Path
 
 # Гарантуємо правильні шляхи імпорту
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
 
 from openai import APIConnectionError, APIStatusError, OpenAI, RateLimitError  # noqa: E402
 
@@ -16,61 +16,41 @@ from src.analyzer.prompt_validator import PromptSchemaValidator  # noqa: E402
 from src.analyzer.rate_limiter import check_and_increment  # noqa: E402
 from src.logger import logger  # noqa: E402
 
+MAX_RESPONSE_SIZE = 100 * 1024  # 100KB ліміт
+
 
 # ==========================================
 # 🔌 CIRCUIT BREAKER PATTERN (АНТИКРИХКІСТЬ)
 # ==========================================
-class CircuitBreaker:
-    """
-    Запобіжник: Автоматично блокує запити до зовнішнього API після 3 збоїв поспіль,
-    захищаючи процесор, час відгуку та запобігаючи нескінченним таймаутам.
-    """
-
-    def __init__(self, failure_threshold=3, recovery_timeout=300):
-        self.failure_count = 0
-        self.failure_threshold = failure_threshold
-        self.recovery_timeout = recovery_timeout
-        self.last_failure_time = 0
-
-    def is_open(self) -> bool:
-        if self.failure_count >= self.failure_threshold:
-            # Перевіряємо, чи минув час відновлення (5 хвилин)
-            if time.time() - self.last_failure_time < self.recovery_timeout:
-                return True
-            else:
-                logger.warning("🔌 Circuit Breaker перейшов у стан HALF-OPEN. Пробний запит дозволено...")
-                return False
+class AICircuitBreaker:
+    def __init__(self):
+        self.failures = {}
+        self.cooldown = 300  # 5 хвилин cooldown
+    
+    def is_open(self, provider: str) -> bool:
+        if provider not in self.failures:
+            return False
+        last_fail, count = self.failures[provider]
+        if count >= 3 and datetime.now() - last_fail < timedelta(seconds=self.cooldown):
+            logger.warning(f"🔌 Circuit Breaker OPEN для {provider}. Очікування...")
+            return True
         return False
+    
+    def record_failure(self, provider: str):
+        now = datetime.now()
+        if provider in self.failures:
+            _, count = self.failures[provider]
+            self.failures[provider] = (now, count + 1)
+        else:
+            self.failures[provider] = (now, 1)
+        logger.error(f"⚠️ Збій API провайдера: {provider}. Помилок поспіль: {self.failures[provider][1]}")
+    
+    def record_success(self, provider: str):
+        if provider in self.failures:
+            logger.info(f"🔌 Circuit Breaker CLOSED для {provider} (зв'язок відновлено).")
+            del self.failures[provider]
 
-    def record_failure(self):
-        self.failure_count += 1
-        self.last_failure_time = time.time()
-        logger.error(f"⚠️ Зафіксовано збій API Xiaomi. Помилок поспіль: {self.failure_count}/{self.failure_threshold}")
-        if self.failure_count >= self.failure_threshold:
-            logger.critical(
-                f"🚨 AI-сервіс перевантажений. Зачекайте 5 хв"
-            )
-
-    def reset(self):
-        if self.failure_count > 0:
-            logger.info("🔌 Circuit Breaker повернувся в стан CLOSED (зв'язок успішно відновлено).")
-        self.failure_count = 0
-        self.last_failure_time = 0
-
-    def call(self, func, *args, **kwargs):
-        if self.is_open():
-            raise Exception("Circuit breaker is OPEN. API calls are temporarily blocked.")
-        try:
-            result = func(*args, **kwargs)
-            self.reset()
-            return result
-        except Exception:
-            self.record_failure()
-            raise
-
-
-# Ініціалізуємо глобальний запобіжник
-mimo_circuit_breaker = CircuitBreaker(failure_threshold=3, recovery_timeout=300)
+breaker = AICircuitBreaker()
 
 
 def _get_image_mime_type(image_bytes: bytes) -> str:
@@ -105,9 +85,9 @@ def _call_api(
         return {"error": "Local rate limit exceeded", "fallback": True}
 
     # АНТИКРИХКІСТЬ: Миттєвий фолбек, якщо запобіжник відкритий (заощаджує час та ресурси)
-    if mimo_circuit_breaker.is_open():
-        logger.warning("🔌 AI-сервіс перевантажений. Зачекайте 5 хв. Миттєве перемикання на офлайн.")
-        return {"error": "Circuit breaker is OPEN", "fallback": True}
+    provider = "mimo" if "xiaomi" in base_url.lower() or "mimo" in base_url.lower() else "openrouter"
+    if breaker.is_open(provider):
+        return {"error": f"Circuit breaker is OPEN for {provider}", "fallback": True}
 
     # КРИТИЧНИЙ ФІКС: Додаємо JSON Schema в промпт для структурованого виводу
     if schema_name:
@@ -153,19 +133,35 @@ def _call_api(
                     "temperature": 1.0 if thinking else 0.3,
                     "max_completion_tokens": 16384,
                     "timeout": 120.0,
+                    "stream": True,  # Вмикаємо стрімінг для запобігання OOM
                 }
                 if "mimo" in model:
                     kwargs["extra_body"] = {"thinking": {"type": "enabled" if thinking else "disabled"}}
-                return client.chat.completions.create(**kwargs)
+                
+                response_stream = client.chat.completions.create(**kwargs)
+                full_content = ""
+                for chunk in response_stream:
+                    if chunk.choices and chunk.choices[0].delta.content:
+                        full_content += chunk.choices[0].delta.content
+                        if len(full_content.encode('utf-8')) > MAX_RESPONSE_SIZE:
+                            raise ValueError(f"Response too large, exceeding limit of {MAX_RESPONSE_SIZE} bytes.")
+                return full_content
 
-            # ВИКЛИКАЄМО API ЧЕРЕЗ ЗАПОБІЖНИК (Antifragile Circuit Breaker)
-            response = mimo_circuit_breaker.call(_execute_call)
-
-            result_text = response.choices[0].message.content
+            # ВИКЛИКАЄМО API ЧЕРЕЗ ЗАПОБІЖНИК ТА ТЕНАСІТІ
+            @retry(stop=stop_after_attempt(2), wait=wait_exponential(multiplier=1, min=2, max=10), reraise=True)
+            def call_with_retry():
+                try:
+                    res = _execute_call()
+                    breaker.record_success(provider)
+                    return res
+                except Exception as e:
+                    breaker.record_failure(provider)
+                    raise e
+                    
+            result_text = call_with_retry()
 
             if not result_text or not result_text.strip():
-                finish_reason = response.choices[0].finish_reason
-                raise ValueError(f"Сервер повернув порожній результат. Причина: {finish_reason}")
+                raise ValueError("Сервер повернув порожній результат або сталася помилка стрімінгу.")
 
             # Видаляємо теги міркувань
             result_text = re.sub(r"<think>.*?</think>", "", result_text, flags=re.DOTALL).strip()
@@ -209,15 +205,15 @@ def _call_api(
         # --- ЗБОЇ ЗВ'ЯЗКУ ТА СЕРВЕРА ТРИГЕРИТЬ ЗАПОБІЖНИК ---
         except RateLimitError as e:
             logger.error(f"❌ Rate Limit Перевищено (429): {e}")
-            mimo_circuit_breaker.record_failure()
+            breaker.record_failure(provider)
             return {"error": "RateLimitError", "fallback": True}
         except APIConnectionError as e:
             logger.error(f"❌ Помилка мережевого з'єднання: {e}")
-            mimo_circuit_breaker.record_failure()
+            breaker.record_failure(provider)
             return {"error": "APIConnectionError", "fallback": True}
         except APIStatusError as e:
             logger.error(f"❌ Помилка статусу API (Код {e.status_code}): {e.message}")
-            mimo_circuit_breaker.record_failure()
+            breaker.record_failure(provider)
             return {"error": f"APIStatusError: {e.status_code}", "fallback": True}
         except Exception as e:
             if attempt < max_retries:
@@ -229,6 +225,22 @@ def _call_api(
     return {"error": "Max retries exceeded", "fallback": True}
 
 
+def sanitize_user_input(text: str, max_length: int = 5000) -> str:
+    """Очищує користувацький ввод від потенційних prompt injection спроб."""
+    if not text:
+        return ""
+    # Екрануємо HTML, обрізаємо, прибираємо спецсимволи
+    text = html.escape(text[:max_length])
+    # Заміна небезпечних директив
+    dangerous = ["ignore previous", "ignore all", "system prompt", "user prompt", 
+                 "delete all", "rm -rf", "exec(", "eval(", "import os"]
+    for d in dangerous:
+        if d.lower() in text.lower():
+            import re
+            text = re.sub(re.escape(d), f"[BLOCKED:{d.upper()}]", text, flags=re.IGNORECASE)
+            logger.warning(f"Заблоковано потенційно небезпечний фрагмент: {d}")
+    return text
+
 def generate_json_with_failover(
     prompt: str,
     image_bytes: bytes = None,
@@ -237,6 +249,9 @@ def generate_json_with_failover(
     max_retries: int = 2,
 ) -> dict:
     """Каскадний AI-роутер: MiMo → OpenRouter → Offline Fallback."""
+    # Sanitize prompt before sending
+    prompt = sanitize_user_input(prompt)
+    
     from config.settings import MIMO_API_KEY, MIMO_BASE_URL, OPENROUTER_API_KEY, OPENROUTER_BASE_URL
 
     # Спроба 1: MiMo

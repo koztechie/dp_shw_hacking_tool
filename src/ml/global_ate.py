@@ -3,10 +3,8 @@ from pathlib import Path
 
 import numpy as np
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.ml.predictor import safe_pickle_load  # noqa: E402
+from src.ml.predictor import load_model  # noqa: E402
 from src.ml.prepare_dataset import prepare_dataset  # noqa: E402
 
 
@@ -16,12 +14,11 @@ def calculate_global_ate():
     # Отримуємо дані
     X_train, X_test, y_train, y_test = prepare_dataset()
 
-    model_path = PROJECT_ROOT / "data" / "models" / "best_model.pkl"
-    if not model_path.exists():
-        print("❌ Модель не знайдена. Спочатку натренуйте ансамбль.")
+    try:
+        model, _ = load_model()
+    except Exception as e:
+        print(f"❌ Модель не знайдена або скомпрометована: {e}")
         return
-
-    model = safe_pickle_load(model_path, PROJECT_ROOT / "data" / "models" / "checksums.txt")
 
     treatments = [
         ("has_video_demo", "Наявність відео-демо"),

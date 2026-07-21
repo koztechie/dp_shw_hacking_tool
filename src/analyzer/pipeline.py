@@ -2,9 +2,8 @@ import sys
 from pathlib import Path
 import uuid
 import json
+import hashlib
 
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.logger import logger
 from src.analyzer.hackathon_parser import parse_hackathon_from_url, parse_hackathon_from_html
@@ -113,7 +112,12 @@ def analyze_hackathon(url: str) -> dict:
 def analyze_hackathon_offline(html_content: str) -> dict:
     """Аналіз офлайн (з HTML файлу)."""
     logger.info("🚀 Запуск AI-аналізу для вивантаженого HTML файлу")
-    hackathon_data = parse_hackathon_from_html(html_content, base_url="offline_upload")
+    
+    # КРИТИЧНИЙ ФІКС: Хешуємо контент для унікального ключа кешу
+    content_hash = hashlib.sha256(html_content.encode('utf-8')).hexdigest()[:16]
+    unique_base_url = f"offline_{content_hash}"
+    
+    hackathon_data = parse_hackathon_from_html(html_content, base_url=unique_base_url)
     if not hackathon_data:
         return {"error": "Failed to parse HTML content"}
-    return _run_analysis_pipeline(hackathon_data, "offline_upload")
+    return _run_analysis_pipeline(hackathon_data, unique_base_url)

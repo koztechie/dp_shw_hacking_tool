@@ -27,7 +27,6 @@ from slowapi.util import get_remote_address
 
 # Гарантуємо правильні шляхи імпорту
 PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
 
 from config.settings import DB_PATH  # noqa: E402
 from src.logger import logger  # noqa: E402
@@ -62,30 +61,27 @@ async def lifespan(app: FastAPI):
     # Startup
     logger.info("🚀 FastAPI запускається...")
 
-    # Ініціалізація БД
+    # Ініціалізація БД (тепер виконує також і міграції)
     try:
         from src.db import init_db
         init_db()
-        logger.info("✅ База даних ініціалізована")
+        logger.info("✅ База даних ініціалізована та перевірена")
+        logger.info("🚀 Система готова до роботи")
     except Exception as e:
         logger.error(f"❌ Помилка ініціалізації БД: {e}")
 
     yield
 
     # Shutdown
-    logger.info("🛑 FastAPI зупиняється...")
+    logger.info("🛑 Отримано сигнал завершення. Чекаємо на фонові задачі...")
+    
+    # Сигналізуємо всім фоновим задачам про зупинку
+    shutdown_event.set()
+    
+    # Даємо 2 секунди на завершення фонових задач (scraper, AI tasks, backup)
+    await asyncio.sleep(2)
 
-    # Закриваємо всі активні з'єднання з БД
-    try:
-        # DuckDB автоматично закриває з'єднання при виході з контексту
-        logger.info("✅ З'єднання з БД закриті")
-    except Exception as e:
-        logger.error(f"Помилка закриття БД: {e}")
-
-    # Очікуємо завершення background tasks
-    logger.info("✅ Graceful shutdown завершено")
-
-# Оновлюємо створення app
+    logger.info("✅ Завершення роботи.")
 app = FastAPI(title="DP_SHW_Hacking_Tool", lifespan=lifespan)
 
 # АНТИКРИХКІСТЬ: Сувора політика CORS (OWASP), яка не ламає локальні ШІ-фронтенди (Vite/React)
@@ -598,15 +594,11 @@ ALLOWED_MIME_TYPES = ["text/html", "application/xhtml+xml"]
 @limiter.limit("2/minute")
 async def analyze_html(request: Request, file: UploadFile = File(...)):  # noqa: B008
     try:
-        # 1. Перевірка розміру файлу
-        file.file.seek(0, 2)  # Перехід в кінець файлу
-        file_size = file.file.tell()
-        file.file.seek(0)  # Повернення на початок
-
-        if file_size > MAX_FILE_SIZE:
-            logger.warning(f"🚨 Занадто великий файл: {file_size} bytes")
+        # 1. Перевірка типу файлу по заголовку
+        content_type = file.content_type
+        if content_type not in ["text/html", "text/plain", "application/octet-stream"]:
             from src.ui.errors import UserError, ErrorType
-            user_error = UserError(ErrorType.FILE_TOO_LARGE)
+            user_error = UserError(ErrorType.INVALID_FILE)
             return JSONResponse(
                 {
                     "status": "error",
@@ -614,15 +606,37 @@ async def analyze_html(request: Request, file: UploadFile = File(...)):  # noqa:
                     "title": user_error.title,
                     "body": user_error.body,
                     "action": user_error.suggested_action,
-                    "technical": f"File too large. Maximum size: {MAX_FILE_SIZE // (1024 * 1024)}MB",
+                    "technical": f"Invalid content type: {content_type}",
                 },
-                status_code=413,
+                status_code=415,
             )
 
-        # 2. Перевірка MIME типу
-        content = await file.read()
-        mime_type = magic.from_buffer(content, mime=True)
+        # 2. Streaming read with size limit (захист від OOM)
+        chunks = []
+        total_size = 0
+        while chunk := await file.read(8192):
+            total_size += len(chunk)
+            if total_size > MAX_FILE_SIZE:
+                logger.warning(f"🚨 Занадто великий файл: перевищено {MAX_FILE_SIZE} bytes")
+                from src.ui.errors import UserError, ErrorType
+                user_error = UserError(ErrorType.FILE_TOO_LARGE)
+                return JSONResponse(
+                    {
+                        "status": "error",
+                        "error_type": user_error.type.value,
+                        "title": user_error.title,
+                        "body": user_error.body,
+                        "action": user_error.suggested_action,
+                        "technical": f"File too large. Maximum size: {MAX_FILE_SIZE // (1024 * 1024)}MB",
+                    },
+                    status_code=413,
+                )
+            chunks.append(chunk)
 
+        content = b"".join(chunks)
+        
+        # Перевірка MIME типу через magic (додатковий захист)
+        mime_type = magic.from_buffer(content, mime=True)
         if mime_type not in ALLOWED_MIME_TYPES:
             logger.warning(f"🚨 Невалідний MIME тип: {mime_type}")
             from src.ui.errors import UserError, ErrorType
@@ -868,7 +882,8 @@ async def health(request: Request):
             "ml_model": {"status": "unknown", "details": {}},
             "ai_api": {"status": "unknown", "details": {}},
             "disk_space": {"status": "unknown", "details": {}},
-            "memory": {"status": "unknown", "details": {}}
+            "memory": {"status": "unknown", "details": {}},
+            "cpu": {"status": "unknown", "details": {}}
         },
         "metrics": {
             "hackathons": 0,
@@ -917,9 +932,8 @@ async def health(request: Request):
     model_path = PROJECT_ROOT / "data" / "models" / "best_model.pkl"
     if model_path.exists():
         try:
-            import pickle
-            with open(model_path, "rb") as f:
-                model = pickle.load(f)
+            import joblib
+            model = joblib.load(model_path)
 
             # Перевіряємо, чи модель має необхідні атрибути
             # NOTE: Ensemble soft-voting uses dict with rf and xgb
@@ -1045,28 +1059,21 @@ async def health(request: Request):
         mem_usage = psutil.virtual_memory()
         mem_percent = mem_usage.percent
 
-        if mem_percent < 75:
+        if mem_percent < 80:
             health_status["components"]["memory"] = {
                 "status": "ok",
                 "details": {
                     "used_percent": round(mem_percent, 1),
-                    "available_gb": round(mem_usage.available / (1024**3), 2)
+                    "available_mb": round(mem_usage.available / (1024**2), 2)
                 }
             }
-        elif mem_percent < 85:
+        elif mem_percent < 90:
             health_status["components"]["memory"] = {
                 "status": "warning",
                 "details": {
                     "used_percent": round(mem_percent, 1),
-                    "available_gb": round(mem_usage.available / (1024**3), 2)
-                }
-            }
-        else:
-            health_status["components"]["memory"] = {
-                "status": "critical",
-                "details": {
-                    "used_percent": round(mem_percent, 1),
-                    "available_gb": round(mem_usage.available / (1024**3), 2)
+                    "available_mb": round(mem_usage.available / (1024**2), 2),
+                    "warning": "RAM usage critical. Pause background tasks."
                 }
             }
             critical_failures.append("memory")
@@ -1076,9 +1083,35 @@ async def health(request: Request):
             "details": {"error": str(e)}
         }
 
+    # 6. CPU Health Check
+    try:
+        cpu_percent = psutil.cpu_percent(interval=0.1)
+        if cpu_percent < 85:
+            health_status["components"]["cpu"] = {
+                "status": "ok",
+                "details": {"used_percent": cpu_percent}
+            }
+        elif cpu_percent <= 95:
+            health_status["components"]["cpu"] = {
+                "status": "warning",
+                "details": {"used_percent": cpu_percent}
+            }
+        else:
+            health_status["components"]["cpu"] = {
+                "status": "degraded",
+                "details": {"used_percent": cpu_percent}
+            }
+            # Add to failures to degrade status but not make it critical 503
+            critical_failures.append("cpu")
+    except Exception as e:
+        health_status["components"]["cpu"] = {
+            "status": "error",
+            "details": {"error": str(e)}
+        }
+
     # Визначаємо загальний статус
     if critical_failures:
-        if "database" in critical_failures or "ml_model" in critical_failures:
+        if "database" in critical_failures or "ml_model" in critical_failures or "memory" in critical_failures:
             health_status["status"] = "critical"
         else:
             health_status["status"] = "degraded"
@@ -1277,10 +1310,16 @@ async def metrics():
 
 if __name__ == "__main__":
     import os
-
     import uvicorn
 
-    is_dev = os.getenv("ENV", "production") == "development"
-    mode_text = "DEVELOPMENT (з авто-перезавантаженням)" if is_dev else "PRODUCTION (стабільний режим)"
-    logger.info(f"Запуск локального сервера FastAPI... [{mode_text}]")
-    uvicorn.run("src.api.main:app", host="127.0.0.1", port=8000, reload=is_dev)
+    is_dev = os.getenv("DP_SHW_ENV", "production").lower() == "development"
+    reload_flag = is_dev  # Тільки в dev!
+    
+    logger.info(f"Запуск FastAPI (env={'dev' if is_dev else 'production'})...")
+    uvicorn.run(
+        "src.api.main:app", 
+        host="127.0.0.1", 
+        port=int(os.getenv("PORT", 8000)),
+        reload=reload_flag,
+        workers=1 if not reload_flag else None  # 1 worker для слабкого заліза
+    )

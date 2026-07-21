@@ -2,11 +2,10 @@ import sys
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 from sklearn.decomposition import PCA
 
 # Гарантуємо правильні шляхи імпорту
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.analyzer.feature_extractor import extract_features  # noqa: E402
 from src.db import get_connection  # noqa: E402
@@ -15,11 +14,28 @@ from src.ml.embedder import EmbedderSingleton  # noqa: E402
 from src.utils.memory_guard import memory_guard  # noqa: E402
 
 
+def safe_nan_to_none(df):
+    """Безпечно конвертує всі варіанти NaN у None для сумісності зі SQLite/DuckDB"""
+    return df.where(pd.notna(df), None)
+
 @memory_guard.memory_aware(task_name="Batch Feature Extraction")
-def run_batch_feature_extraction():
+def run_batch_feature_extraction(incremental: bool = True):
     con = get_connection()
     try:
-        hackathons_df = con.execute("SELECT * FROM hackathons").fetchdf().replace({np.nan: None})
+        if incremental:
+            # Шукаємо лише ті хакатони, де є проекти без ознак (features)
+            hackathons_df = con.execute("""
+                SELECT DISTINCT h.* 
+                FROM hackathons h
+                JOIN projects p ON h.id = p.hackathon_id
+                LEFT JOIN features f ON p.id = f.project_id
+                WHERE f.project_id IS NULL
+            """).fetchdf()
+        else:
+            # Повний перерахунок
+            hackathons_df = con.execute("SELECT * FROM hackathons").fetchdf()
+            
+        hackathons_df = safe_nan_to_none(hackathons_df)
         org_reputation = hackathons_df["organizer"].value_counts().to_dict()
 
         logger.info("Завантаження Sentence-BERT (MiniLM) через синглтон...")
@@ -35,7 +51,7 @@ def run_batch_feature_extraction():
             if projects_df.empty:
                 continue
 
-            projects_df = projects_df.replace({np.nan: None})
+            projects_df = safe_nan_to_none(projects_df)
             descriptions = [str(d) if d else "empty project" for d in projects_df["description"].tolist()]
 
             # Розрахунок ембеддингів та PCA

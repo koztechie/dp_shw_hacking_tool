@@ -6,8 +6,6 @@ import uuid
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 # Гарантуємо правильні шляхи
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
 
 from src.logger import logger
 from src.scraper.hackathon_list_scraper import fetch_ended_hackathons
