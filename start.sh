@@ -3,6 +3,18 @@ set -e
 
 cd "$(dirname "$0")"
 
+# Swap 2GB (створюємо, якщо ще не існує)
+if [ ! -f /swapfile ]; then
+    echo "⚙️ Створення 2GB swap файлу для захисту від OOM..."
+    sudo fallocate -l 2G /swapfile && sudo chmod 600 /swapfile
+    sudo mkswap /swapfile && sudo swapon /swapfile
+fi
+
+# Обмеження пам'яті процесу
+ulimit -v 5242880  # 5GB virtual memory
+export PYTHONDONTWRITEBYTECODE=1
+export PYTHONMALLOC=malloc  # Агресивне звільнення
+
 # АНТИКРИХКІСТЬ: Автоматичне створення та відновлення venv
 if [ ! -f "venv/bin/python" ]; then
     echo "🔧 Створення віртуального середовища..."

@@ -31,8 +31,23 @@ def _verify_signature(file_path: Path, sig_path: Path) -> bool:
         return False
 
 
-def load_model():
-    """Завантажує найкращу натреновану модель та список її ознак."""
+import gc
+
+_cached_model = None
+_cached_feature_names = None
+
+def load_model(force_reload=False):
+    """Завантажує найкращу натреновану модель та список її ознак (з кешуванням)."""
+    global _cached_model, _cached_feature_names
+    
+    if _cached_model is not None and not force_reload:
+        return _cached_model, _cached_feature_names
+        
+    if force_reload:
+        _cached_model = None
+        _cached_feature_names = None
+        gc.collect()
+
     if not MODEL_PATH.exists():
         raise FileNotFoundError(
             "❌ Файли моделей не знайдені у data/models/. "
@@ -43,13 +58,13 @@ def load_model():
         raise RuntimeError("🔒 ПОМИЛКА: Підпис моделі не валідний! Можливо, файл було підмінено.")
     
     # joblib стійкіший до великих numpy-масивів, ніж pickle
-    model = joblib.load(MODEL_PATH)
+    _cached_model = joblib.load(MODEL_PATH)
     
     features_path = MODEL_DIR / "feature_names.pkl"
     with open(features_path, "rb") as f:
-        feature_names = joblib.load(f)
+        _cached_feature_names = joblib.load(f)
     
-    return model, feature_names
+    return _cached_model, _cached_feature_names
 
 
 def validate_features(features: dict, feature_names: list) -> dict:

@@ -11,35 +11,80 @@ from config.settings import SETTINGS  # noqa: E402
 from src.logger import logger  # noqa: E402
 
 
-def get_connection(retries: int = 5, delay: float = 1.0):
-    """
-    Повертає стандартне з'єднання з DuckDB у режимі читання/запису.
-    АНТИКРИХКІСТЬ: Захист від паралельних блокувань іншими процесами (Retry Mechanism).
-    """
-    Path(SETTINGS.db_path).parent.mkdir(parents=True, exist_ok=True)
-    temp_dir = Path("./data/tmp")
-    temp_dir.mkdir(parents=True, exist_ok=True)
-    
-    for attempt in range(1, retries + 1):
+import threading
+
+class DuckDBPool:
+    _read_con = None
+    _write_con = None
+    write_lock = threading.Lock()
+
+    @classmethod
+    def get_read_connection(cls):
+        if cls._read_con is None:
+            cls._read_con = duckdb.connect(SETTINGS.db_path, read_only=True)
+            cls._read_con.execute("PRAGMA enable_progress_bar=false")
+            cls._read_con.execute("PRAGMA memory_limit='512MB'")
+            cls._read_con.execute("PRAGMA threads=2")
+        return cls._read_con
+
+    @classmethod
+    def get_write_connection(cls):
+        if cls._write_con is None:
+            Path(SETTINGS.db_path).parent.mkdir(parents=True, exist_ok=True)
+            temp_dir = Path("./data/tmp")
+            temp_dir.mkdir(parents=True, exist_ok=True)
+            cls._write_con = duckdb.connect(SETTINGS.db_path, read_only=False)
+            cls._write_con.execute("PRAGMA enable_progress_bar=false")
+            cls._write_con.execute("PRAGMA memory_limit='512MB'")
+            cls._write_con.execute("PRAGMA threads=2")
+            cls._write_con.execute(f"PRAGMA temp_directory='{temp_dir}'")
+        return cls._write_con
+
+class PooledConnection:
+    """Огортка для безпечної роботи з глобальним з'єднанням (ігнорує close)."""
+    def __init__(self, read_only=False):
+        self.read_only = read_only
+        # Якщо read_only=True, беремо read-con, інакше write-con
         try:
-            # Намагаємося відкрити з'єднання
-            con = duckdb.connect(SETTINGS.db_path)
-            # Вмикаємо стійкість до відмов та обмежуємо ресурси (під AMD A4)
-            con.execute("PRAGMA enable_progress_bar=false")
-            con.execute("PRAGMA memory_limit='1GB'")  # Обмеження для 6GB RAM системи
-            con.execute("PRAGMA threads=2")  # AMD A4 зазвичай 2 ядра, не перевантажуємо
-            con.execute(f"PRAGMA temp_directory='{temp_dir}'")  # Зберігаємо spill-over дані на диску локально
-            return con
-        except Exception as e:
-            if attempt == retries:
-                logger.error(f"❌ Фатальна помилка DuckDB: Не вдалося підключитися після {retries} спроб: {e}")
-                raise e
-            logger.warning(
-                f"⚠️ База даних заблокована іншим процесом. Спроба {attempt}/{retries}. Очікування {delay}с..."
-            )
-            time.sleep(delay)
-            # Експоненційне збільшення часу очікування
-            delay *= 1.5
+            self.con = DuckDBPool.get_read_connection() if read_only else DuckDBPool.get_write_connection()
+        except duckdb.IOException as e:
+            # DuckDB не дозволяє write_con та read_con одночасно в одному процесі у старих версіях, 
+            # або навпаки. Якщо падає - використовуємо write-con для всього.
+            self.con = DuckDBPool.get_write_connection()
+            
+    def execute(self, *args, **kwargs):
+        if not self.read_only:
+            with DuckDBPool.write_lock:
+                return self.con.execute(*args, **kwargs)
+        return self.con.execute(*args, **kwargs)
+
+    def fetchdf(self):
+        return self.con.fetchdf()
+
+    def fetch_arrow_table(self):
+        return self.con.fetch_arrow_table()
+
+    def fetchone(self):
+        return self.con.fetchone()
+        
+    def fetchall(self):
+        return self.con.fetchall()
+
+    def commit(self):
+        if not self.read_only:
+            with DuckDBPool.write_lock:
+                return self.con.commit()
+
+    def close(self):
+        # Ми не закриваємо глобальне з'єднання
+        pass
+
+def get_connection(retries: int = 5, delay: float = 1.0, read_only: bool = False):
+    """
+    Повертає віртуальне з'єднання з пулу.
+    Параметри retries і delay ігноруються, оскільки з'єднання завжди відкрите.
+    """
+    return PooledConnection(read_only=read_only)
 
 def backup_db():
     """Створює timestamped backup."""

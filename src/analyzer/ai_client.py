@@ -65,6 +65,13 @@ def _get_image_mime_type(image_bytes: bytes) -> str:
     return "image/jpeg"
 
 
+_clients = {}
+
+def _get_client(api_key: str, base_url: str) -> OpenAI:
+    if base_url not in _clients:
+        _clients[base_url] = OpenAI(api_key=api_key, base_url=base_url)
+    return _clients[base_url]
+
 def _call_api(
     api_key: str,
     base_url: str,
@@ -76,7 +83,7 @@ def _call_api(
     max_retries: int = 2
 ) -> dict:
     try:
-        client = OpenAI(api_key=api_key, base_url=base_url)
+        client = _get_client(api_key=api_key, base_url=base_url)
     except Exception as e:
         logger.warning(f"Не вдалося ініціалізувати OpenAI клієнт: {e}")
         return {"error": "Client Init Error", "fallback": True}

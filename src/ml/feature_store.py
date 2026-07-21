@@ -48,11 +48,11 @@ class LightweightFeatureStore:
         finally:
             if 'con' in locals(): con.close()
 
-    def get_training_data(self) -> pd.DataFrame:
+    def get_training_data(self, limit: int = None) -> pd.DataFrame:
         """Отримує фічі для навчання та автоматично перевіряє їх на деградацію."""
         try:
             con = duckdb.connect(self.db_path, read_only=True)
-            df = con.execute("""
+            query = """
                 SELECT
                     f.uses_sponsor_tech, f.tech_count, f.has_social_angle,
                     f.description_length, f.has_github, f.readme_length,
@@ -64,7 +64,14 @@ class LightweightFeatureStore:
                 JOIN projects p ON f.project_id = p.id
                 WHERE p.description IS NOT NULL AND length(p.description) > 10
                 ORDER BY p.scraped_at DESC
-            """).fetchdf()
+            """
+            
+            if limit:
+                query += f" LIMIT {limit}"
+                
+            # КРИТИЧНИЙ ФІКС: fetch_arrow_table() (нульове копіювання) замість fetchdf()
+            table = con.execute(query).fetch_arrow_table()
+            df = table.to_pandas()
             
             self._monitor_data_quality(df)
             return df

@@ -91,20 +91,7 @@ def run_full_ingestion(pages: int = 5):
             subdomain = extract_subdomain(h_url)
             projects = fetch_hackathon_projects(subdomain)
             logger.info(f"Знайдено проектів для обробки: {len(projects)}")
-            
-            projects_data = []
-            
-            # --- ПАРАЛЕЛЬНА ОБРОБКА (Lightweight Distributed Processing) ---
-            # max_workers=3 гарантує, що ми збираємо дані швидко, але не дратуємо Cloudflare
-            with ThreadPoolExecutor(max_workers=3) as executor:
-                futures = [executor.submit(_process_single_project, p, h_id) for p in projects]
-                for future in as_completed(futures):
-                    try:
-                        projects_data.append(future.result())
-                    except Exception as e:
-                        logger.error(f"Помилка в worker thread: {e}")
-            
-            # --- ПОСЛІДОВНИЙ ЗАПИС У БАЗУ ---
+            # --- СТРИМІНГОВИЙ ЗАПИС ТА ПАРАЛЕЛЬНА ОБРОБКА БАТЧАМИ ---
             con = get_connection()
             try:
                 con.execute("BEGIN")
@@ -123,23 +110,40 @@ def run_full_ingestion(pages: int = 5):
                     detail.get("judging_criteria", "")
                 ])
                 
-                for pd in projects_data:
-                    con.execute("""
-                        INSERT OR IGNORE INTO projects (
-                            id, hackathon_id, title, description, tech_tags,
-                            team_size, likes, github_url, demo_url, is_winner,
-                            prize_track, win_score, readme_length, commit_count_48h,
-                            project_url, scraped_at
-                        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, current_timestamp)
-                    """, [
-                        pd["id"], h_id, pd["title"], pd["description"],
-                        json.dumps(pd["tech_tags"]), pd["team_size"], pd["likes"],
-                        pd["github_url"], pd["demo_url"], pd["is_winner"],
-                        pd["prize_track"], None, pd["readme_length"],
-                        pd["commit_count"], pd["url"]
-                    ])
+                from itertools import islice
+                batch_size = 50
+                project_iter = iter(projects)
+                
+                # max_workers=2 для AMD A4 (Lightweight Distributed Processing)
+                with ThreadPoolExecutor(max_workers=2) as executor:
+                    while True:
+                        batch = list(islice(project_iter, batch_size))
+                        if not batch:
+                            break
+                            
+                        futures = [executor.submit(_process_single_project, p, h_id) for p in batch]
+                        for future in as_completed(futures):
+                            try:
+                                pd = future.result()
+                                con.execute("""
+                                    INSERT OR IGNORE INTO projects (
+                                        id, hackathon_id, title, description, tech_tags,
+                                        team_size, likes, github_url, demo_url, is_winner,
+                                        prize_track, win_score, readme_length, commit_count_48h,
+                                        project_url, scraped_at
+                                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, current_timestamp)
+                                """, [
+                                    pd["id"], h_id, pd["title"], pd["description"],
+                                    json.dumps(pd["tech_tags"]), pd["team_size"], pd["likes"],
+                                    pd["github_url"], pd["demo_url"], pd["is_winner"],
+                                    pd["prize_track"], None, pd["readme_length"],
+                                    pd["commit_count"], pd["url"]
+                                ])
+                            except Exception as e:
+                                logger.error(f"Помилка в worker thread або записі БД: {e}")
+                                
                 con.commit()
-                logger.info(f"✅ Збережено в БД: {h_title} ({len(projects_data)} проектів)")
+                logger.info(f"✅ Збережено в БД: {h_title} ({len(projects)} проектів)")
             except Exception as e:
                 try: con.execute("ROLLBACK")
                 except: pass

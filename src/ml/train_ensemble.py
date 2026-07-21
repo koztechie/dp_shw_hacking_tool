@@ -7,15 +7,13 @@ import numpy as np
 
 
 import optuna  # noqa: E402
-from imblearn.combine import SMOTETomek  # noqa: E402
-from imblearn.pipeline import Pipeline as ImbPipeline  # noqa: E402
+# КРИТИЧНИЙ ФІКС: Видалено SMOTE/ImbPipeline для уникнення OOM
 from sklearn.calibration import CalibratedClassifierCV  # noqa: E402
 from sklearn.frozen import FrozenEstimator  # noqa: E402
 from sklearn.ensemble import (  # noqa: E402
     RandomForestClassifier,
-    StackingClassifier,
+    VotingClassifier,
 )
-from sklearn.linear_model import LogisticRegression  # noqa: E402
 from sklearn.metrics import average_precision_score, classification_report, precision_recall_curve  # noqa: E402
 from sklearn.model_selection import StratifiedKFold, cross_val_score  # noqa: E402
 from xgboost import XGBClassifier  # noqa: E402
@@ -50,25 +48,27 @@ def optimize_hyperparameters(X_train, y_train):
             eval_metric="logloss",
             objective=focal_loss_objective,
         )
-        meta_model = LogisticRegression(class_weight="balanced", random_state=42)
 
-        ensemble = StackingClassifier(
-            estimators=[("rf", rf_base), ("xgb", xgb_base)], final_estimator=meta_model, n_jobs=1
+        # КРИТИЧНИЙ ФІКС: Використовуємо class_weight замість SMOTE
+        rf_base.set_params(class_weight="balanced")
+        
+        ensemble = VotingClassifier(
+            estimators=[("rf", rf_base), ("xgb", xgb_base)], voting="soft", n_jobs=1
         )
 
-        pipeline = ImbPipeline(steps=[("smote", SMOTETomek(random_state=42, n_jobs=1)), ("classifier", ensemble)])
-
-        # КРИТИЧНИЙ ФІКС: SMOTETomek всередині CV запобігає data leakage
         cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=42)
 
-        scores = cross_val_score(pipeline, X_train, y_train, cv=cv, scoring="average_precision", n_jobs=1)
+        scores = cross_val_score(ensemble, X_train, y_train, cv=cv, scoring="average_precision", n_jobs=1)
         return scores.mean()
 
     study = optuna.create_study(direction="maximize")
 
-    # КРИТИЧНИЙ ФІКС: 50 ітерацій замість 20
-    # Для AMD A4 це займе ~25 хвилин, але дасть надійніший результат
-    study.optimize(objective, n_trials=50, timeout=1800)  # 30 хвилин max
+    def gc_callback(study, trial):
+        import gc
+        gc.collect()
+
+    # КРИТИЧНИЙ ФІКС: 15 ітерацій + timeout=600 для AMD A4 (OOM protection)
+    study.optimize(objective, n_trials=15, timeout=600, callbacks=[gc_callback])
 
     logger.info(f"✅ Optuna знайшла найкращі параметри: {study.best_params}")
     logger.info(f"📊 Best PR-AUC: {study.best_value:.4f}")
@@ -92,9 +92,15 @@ def train_ensemble():
 
     logger.info("🚀 Тренування легкого антикрихкого ансамблю (RF + XGBoost) з найкращими параметрами...")
 
+    # КРИТИЧНИЙ ФІКС: Нульова аллокація, заміна SMOTE на ваги класів
     rf = RandomForestClassifier(
-        n_estimators=150, max_depth=best_params.get("rf_max_depth", 10), random_state=42, n_jobs=1
+        n_estimators=150, max_depth=best_params.get("rf_max_depth", 10), random_state=42, n_jobs=1, class_weight="balanced"
     )
+    
+    pos_count = sum(y_train)
+    neg_count = len(y_train) - pos_count
+    scale_weight = neg_count / pos_count if pos_count > 0 else 1.0
+    
     xgb = XGBClassifier(
         n_estimators=best_params.get("xgb_n_estimators", 200),
         learning_rate=best_params.get("xgb_learning_rate", 0.05),
@@ -103,27 +109,18 @@ def train_ensemble():
         n_jobs=1,
         eval_metric="logloss",
         objective=focal_loss_objective,
+        scale_pos_weight=scale_weight
     )
 
-    logger.info("Балансую дані між переможцями та іншими...")
-    smt = SMOTETomek(random_state=42, n_jobs=1)
-    X_res, y_res = smt.fit_resample(X_train, y_train)
+    logger.info("Тренування Random Forest (з class_weight='balanced')...")
+    rf.fit(X_train, y_train)
 
-    # Тренуємо моделі ПОСЛІДОВНО (економія RAM)
-    logger.info("Тренування Random Forest...")
-    rf.fit(X_res, y_res)
-
-    # Звільняємо пам'ять після RF
-    del X_res
     import gc
-
     gc.collect()
 
-    logger.info("Тренування XGBoost...")
-    # Повторно генеруємо SMOTE для XGBoost (уникаємо зберігання 2x датасетів)
-    X_res2, y_res2 = smt.fit_resample(X_train, y_train)
-    xgb.fit(X_res2, y_res2)
-    del X_res2, y_res2
+    logger.info("Тренування XGBoost (з scale_pos_weight)...")
+    xgb.fit(X_train, y_train)
+    
     gc.collect()
 
     # КРИТИЧНИЙ ФІКС: Калібрування ймовірностей

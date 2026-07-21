@@ -3,9 +3,7 @@ import re
 import sys
 from pathlib import Path
 
-import sentry_sdk
 from loguru import logger
-from sentry_sdk.integrations.loguru import LoguruIntegration
 
 # Гарантуємо правильні шляхи імпорту
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
@@ -53,16 +51,22 @@ SENTRY_PII_ENABLED = os.getenv("SENTRY_PII_ENABLED", "false").lower() == "true"
 
 # Ініціалізація Sentry з урахуванням антикрихких правок безпеки (No PII) та продуктивності
 if SETTINGS.sentry_dsn and "sentry.io" in SETTINGS.sentry_dsn:
-    sentry_sdk.init(
-        dsn=SETTINGS.sentry_dsn,
-        integrations=[LoguruIntegration()],
-        send_default_pii=SENTRY_PII_ENABLED,
-        traces_sample_rate=0.1 if not SENTRY_PII_ENABLED else 1.0,  # Зменшуємо навантаження
-        profiles_sample_rate=0.0,  # Профілювання вимикаємо на AMD A4
-        environment=os.getenv("DP_SHW_ENV", "local"),
-        before_send=lambda event, hint: None if event.get("level") == "debug" else event
-    )
-    logger.info(f"📡 Sentry SDK успішно ініціалізовано (PII Protected={not SENTRY_PII_ENABLED}).")
+    try:
+        import sentry_sdk
+        from sentry_sdk.integrations.loguru import LoguruIntegration
+        
+        sentry_sdk.init(
+            dsn=SETTINGS.sentry_dsn,
+            integrations=[LoguruIntegration()],
+            send_default_pii=SENTRY_PII_ENABLED,
+            traces_sample_rate=0.1 if not SENTRY_PII_ENABLED else 1.0,  # Зменшуємо навантаження
+            profiles_sample_rate=0.0,  # Профілювання вимикаємо на AMD A4
+            environment=os.getenv("DP_SHW_ENV", "local"),
+            before_send=lambda event, hint: None if event.get("level") == "debug" else event
+        )
+        logger.info(f"📡 Sentry SDK успішно ініціалізовано (PII Protected={not SENTRY_PII_ENABLED}).")
+    except ImportError:
+        logger.warning("⚠️ sentry_sdk не встановлено, логування помилок у Sentry вимкнено.")
 
 # Конфігурація логера
 LOG_PATH = SETTINGS.log_path
