@@ -1,5 +1,7 @@
+import gc
 import hashlib
 import sys
+import threading
 from pathlib import Path
 
 import joblib
@@ -14,57 +16,68 @@ MODEL_PATH = MODEL_DIR / "best_model.pkl"
 SIGNATURE_PATH = MODEL_DIR / "best_model.sig"
 
 
+_model_cache = None
+_model_lock = threading.Lock()
+_model_mtime = 0.0
+
+def _get_signing_key() -> bytes:
+    import os
+    key = os.getenv("MODEL_SIGN_KEY")
+    if not key or key == "dev-local-key":
+        raise RuntimeError(
+            "🔒 MODEL_SIGN_KEY не встановлений або використовується "
+            "дефолтне значення. Встановіть унікальний ключ: "
+            "export MODEL_SIGN_KEY=$(openssl rand -hex 32)"
+        )
+    return key.encode()
+
 def _verify_signature(file_path: Path, sig_path: Path) -> bool:
-    """Перевіряє цілісність моделі через RSA підпис (або HMAC для локального використання)."""
+    import hmac
     if not sig_path.exists():
-        logger.warning("Відсутній файл підпису моделі. Запускаємо в режимі довіри (dev).")
-        return True  # Для локального dev-оточення
-    try:
-        # Для простоти використовуємо HMAC-SHA256 з ключем з env
-        import hmac, os
-        secret = os.getenv("MODEL_SIGN_KEY", "dev-local-key").encode()
-        expected = sig_path.read_bytes()
-        computed = hmac.new(secret, file_path.read_bytes(), hashlib.sha256).digest()
-        return hmac.compare_digest(expected, computed)
-    except Exception as e:
-        logger.error(f"Помилка верифікації підпису моделі: {e}")
         return False
 
+    secret = _get_signing_key()
+    expected = sig_path.read_bytes()
+    computed = hmac.new(secret, file_path.read_bytes(), hashlib.sha256).digest()
+    return hmac.compare_digest(expected, computed)
 
-import gc
+def _safe_model_load(path: Path) -> dict:
+    MAX_MODEL_SIZE = 200 * 1024 * 1024
 
-_cached_model = None
-_cached_feature_names = None
+    if path.stat().st_size > MAX_MODEL_SIZE:
+        raise RuntimeError(
+            f"🔒 Модель завелика ({path.stat().st_size // (1024*1024)} MB). "
+            f"Максимум: {MAX_MODEL_SIZE // (1024*1024)} MB."
+        )
+
+    if not _verify_signature(path, path.with_suffix(".sig")):
+        raise RuntimeError("🔒 Підпис моделі не валідний! Файл можливо підмінено.")
+
+    return joblib.load(path)
 
 def load_model(force_reload=False):
-    """Завантажує найкращу натреновану модель та список її ознак (з кешуванням)."""
-    global _cached_model, _cached_feature_names
-    
-    if _cached_model is not None and not force_reload:
-        return _cached_model, _cached_feature_names
-        
-    if force_reload:
-        _cached_model = None
-        _cached_feature_names = None
-        gc.collect()
+    global _model_cache, _model_mtime
 
     if not MODEL_PATH.exists():
-        raise FileNotFoundError(
-            "❌ Файли моделей не знайдені у data/models/. "
-            "Будь ласка, запустіть тренування: python src/ml/train_ensemble.py"
-        )
-    
-    if not _verify_signature(MODEL_PATH, SIGNATURE_PATH):
-        raise RuntimeError("🔒 ПОМИЛКА: Підпис моделі не валідний! Можливо, файл було підмінено.")
-    
-    # joblib стійкіший до великих numpy-масивів, ніж pickle
-    _cached_model = joblib.load(MODEL_PATH)
-    
-    features_path = MODEL_DIR / "feature_names.pkl"
-    with open(features_path, "rb") as f:
-        _cached_feature_names = joblib.load(f)
-    
-    return _cached_model, _cached_feature_names
+        raise FileNotFoundError("ML-модель не знайдена. Запустіть тренування.")
+
+    current_mtime = MODEL_PATH.stat().st_mtime
+
+    with _model_lock:
+        if _model_cache is not None and current_mtime == _model_mtime and not force_reload:
+            return _model_cache["model"], _model_cache["feature_names"]
+
+        if _model_cache is not None:
+            _model_cache = None
+            gc.collect()
+
+        model = _safe_model_load(MODEL_PATH)
+        features_path = MODEL_DIR / "feature_names.pkl"
+        feature_names = _safe_model_load(features_path)
+
+        _model_cache = {"model": model, "feature_names": feature_names}
+        _model_mtime = current_mtime
+        return model, feature_names
 
 
 def validate_features(features: dict, feature_names: list) -> dict:

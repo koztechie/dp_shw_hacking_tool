@@ -177,12 +177,8 @@ def train_ensemble():
             joblib.dump(ensemble, f)
     else:
         try:
-            # Завантажуємо старого лідера БЕЗ перевірки чекс‑суми:
-            # checksums.txt на цьому етапі ще не оновлено (оновлення — нижче),
-            # тому safe_pickle_load дасть false positive "скомпрометовано".
-            # Цілісність перевіряється лише при завантаженні для продакшену (load_model).
-            with open(best_model_path, "rb") as f:
-                current_best = joblib.load(f)
+            from src.ml.predictor import _safe_model_load
+            current_best = _safe_model_load(best_model_path)
 
             # Безпечна перевірка старого формату
             if isinstance(current_best, dict) and "rf" in current_best:
@@ -215,7 +211,11 @@ def train_ensemble():
     # Генеруємо HMAC підпис
     import hmac, os
     signature_path = models_dir / "best_model.sig"
-    secret = os.getenv("MODEL_SIGN_KEY", "dev-local-key").encode()
+    key = os.getenv("MODEL_SIGN_KEY")
+    if not key or key == "dev-local-key":
+        raise RuntimeError("🔒 MODEL_SIGN_KEY не встановлений. Ви не можете зберігати нові моделі без захищеного ключа.")
+        
+    secret = key.encode()
     sig = hmac.new(secret, best_model_path.read_bytes(), hashlib.sha256).digest()
     signature_path.write_bytes(sig)
 
