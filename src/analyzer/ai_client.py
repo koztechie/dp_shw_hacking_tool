@@ -52,9 +52,7 @@ class AICircuitBreaker:
 
     def reset(self):
         """Скидає стан Circuit Breaker для всіх провайдерів."""
-        with self.lock:
-            self.failures.clear()
-            self.opened_at.clear()
+        self.failures.clear()
 
 mimo_circuit_breaker = AICircuitBreaker()
 
