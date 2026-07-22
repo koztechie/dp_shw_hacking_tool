@@ -53,6 +53,61 @@ class AICircuitBreaker:
 mimo_circuit_breaker = AICircuitBreaker()
 
 
+# ==========================================
+# 🔌 GENERIC CIRCUIT BREAKER (test-friendly)
+# ==========================================
+class CircuitBreaker:
+    """Generic Circuit Breaker з підтримкою failure_threshold та recovery_timeout."""
+
+    def __init__(self, failure_threshold: int = 3, recovery_timeout: int = 300):
+        self._threshold = failure_threshold
+        self._recovery_timeout = recovery_timeout
+        self._failure_count = 0
+        self._opened_at = None
+        self._lock = threading.Lock()
+
+    @property
+    def failure_count(self) -> int:
+        return self._failure_count
+
+    def is_open(self) -> bool:
+        with self._lock:
+            if self._failure_count < self._threshold:
+                return False
+            if self._opened_at is None:
+                return True
+            elapsed = (datetime.now() - self._opened_at).total_seconds()
+            if elapsed >= self._recovery_timeout:
+                # Half-open: allow one attempt
+                return False
+            return True
+
+    def record_failure(self, provider: str = "default"):
+        with self._lock:
+            self._failure_count += 1
+            if self._failure_count >= self._threshold and self._opened_at is None:
+                self._opened_at = datetime.now()
+
+    def record_success(self, provider: str = "default"):
+        self.reset()
+
+    def reset(self):
+        with self._lock:
+            self._failure_count = 0
+            self._opened_at = None
+
+    def call(self, func, *args, **kwargs):
+        if self.is_open():
+            raise Exception("Circuit breaker is OPEN")
+        try:
+            result = func(*args, **kwargs)
+            self.record_success()
+            return result
+        except Exception:
+            self.record_failure()
+            raise
+
+
 def _get_image_mime_type(image_bytes: bytes) -> str:
     if image_bytes.startswith(b"\x89PNG\r\n\x1a\n"):
         return "image/png"
