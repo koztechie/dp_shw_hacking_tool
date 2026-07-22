@@ -9,7 +9,6 @@ import numpy as np
 import optuna  # noqa: E402
 # КРИТИЧНИЙ ФІКС: Видалено SMOTE/ImbPipeline для уникнення OOM
 from sklearn.calibration import CalibratedClassifierCV  # noqa: E402
-from sklearn.frozen import FrozenEstimator  # noqa: E402
 from sklearn.ensemble import (  # noqa: E402
     RandomForestClassifier,
     VotingClassifier,
@@ -126,10 +125,10 @@ def train_ensemble():
     # КРИТИЧНИЙ ФІКС: Калібрування ймовірностей
     # Isotonic regression краще працює для малих датасетів
     logger.info("🎯 Калібрування ймовірностей моделей (Isotonic Regression)...")
-    rf = CalibratedClassifierCV(FrozenEstimator(rf), method="isotonic")
+    rf = CalibratedClassifierCV(rf, cv="prefit", method="isotonic")
     rf.fit(X_test, y_test)
 
-    xgb = CalibratedClassifierCV(FrozenEstimator(xgb), method="isotonic")
+    xgb = CalibratedClassifierCV(xgb, cv="prefit", method="isotonic")
     xgb.fit(X_test, y_test)
 
     # Soft Voting Ensemble (усереднення каліброваних ймовірностей)
