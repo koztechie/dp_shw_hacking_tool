@@ -13,7 +13,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from src.api.core import PROJECT_ROOT, STATIC_DIR, templates, limiter, AppState, t
+from src.api.core import PROJECT_ROOT, STATIC_DIR, templates, limiter, AppState
 from src.api.middleware import setup_middlewares
 from src.api.routes_training import router as training_router
 from src.api.routes_analyze import router as analyze_router

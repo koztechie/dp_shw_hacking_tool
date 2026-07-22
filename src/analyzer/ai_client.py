@@ -50,7 +50,7 @@ class AICircuitBreaker:
             logger.info(f"🔌 Circuit Breaker CLOSED для {provider} (зв'язок відновлено).")
             del self.failures[provider]
 
-breaker = AICircuitBreaker()
+mimo_circuit_breaker = AICircuitBreaker()
 
 
 def _get_image_mime_type(image_bytes: bytes) -> str:
@@ -93,7 +93,7 @@ def _call_api(
 
     # АНТИКРИХКІСТЬ: Миттєвий фолбек, якщо запобіжник відкритий (заощаджує час та ресурси)
     provider = "mimo" if "xiaomi" in base_url.lower() or "mimo" in base_url.lower() else "openrouter"
-    if breaker.is_open(provider):
+    if mimo_circuit_breaker.is_open(provider):
         return {"error": f"Circuit breaker is OPEN for {provider}", "fallback": True}
 
     # КРИТИЧНИЙ ФІКС: Додаємо JSON Schema в промпт для структурованого виводу
@@ -159,10 +159,10 @@ def _call_api(
             def call_with_retry():
                 try:
                     res = _execute_call()
-                    breaker.record_success(provider)
+                    mimo_circuit_breaker.record_success(provider)
                     return res
                 except Exception as e:
-                    breaker.record_failure(provider)
+                    mimo_circuit_breaker.record_failure(provider)
                     raise e
                     
             result_text = call_with_retry()
@@ -212,15 +212,15 @@ def _call_api(
         # --- ЗБОЇ ЗВ'ЯЗКУ ТА СЕРВЕРА ТРИГЕРИТЬ ЗАПОБІЖНИК ---
         except RateLimitError as e:
             logger.error(f"❌ Rate Limit Перевищено (429): {e}")
-            breaker.record_failure(provider)
+            mimo_circuit_breaker.record_failure(provider)
             return {"error": "RateLimitError", "fallback": True}
         except APIConnectionError as e:
             logger.error(f"❌ Помилка мережевого з'єднання: {e}")
-            breaker.record_failure(provider)
+            mimo_circuit_breaker.record_failure(provider)
             return {"error": "APIConnectionError", "fallback": True}
         except APIStatusError as e:
             logger.error(f"❌ Помилка статусу API (Код {e.status_code}): {e.message}")
-            breaker.record_failure(provider)
+            mimo_circuit_breaker.record_failure(provider)
             return {"error": f"APIStatusError: {e.status_code}", "fallback": True}
         except Exception as e:
             if attempt < max_retries:
