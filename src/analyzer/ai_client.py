@@ -50,6 +50,12 @@ class AICircuitBreaker:
             logger.info(f"🔌 Circuit Breaker CLOSED для {provider} (зв'язок відновлено).")
             del self.failures[provider]
 
+    def reset(self):
+        """Скидає стан Circuit Breaker для всіх провайдерів."""
+        with self.lock:
+            self.failures.clear()
+            self.opened_at.clear()
+
 mimo_circuit_breaker = AICircuitBreaker()
 
 

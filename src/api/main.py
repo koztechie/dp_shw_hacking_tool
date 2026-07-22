@@ -20,6 +20,7 @@ from src.api.routes_analyze import router as analyze_router
 from src.api.routes_ml import router as ml_router
 from config.settings import DB_PATH
 from src.logger import logger
+import duckdb
 
 shutdown_event = asyncio.Event()
 
@@ -152,7 +153,6 @@ async def health(request: Request):
     critical_failures = []
 
     try:
-        import duckdb
         con = duckdb.connect(DB_PATH, read_only=True)
         health_status["metrics"]["hackathons"] = con.execute("SELECT COUNT(*) FROM hackathons").fetchone()[0]
         health_status["metrics"]["projects"] = con.execute("SELECT COUNT(*) FROM projects").fetchone()[0]
