@@ -47,4 +47,10 @@ echo "📊 Відкрий браузер: http://127.0.0.1:8000"
 echo "🛑 Зупинка: Ctrl+C"
 echo "====================================================="
 
-exec ./venv/bin/python src/api/main.py
+exec ./venv/bin/python -m uvicorn src.api.main:app \
+    --host 127.0.0.1 \
+    --port 8000 \
+    --limit-request-line 8190 \
+    --limit-request-field_size 8190 \
+    --limit-max-requests 1000 \
+    --timeout-keep-alive 5

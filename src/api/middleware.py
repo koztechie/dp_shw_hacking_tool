@@ -4,8 +4,63 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 from src.logger import logger
 from config.settings import DB_PATH
+import threading
+from collections import deque
+import duckdb
+
+# In-memory черга для audit log (макс 1000 записів)
+_audit_queue: deque = deque(maxlen=1000)
+_audit_flush_event = threading.Event()
+
+def _audit_flush_worker():
+    """Фоновий потік: записує audit log batch-ами раз на 5 секунд."""
+    while True:
+        _audit_flush_event.wait(timeout=5.0)
+        _audit_flush_event.clear()
+
+        batch = []
+        while _audit_queue:
+            try:
+                batch.append(_audit_queue.popleft())
+            except IndexError:
+                break
+
+        if not batch:
+            continue
+
+        try:
+            con = duckdb.connect(str(DB_PATH))
+            con.execute("BEGIN")
+            for entry in batch:
+                con.execute(
+                    "INSERT INTO audit_log (user_ip, endpoint, method, status_code, details) "
+                    "VALUES (?, ?, ?, ?, ?)",
+                    entry,
+                )
+            con.commit()
+            con.close()
+        except Exception as e:
+            logger.error(f"Audit flush failed: {e}")
+
+# Запускаємо worker при старті
+_audit_thread = threading.Thread(target=_audit_flush_worker, daemon=True)
+_audit_thread.start()
 
 def setup_middlewares(app):
+    MAX_BODY_SIZE = 1 * 1024 * 1024  # 1 MB для Form data (крім file upload)
+
+    @app.middleware("http")
+    async def body_size_limit_middleware(request: Request, call_next):
+        content_length = request.headers.get("content-length")
+        if content_length and int(content_length) > MAX_BODY_SIZE:
+            # Дозволяємо більший розмір лише для file upload
+            if "/analyze/html" not in request.url.path:
+                return JSONResponse(
+                    {"status": "error", "error": "Request body too large."},
+                    status_code=413,
+                )
+        return await call_next(request)
+
     @app.middleware("http")
     async def security_headers_middleware(request: Request, call_next):
         nonce = base64.b64encode(os.urandom(16)).decode("utf-8")
@@ -33,31 +88,30 @@ def setup_middlewares(app):
     @app.middleware("http")
     async def audit_log_middleware(request: Request, call_next):
         response = await call_next(request)
-        if request.method in ["POST", "PUT", "DELETE", "PATCH"]:
-            try:
-                from src.db import get_connection
-                con = get_connection(read_only=False)
-                con.execute(
-                    """
-                    INSERT INTO audit_log (user_ip, endpoint, method, status_code, details)
-                    VALUES (?, ?, ?, ?, ?)
-                    """,
-                    [
-                        request.client.host,
-                        request.url.path,
-                        request.method,
-                        response.status_code,
-                        f"User-Agent: {request.headers.get('User-Agent', 'Unknown')}",
-                    ],
-                )
-                con.close()  # No-op under the hood
-            except Exception as e:
-                logger.error(f"Failed to write audit log: {e}")
+        if request.method in ("POST", "PUT", "DELETE", "PATCH"):
+            _audit_queue.append((
+                request.client.host if request.client else "unknown",
+                request.url.path,
+                request.method,
+                response.status_code,
+                f"User-Agent: {request.headers.get('User-Agent', 'Unknown')[:200]}"
+            ))
+            _audit_flush_event.set()
         return response
 
     @app.middleware("http")
     async def csrf_protection_middleware(request: Request, call_next):
         if request.method in ["POST", "PUT", "DELETE", "PATCH"]:
+            csrf_secret = os.getenv("CSRF_SECRET")
+
+            # FAIL-CLOSED: якщо секрет не встановлений — БЛОКУЄМО всі POST
+            if not csrf_secret or csrf_secret == "your_random_secret_min_32_chars":
+                logger.critical("🚨 CSRF_SECRET не налаштований! POST-запити заблоковані.")
+                return JSONResponse(
+                    {"status": "error", "error": "Server misconfiguration: CSRF_SECRET not set."},
+                    status_code=503,
+                )
+
             origin = request.headers.get("Origin")
             referer = request.headers.get("Referer")
             csrf_token = request.headers.get("X-CSRF-Token")
@@ -83,7 +137,7 @@ def setup_middlewares(app):
                 if not csrf_token:
                     logger.critical("🚨 CSRF БЛОКОВАНО: Відсутні Origin/Referer та CSRF Token")
                     return JSONResponse({"status": "error", "error": "CSRF Protection: Missing Origin/Referer and CSRF Token."}, status_code=403)
-                expected_token = os.getenv("CSRF_SECRET", "default_csrf_secret_change_me")
+                expected_token = csrf_secret
                 if csrf_token != expected_token:
                     logger.critical("🚨 CSRF БЛОКОВАНО: Невалідний CSRF Token")
                     return JSONResponse({"status": "error", "error": "CSRF Protection: Invalid CSRF Token."}, status_code=403)
@@ -99,9 +153,14 @@ def setup_middlewares(app):
                 return await call_next(request)
             api_key = request.headers.get("X-API-Key")
             expected_key = os.getenv("API_SECRET_KEY")
-            if not expected_key:
-                logger.warning(f"🚨 Блоковано несанкціонований доступ з IP: {request.client.host}")
-                return JSONResponse({"status": "error", "error": "API Key authentication required for remote access."}, status_code=401)
+            
+            # FAIL-CLOSED if API key is not set or uses the .env.example default
+            if not expected_key or expected_key == "your_random_api_key_min_32_chars":
+                logger.critical("🚨 API_SECRET_KEY не налаштований або використовує дефолтне значення! Віддалений доступ заблоковано.")
+                return JSONResponse(
+                    {"status": "error", "error": "Server misconfiguration: API_SECRET_KEY not securely configured."},
+                    status_code=503
+                )
             else:
                 if not api_key or api_key != expected_key:
                     logger.warning(f"🚨 Невалідний API Key з IP: {request.client.host}")

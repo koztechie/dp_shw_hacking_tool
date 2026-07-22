@@ -18,7 +18,13 @@ class Settings(BaseSettings):
     
     sentry_dsn: str = Field(default="", env="SENTRY_DSN")
     github_token: str = Field(default="", env="GITHUB_TOKEN")
-    model_sign_key: str = Field(default="dev-local-key", env="MODEL_SIGN_KEY")
+    model_sign_key: str = Field(default="", env="MODEL_SIGN_KEY")
+    
+    @validator("model_sign_key", pre=True, always=True)
+    def validate_model_sign_key(cls, v):
+        if not v or v == "dev-local-key":
+            raise ValueError("Insecure MODEL_SIGN_KEY configuration. Must provide a secure random string.")
+        return v
     
     db_path: Path = Field(default=Path("data/dp_shw.duckdb"))
     log_path: Path = Field(default=Path("logs/app.log"))
