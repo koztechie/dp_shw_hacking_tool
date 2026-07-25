@@ -35,5 +35,6 @@ jobs:
         OPENROUTER_API_KEY: "dummy_key"
         SENTRY_DSN: ""
         MODEL_SIGN_KEY: "ci-test-hmac-key-not-for-prod-use-only"
+        CSRF_SECRET: "ci-test-csrf-secret-not-for-prod-use"
       run: |
         pytest
