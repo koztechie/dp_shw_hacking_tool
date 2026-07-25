@@ -22,8 +22,16 @@ class Settings(BaseSettings):
     
     @validator("model_sign_key", pre=True, always=True)
     def validate_model_sign_key(cls, v):
-        if not v or v == "dev-local-key":
-            raise ValueError("Insecure MODEL_SIGN_KEY configuration. Must provide a secure random string.")
+        env = os.getenv("ENV", "production").lower()
+        if env in ("testing", "test", "ci"):
+            # У CI/тестах дозволяємо dummy-ключ — безпека не потрібна
+            return v or "ci-insecure-test-key-000000"
+        # Production: жорстка перевірка
+        if not v or v == "dev-local-key" or len(v) < 32:
+            raise ValueError(
+                "Insecure MODEL_SIGN_KEY configuration. "
+                "Must provide a secure random string (min 32 chars)."
+            )
         return v
     
     db_path: Path = Field(default=Path("data/dp_shw.duckdb"))
