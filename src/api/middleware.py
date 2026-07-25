@@ -102,24 +102,28 @@ def setup_middlewares(app):
     @app.middleware("http")
     async def csrf_protection_middleware(request: Request, call_next):
         if request.method in ["POST", "PUT", "DELETE", "PATCH"]:
-            # ── ENV-AWARE BYPASS: у тестах CSRF не має сенсу (немає браузера) ──
             env = os.getenv("ENV", "production").lower()
-            if env in ("testing", "test", "ci"):
-                return await call_next(request)
+            is_testing = env in ("testing", "test", "ci")
 
             csrf_secret = os.getenv("CSRF_SECRET")
-
-            # FAIL-CLOSED: якщо секрет не встановлений — БЛОКУЄМО всі POST
             if not csrf_secret or csrf_secret == "your_random_secret_min_32_chars":
-                logger.critical("🚨 CSRF_SECRET не налаштований! POST-запити заблоковані.")
-                return JSONResponse(
-                    {"status": "error", "error": "Server misconfiguration: CSRF_SECRET not set."},
-                    status_code=503,
-                )
+                if is_testing:
+                    csrf_secret = "ci-test-csrf-secret-not-for-prod-use"
+                else:
+                    logger.critical("🚨 CSRF_SECRET не налаштований! POST-запити заблоковані.")
+                    return JSONResponse(
+                        {"status": "error", "error": "Server misconfiguration: CSRF_SECRET not set."},
+                        status_code=503,
+                    )
 
-            origin = request.headers.get("Origin")
-            referer = request.headers.get("Referer")
-            csrf_token = request.headers.get("X-CSRF-Token")
+            origin = request.headers.get("Origin") or request.headers.get("origin")
+            referer = request.headers.get("Referer") or request.headers.get("referer")
+            csrf_token = request.headers.get("X-CSRF-Token") or request.headers.get("x-csrf-token")
+
+            # Testing: TestClient не надсилає Origin -> пропускаємо.
+            # Явний Origin (security-тести, напр. evil.com) -> валідуємо нижче.
+            if is_testing and not origin and not referer:
+                return await call_next(request)
 
             allowed_hosts = ["127.0.0.1:8000", "localhost:8000", "localhost:5173", "localhost:3000"]
             host = request.headers.get("Host")

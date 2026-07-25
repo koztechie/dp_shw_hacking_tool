@@ -1,11 +1,12 @@
 import pytest
 from unittest.mock import patch, MagicMock
-from src.analyzer.ai_client import _call_api, generate_json_with_failover, mimo_circuit_breaker
+from src.analyzer.ai_client import _call_api, generate_json_with_failover, mimo_circuit_breaker, _clients
 
 @pytest.fixture(autouse=True)
 def reset_circuit_breaker():
-    """Скидаємо стан Circuit Breaker перед кожним тестом."""
+    """Скидаємо стан Circuit Breaker та кєш клієнтів перед кожним тестом."""
     mimo_circuit_breaker.reset()
+    _clients.clear()
     yield
 
 @pytest.fixture
@@ -20,10 +21,9 @@ def mock_openai():
         MockOpenAI.return_value = mock_client
         
         # Налаштовуємо успішну відповідь за замовчуванням
-        mock_response = MagicMock()
-        mock_response.choices = [MagicMock()]
-        mock_response.choices[0].message.content = '{"test": "success"}'
-        mock_client.chat.completions.create.return_value = mock_response
+        mock_chunk = MagicMock()
+        mock_chunk.choices = [MagicMock(delta=MagicMock(content='{"test": "success"}'))]
+        mock_client.chat.completions.create.return_value = [mock_chunk]
         
         yield mock_client
 
@@ -55,26 +55,26 @@ class TestAIClient:
             
     def test_circuit_breaker_blocks_requests(self, mock_rate_limiter, mock_openai):
         """Якщо Circuit Breaker відкритий, запити блокуються миттєво."""
-        mimo_circuit_breaker.record_failure()
-        mimo_circuit_breaker.record_failure()
-        mimo_circuit_breaker.record_failure()
+        mimo_circuit_breaker.record_failure("mimo")
+        mimo_circuit_breaker.record_failure("mimo")
+        mimo_circuit_breaker.record_failure("mimo")
         
         result = _call_api(
             api_key="test_key",
-            base_url="http://test",
+            base_url="http://mimo",
             prompt="Test prompt",
             model="test-model"
         )
         
-        assert result == {"error": "Circuit breaker is OPEN", "fallback": True}
+        assert result.get("fallback") is True
+        assert "Circuit breaker is OPEN" in result.get("error", "")
         mock_openai.chat.completions.create.assert_not_called()
         
     def test_call_api_removes_think_tags(self, mock_rate_limiter, mock_openai):
         """API клієнт успішно видаляє теги <think> перед парсингом JSON."""
-        mock_response = MagicMock()
-        mock_response.choices = [MagicMock()]
-        mock_response.choices[0].message.content = '<think>some reasoning</think>```json\n{"data": "value"}\n```'
-        mock_openai.chat.completions.create.return_value = mock_response
+        mock_chunk = MagicMock()
+        mock_chunk.choices = [MagicMock(delta=MagicMock(content='<think>some reasoning</think>```json\n{"data": "value"}\n```'))]
+        mock_openai.chat.completions.create.return_value = [mock_chunk]
         
         result = _call_api(
             api_key="test_key",
@@ -87,17 +87,15 @@ class TestAIClient:
     def test_call_api_invalid_json_retries(self, mock_rate_limiter, mock_openai):
         """Якщо повернутий JSON невалідний за схемою, API має повторити спробу."""
         # Перший виклик повертає невалідний JSON, другий - валідний
-        mock_response_invalid = MagicMock()
-        mock_response_invalid.choices = [MagicMock()]
-        mock_response_invalid.choices[0].message.content = '{"wrong": "format"}'
+        mock_chunk_invalid = MagicMock()
+        mock_chunk_invalid.choices = [MagicMock(delta=MagicMock(content='{"wrong": "format"}'))]
         
-        mock_response_valid = MagicMock()
-        mock_response_valid.choices = [MagicMock()]
-        mock_response_valid.choices[0].message.content = '{"title": "Idea", "description": "Desc", "score": 9.5}'
+        mock_chunk_valid = MagicMock()
+        mock_chunk_valid.choices = [MagicMock(delta=MagicMock(content='{"title": "Idea", "description": "Desc", "score": 9.5}'))]
         
         mock_openai.chat.completions.create.side_effect = [
-            mock_response_invalid,
-            mock_response_valid
+            [mock_chunk_invalid],
+            [mock_chunk_valid]
         ]
         
         with patch("src.analyzer.prompt_validator.PromptSchemaValidator.validate_response") as mock_validator:
