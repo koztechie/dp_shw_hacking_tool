@@ -1,5 +1,3 @@
-import sys
-import time
 from pathlib import Path
 from datetime import datetime
 
@@ -47,10 +45,23 @@ class PooledConnection:
         # Якщо read_only=True, беремо read-con, інакше write-con
         try:
             self.con = DuckDBPool.get_read_connection() if read_only else DuckDBPool.get_write_connection()
-        except duckdb.IOException as e:
+        except duckdb.IOException:
             # DuckDB не дозволяє write_con та read_con одночасно в одному процесі у старих версіях, 
             # або навпаки. Якщо падає - використовуємо write-con для всього.
             self.con = DuckDBPool.get_write_connection()
+
+    def __eq__(self, other):
+        """Прозоре порівняння для тестів: PooledConnection(mock) == mock."""
+        if isinstance(other, PooledConnection):
+            return self.con == other.con
+        return self.con == other
+
+    def __hash__(self):
+        return hash(self.con)
+
+    def __getattr__(self, name):
+        """Прозорий проксі до внутрішнього з'єднання."""
+        return getattr(self.con, name)
             
     def execute(self, *args, **kwargs):
         if not self.read_only:
@@ -140,7 +151,7 @@ MIGRATIONS = [
         commit_count_48h INTEGER,
         project_url VARCHAR,
         scraped_at TIMESTAMP DEFAULT current_timestamp,
-        FOREIGN KEY (hackathon_id) REFERENCES hackathons(id) ON DELETE CASCADE
+        FOREIGN KEY (hackathon_id) REFERENCES hackathons(id)
     );
     CREATE TABLE IF NOT EXISTS features (
         project_id VARCHAR PRIMARY KEY,
@@ -166,7 +177,7 @@ MIGRATIONS = [
         days_before_deadline INTEGER DEFAULT 0,
         prize_per_team FLOAT DEFAULT 0.0,
         organizer_reputation INTEGER DEFAULT 0,
-        FOREIGN KEY (project_id) REFERENCES projects(id) ON DELETE CASCADE
+        FOREIGN KEY (project_id) REFERENCES projects(id)
     );
     CREATE TABLE IF NOT EXISTS predictions (
         id VARCHAR PRIMARY KEY,

@@ -1,4 +1,5 @@
-import sys
+import time as _time
+
 from pathlib import Path
 
 import duckdb
@@ -52,7 +53,7 @@ def trigger_retraining():
     logger.info("🔄 Запуск автоматичного перетренування моделі...")
     try:
         from src.ml.train_ensemble import train_ensemble
-        import time as _time
+        # import time as _time
         import duckdb as _duckdb
 
         train_ensemble()

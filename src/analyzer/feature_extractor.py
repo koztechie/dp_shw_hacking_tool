@@ -1,8 +1,6 @@
-import datetime
+from datetime import datetime
 import json
 import re
-import sys
-from pathlib import Path
 
 # Гарантуємо правильні шляхи імпорту
 
@@ -132,7 +130,7 @@ def extract_features(
         end_date = hackathon.get("end_date")
 
         if scraped_at and end_date:
-            from datetime import datetime
+            # from datetime import datetime
 
             # Парсимо дати (DuckDB повертає строки у форматі "2024-01-15 10:30:00")
             if isinstance(scraped_at, str):

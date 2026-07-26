@@ -3,7 +3,6 @@ DP_SHW i18n System — Антикрихка локалізація
 Гарантує, що КОЖЕН текст має fallback і ніколи не показує сирий ключ
 """
 from typing import Dict, Any
-from pathlib import Path
 import importlib
 
 class CopySystem:

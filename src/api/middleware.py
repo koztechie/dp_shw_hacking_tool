@@ -1,3 +1,6 @@
+import hmac
+
+from urllib.parse import urlparse
 import os
 import base64
 from fastapi import Request
@@ -130,7 +133,7 @@ def setup_middlewares(app):
             if host and host not in allowed_hosts:
                 allowed_hosts.append(host)
 
-            from urllib.parse import urlparse
+            # from urllib.parse import urlparse
             if origin or referer:
                 if origin:
                     parsed = urlparse(origin)
@@ -147,7 +150,7 @@ def setup_middlewares(app):
                     logger.critical("🚨 CSRF БЛОКОВАНО: Відсутні Origin/Referer та CSRF Token")
                     return JSONResponse({"status": "error", "error": "CSRF Protection: Missing Origin/Referer and CSRF Token."}, status_code=403)
                 expected_token = csrf_secret
-                if csrf_token != expected_token:
+                if not hmac.compare_digest(csrf_token, expected_token):
                     logger.critical("🚨 CSRF БЛОКОВАНО: Невалідний CSRF Token")
                     return JSONResponse({"status": "error", "error": "CSRF Protection: Invalid CSRF Token."}, status_code=403)
         return await call_next(request)
@@ -176,7 +179,7 @@ def setup_middlewares(app):
                     status_code=503
                 )
             else:
-                if not api_key or api_key != expected_key:
+                if not api_key or not hmac.compare_digest(api_key, expected_key):
                     logger.warning(f"🚨 Невалідний API Key з IP: {request.client.host}")
                     return JSONResponse({"status": "error", "error": "Invalid API Key."}, status_code=401)
         return await call_next(request)

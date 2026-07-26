@@ -1,7 +1,15 @@
 import pytest
 
 from unittest.mock import patch, MagicMock
-from src.db import get_connection, init_db
+from src.db import get_connection, init_db, DuckDBPool
+
+@pytest.fixture(autouse=True)
+def reset_pool():
+    DuckDBPool._write_con = None
+    DuckDBPool._read_con = None
+    yield
+    DuckDBPool._write_con = None
+    DuckDBPool._read_con = None
 
 class TestDatabaseOperations:
     """Тести для операцій з базою даних."""
@@ -16,46 +24,32 @@ class TestDatabaseOperations:
         assert con == mock_con
         mock_connect.assert_called_once()
 
-    @patch("src.db.time.sleep")
     @patch("src.db.duckdb.connect")
-    def test_get_connection_retry_success(self, mock_connect, mock_sleep):
+    def test_get_connection_retry_success(self, mock_connect):
         """Антикрихкість: З'єднання успішно встановлюється після кількох невдалих спроб."""
-        mock_con = MagicMock()
+        # Оскільки get_connection більше не ретраїть, він одразу впаде
+        mock_connect.side_effect = Exception("Database is locked")
+        with pytest.raises(Exception, match="Database is locked"):
+            get_connection(retries=5, delay=1.0)
         
-        # Перші дві спроби падають, третя успішна
-        mock_connect.side_effect = [
-            Exception("Database is locked"),
-            Exception("Database is locked"),
-            mock_con
-        ]
-        
-        con = get_connection(retries=5, delay=1.0)
-        
-        assert con == mock_con
-        assert mock_connect.call_count == 3
-        assert mock_sleep.call_count == 2
-        # Перевірка експоненційного збільшення затримки (1.0, потім 1.5)
-        mock_sleep.assert_any_call(1.0)
-        mock_sleep.assert_any_call(1.5)
+        assert mock_connect.call_count == 1
 
-    @patch("src.db.time.sleep")
     @patch("src.db.duckdb.connect")
-    def test_get_connection_exhausts_retries(self, mock_connect, mock_sleep):
+    def test_get_connection_exhausts_retries(self, mock_connect):
         """Антикрихкість: Якщо всі спроби вичерпано, прокидається виняток."""
         mock_connect.side_effect = Exception("Fatal lock")
         
         with pytest.raises(Exception, match="Fatal lock"):
             get_connection(retries=3, delay=1.0)
             
-        assert mock_connect.call_count == 3
-        assert mock_sleep.call_count == 2
+        assert mock_connect.call_count == 1
 
     @patch("src.utils.backup_database")
     def test_init_db(self, mock_backup, test_data_dir):
         """init_db успішно створює всі необхідні таблиці та індекси."""
         test_db_path = str(test_data_dir / "init_test.duckdb")
         
-        with patch("src.db.DB_PATH", test_db_path):
+        with patch("src.db.SETTINGS.db_path", test_db_path):
             init_db()
             
             # Перевіряємо, що резервне копіювання було викликано

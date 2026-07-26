@@ -1,3 +1,5 @@
+from urllib.parse import urlparse
+import socket
 import re
 from fastapi import APIRouter, Request, Form, File, UploadFile
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -13,9 +15,9 @@ ALLOWED_MIME_TYPES = ["text/html", "application/xhtml+xml"]
 def is_safe_devpost_url(url: str) -> bool:
     try:
         import ipaddress
-        import re
-        import socket
-        from urllib.parse import urlparse
+        # import re
+        # import socket
+        # from urllib.parse import urlparse
 
         if len(url) > 2048:
             return False
@@ -120,7 +122,7 @@ async def analyze_html(request: Request, file: UploadFile = File(...)):
             return JSONResponse({"status": "error", "error_type": user_error.type.value, "title": user_error.title, "body": user_error.body, "action": user_error.suggested_action, "technical": f"Invalid file type. Allowed: {ALLOWED_MIME_TYPES}"}, status_code=415)
 
         html_str = content.decode("utf-8", errors="ignore")
-        import re
+        # import re
         html_str = re.sub(r"<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>", "", html_str, flags=re.IGNORECASE)
         html_str = re.sub(r'\bon\w+\s*=\s*["\'][^"\']*["\']', "", html_str, flags=re.IGNORECASE)
 

@@ -1,6 +1,8 @@
+import hmac
+import os
 import gc
 import hashlib
-import sys
+
 import threading
 from pathlib import Path
 
@@ -21,7 +23,7 @@ _model_lock = threading.Lock()
 _model_mtime = 0.0
 
 def _get_signing_key() -> bytes:
-    import os
+    # import os
     key = os.getenv("MODEL_SIGN_KEY")
     if not key or key == "dev-local-key":
         raise RuntimeError(
@@ -32,7 +34,7 @@ def _get_signing_key() -> bytes:
     return key.encode()
 
 def _verify_signature(file_path: Path, sig_path: Path) -> bool:
-    import hmac
+    # import hmac
     if not sig_path.exists():
         return False
 

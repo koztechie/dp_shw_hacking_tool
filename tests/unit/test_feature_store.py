@@ -1,6 +1,4 @@
-import pytest
 import pandas as pd
-import numpy as np
 from unittest.mock import patch, MagicMock
 from src.ml.feature_store import LightweightFeatureStore
 
@@ -57,7 +55,7 @@ class TestFeatureStore:
             "team_size": [2] * 10,
             "is_winner": [0] * 10
         })
-        mock_con.execute.return_value.fetchdf.return_value = df
+        mock_con.execute.return_value.fetch_arrow_table.return_value.to_pandas.return_value = df
         mock_connect.return_value = mock_con
         
         fs = LightweightFeatureStore()

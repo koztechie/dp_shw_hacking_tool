@@ -1,25 +1,25 @@
-import sys
-from pathlib import Path
-import joblib
-import pandas as pd
-import numpy as np
-from collections import Counter
+import hmac
+import hashlib
+import os
 import json
+from pathlib import Path
 from datetime import datetime
+from collections import Counter
 
-# Гарантуємо правильні шляхи
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-
-from src.ml.prepare_dataset import prepare_dataset_full
-from src.logger import logger
-from src.ml.experiment_tracker import log_experiment
-from config.settings import SETTINGS
-
+import joblib
+import numpy as np
 from xgboost import XGBClassifier
-from sklearn.metrics import classification_report, average_precision_score, precision_recall_curve
+from sklearn.metrics import precision_recall_curve
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 from imblearn.combine import SMOTETomek
 from imblearn.pipeline import Pipeline as ImbPipeline
+
+from config.settings import SETTINGS
+from src.logger import logger
+from src.ml.experiment_tracker import log_experiment
+from src.ml.prepare_dataset import prepare_dataset_full
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
 def train_xgboost():
     logger.info("Початок підготовки даних для XGBoost (Full Dataset для CV)...")
@@ -91,7 +91,7 @@ def train_xgboost():
         "f1_score": round(float(best_f1), 4),
         "best_threshold": round(float(best_threshold), 4)
     }
-    run_id = log_experiment("XGBoost_SMOTETomek", params, metrics, xgb_model)
+    log_experiment("XGBoost_SMOTETomek", params, metrics, xgb_model)
     
     print(f"Базовий Win Rate у вибірці: {y.mean():.4f}")
 
@@ -99,6 +99,7 @@ def train_xgboost():
     models_dir = PROJECT_ROOT / "data" / "models"
     models_dir.mkdir(parents=True, exist_ok=True)
     model_path = models_dir / "xgboost.pkl"
+    joblib.dump(xgb_model, model_path)
     # Зберігаємо історію
     metrics_file = models_dir / "metrics_history.jsonl"
     
@@ -135,7 +136,7 @@ def train_xgboost():
         joblib.dump(xgb_model, best_model_path)
         
         # Генеруємо HMAC підпис
-        import hmac, hashlib, os
+        # import hmac, hashlib, os
         secret = os.getenv("MODEL_SIGN_KEY", "dev-local-key").encode()
         sig = hmac.new(secret, best_model_path.read_bytes(), hashlib.sha256).digest()
         signature_path.write_bytes(sig)

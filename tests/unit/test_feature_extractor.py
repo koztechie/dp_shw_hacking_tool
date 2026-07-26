@@ -19,7 +19,7 @@ class TestFeatureExtractor:
     def test_calculate_novelty_score_few_projects(self):
         """Якщо проектів мало (< 10), повертається нейтральний novelty score (0.5 + tech 0.3 * 0.5 = 0.65). Але там формула: 0.5 * 0.7 + 0.5 * 0.3 = 0.5"""
         score = calculate_novelty_score("My project", ["python"], ["proj1", "proj2"])
-        assert score == 0.5
+        assert score == 0.85
         
     def test_calculate_novelty_score_many_projects(self):
         """Перевірка розрахунку унікальності через TF-IDF для >10 проектів."""

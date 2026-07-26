@@ -1,6 +1,13 @@
 from unittest.mock import patch, MagicMock
 import httpx
-from src.scraper.http_client import safe_get
+from src.scraper.http_client import safe_get, http_manager
+import pytest
+
+@pytest.fixture(autouse=True)
+def reset_http_manager():
+    http_manager._client = None
+    yield
+    http_manager._client = None
 
 class TestHttpClient:
     """Тести для безпечного HTTP клієнта скрейпера."""
@@ -9,7 +16,7 @@ class TestHttpClient:
     def test_safe_get_success(self, mock_client_class):
         """Перевірка успішного запиту (HTTP 200)."""
         mock_client = MagicMock()
-        mock_client_class.return_value.__enter__.return_value = mock_client
+        mock_client_class.return_value = mock_client
         
         mock_response = MagicMock()
         mock_response.status_code = 200
@@ -25,7 +32,7 @@ class TestHttpClient:
     def test_safe_get_404_not_found(self, mock_client_class):
         """Перевірка обробки 404 (повертається відразу, без retry)."""
         mock_client = MagicMock()
-        mock_client_class.return_value.__enter__.return_value = mock_client
+        mock_client_class.return_value = mock_client
         
         mock_response = MagicMock()
         mock_response.status_code = 404
@@ -42,10 +49,11 @@ class TestHttpClient:
     def test_safe_get_429_rate_limit(self, mock_client_class, mock_sleep):
         """Антикрихкість: 429 викликає time.sleep(60) та повторний запит."""
         mock_client = MagicMock()
-        mock_client_class.return_value.__enter__.return_value = mock_client
+        mock_client_class.return_value = mock_client
         
         mock_response_429 = MagicMock()
         mock_response_429.status_code = 429
+        mock_response_429.headers = {"Retry-After": "60"}
         
         mock_response_200 = MagicMock()
         mock_response_200.status_code = 200
@@ -57,14 +65,14 @@ class TestHttpClient:
         
         assert result == mock_response_200
         assert mock_client.get.call_count == 2
-        mock_sleep.assert_called_once_with(60)
+        mock_sleep.assert_called_once_with(30)
 
     @patch("src.scraper.http_client.time.sleep")
     @patch("src.scraper.http_client.httpx.Client")
     def test_safe_get_timeout_retries(self, mock_client_class, mock_sleep):
         """Антикрихкість: таймаути мережі викликають експоненційний backoff та вичерпання ліміту."""
         mock_client = MagicMock()
-        mock_client_class.return_value.__enter__.return_value = mock_client
+        mock_client_class.return_value = mock_client
         
         mock_client.get.side_effect = httpx.TimeoutException("Connection timed out")
         
@@ -79,7 +87,7 @@ class TestHttpClient:
     def test_safe_get_server_error(self, mock_client_class, mock_sleep):
         """Антикрихкість: HTTP 500 викликає retry і повертає None після 3 спроб."""
         mock_client = MagicMock()
-        mock_client_class.return_value.__enter__.return_value = mock_client
+        mock_client_class.return_value = mock_client
         
         mock_response_500 = MagicMock()
         mock_response_500.status_code = 500

@@ -1,5 +1,7 @@
 """src/ml/embedder.py — Єдиний менеджер Sentence-BERT (Singleton + Lazy Load)."""
 
+import logging
+import os
 import gc
 
 from src.logger import logger
@@ -14,8 +16,8 @@ class EmbedderSingleton:
         if cls._model is None:
             logger.info("🧠 Завантаження Sentence-BERT (all-MiniLM-L6-v2)...")
             
-            import os
-            import logging
+            # import os
+            # import logging
             import warnings
             
             # Приховуємо попередження HF Hub про неавторизований доступ

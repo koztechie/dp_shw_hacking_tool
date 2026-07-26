@@ -1,5 +1,4 @@
-import sys
-from pathlib import Path
+from itertools import islice
 import json
 import time
 import uuid
@@ -110,7 +109,7 @@ def run_full_ingestion(pages: int = 5):
                     detail.get("judging_criteria", "")
                 ])
                 
-                from itertools import islice
+                # from itertools import islice
                 batch_size = 50
                 project_iter = iter(projects)
                 
@@ -145,8 +144,10 @@ def run_full_ingestion(pages: int = 5):
                 con.commit()
                 logger.info(f"✅ Збережено в БД: {h_title} ({len(projects)} проектів)")
             except Exception as e:
-                try: con.execute("ROLLBACK")
-                except: pass
+                try:
+                    con.execute("ROLLBACK")
+                except Exception:
+                    pass
                 logger.error(f"Помилка запису в БД: {e}")
             finally:
                 con.close()

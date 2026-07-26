@@ -172,9 +172,13 @@ class TestScraperSuite:
             "content": "SGVsbG8gV29ybGQ=" # Base64 Hello World
         }
 
+        from datetime import datetime, timezone
+        now_str = datetime.now(timezone.utc).isoformat()
         mock_commits_resp = MagicMock()
         mock_commits_resp.status_code = 200
-        mock_commits_resp.json.return_value = [{"sha": "12345"}] * 15
+        mock_commits_resp.json.return_value = [
+            {"sha": "12345", "commit": {"committer": {"date": now_str}}}
+        ] * 15
 
         mock_get.side_effect = [mock_repo_resp, mock_readme_resp, mock_commits_resp]
 
@@ -182,7 +186,7 @@ class TestScraperSuite:
         
         assert result["repo_size"] == 1204
         assert result["repo_issues"] == 5
-        assert result["readme_length"] == 16
+        assert result["readme_length"] == 11
         assert result["commit_count_48h"] == 15
 
     @patch("src.scraper.trend_scraper.httpx.Client.get")

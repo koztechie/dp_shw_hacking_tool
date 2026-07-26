@@ -1,17 +1,18 @@
-import sys
+import hmac
+import hashlib
+import os
 from pathlib import Path
+
 import joblib
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report, roc_auc_score
 from sklearn.model_selection import StratifiedKFold, cross_val_score
 
-# Гарантуємо правильні шляхи імпорту
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-
-from src.ml.prepare_dataset import prepare_dataset_full
-from src.logger import logger
 from config.settings import SETTINGS
+from src.logger import logger
+from src.ml.prepare_dataset import prepare_dataset_full
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
 def train():
     logger.info("Початок підготовки даних (Full Dataset для CV)...")
@@ -60,10 +61,10 @@ def train():
 
     # Зберігаємо назви ознак для використання в майбутньому пайплайні
     feature_names_path = models_dir / "feature_names.pkl"
-    joblib.dump(list(X_train.columns), feature_names_path)
+    joblib.dump(list(X.columns), feature_names_path)
 
     # Генеруємо HMAC підпис
-    import hmac, hashlib, os
+    # import hmac, hashlib, os
     signature_path = models_dir / "best_model.sig"
     secret = os.getenv("MODEL_SIGN_KEY", "dev-local-key").encode()
     sig = hmac.new(secret, best_model_path.read_bytes(), hashlib.sha256).digest()

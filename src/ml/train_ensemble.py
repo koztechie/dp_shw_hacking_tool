@@ -1,6 +1,8 @@
+import hmac
+import os
 import hashlib
 import joblib
-import sys
+
 from pathlib import Path
 
 import numpy as np
@@ -208,7 +210,7 @@ def train_ensemble():
         joblib.dump(list(X_train.columns), f)
 
     # Генеруємо HMAC підпис
-    import hmac, os
+    # import hmac, os
     signature_path = models_dir / "best_model.sig"
     key = os.getenv("MODEL_SIGN_KEY")
     if not key or key == "dev-local-key":

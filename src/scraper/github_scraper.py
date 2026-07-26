@@ -1,5 +1,4 @@
-import sys
-from pathlib import Path
+import base64
 import re
 import json
 import os
@@ -59,7 +58,8 @@ def get_github_metrics(github_url: str) -> dict:
                 data = r_info.json()
                 metrics["repo_size"] = data.get("size", 0)
                 metrics["repo_issues"] = data.get("open_issues_count", 0)
-        except: pass
+        except Exception:
+            pass
         
         # 1. Запит README length
         readme_url = f"https://api.github.com/repos/{owner}/{repo}/readme"
@@ -67,7 +67,7 @@ def get_github_metrics(github_url: str) -> dict:
             r = httpx.get(readme_url, headers=headers, timeout=10.0)
             if r.status_code == 200:
                 # Декодуємо Base64 вміст файлу README для отримання реальної довжини
-                import base64
+                # import base64
                 content = r.json().get("content", "")
                 if content:
                     decoded = base64.b64decode(content).decode("utf-8", errors="ignore")

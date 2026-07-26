@@ -1,8 +1,7 @@
 import pytest
 import pandas as pd
 import numpy as np
-from unittest.mock import patch, MagicMock, mock_open
-from collections import Counter
+from unittest.mock import patch, MagicMock
 
 from src.ml.prepare_dataset import prepare_dataset
 from src.ml.train_model import train
@@ -10,7 +9,7 @@ from src.ml.focal_loss import focal_loss_objective
 from src.ml.global_ate import calculate_global_ate
 from src.ml.experiment_tracker import log_experiment, generate_weekly_report
 from src.ml.train_xgboost import train_xgboost
-from src.ml.train_ensemble import train_ensemble, optimize_hyperparameters
+from src.ml.train_ensemble import optimize_hyperparameters
 
 class TestMLPipeline:
     """Тести для ML-пайплайну: підготовка датасету та тренування моделі."""
@@ -62,32 +61,28 @@ class TestMLPipeline:
         with pytest.raises(ValueError, match="Датасет порожній!"):
             prepare_dataset()
 
-    @patch("src.ml.train_model.pickle.dump")
+    @patch("src.ml.train_model.cross_val_score")
+    @patch("src.ml.train_model.joblib.dump")
     @patch("src.ml.train_model.Path.mkdir")
-    @patch("builtins.open")
     @patch("src.ml.train_model.RandomForestClassifier")
-    @patch("src.ml.train_model.prepare_dataset")
-    def test_train_model_success(self, mock_prepare, mock_rf_class, mock_open, mock_mkdir, mock_dump):
+    @patch("src.ml.train_model.prepare_dataset_full")
+    def test_train_model_success(self, mock_prepare, mock_rf_class, mock_mkdir, mock_dump, mock_cv_score):
         """Успішне тренування класичної моделі та збереження артефактів."""
-        X_train = pd.DataFrame({"feature1": [1, 2, 3], "feature2": [4, 5, 6]})
-        X_test = pd.DataFrame({"feature1": [7, 8], "feature2": [9, 10]})
-        y_train = pd.Series([0, 1, 0])
-        y_test = pd.Series([1, 0])
-        mock_prepare.return_value = (X_train, X_test, y_train, y_test)
+        mock_cv_score.return_value = np.array([0.9, 0.95])
+        X = pd.DataFrame({"feature1": [1, 2, 3], "feature2": [4, 5, 6]})
+        y = pd.Series([0, 1, 0])
+        mock_prepare.return_value = (X, y)
         
         mock_rf = MagicMock()
         mock_rf_class.return_value = mock_rf
-        mock_rf.predict.return_value = np.array([1, 0])
-        mock_rf.predict_proba.return_value = np.array([[0.2, 0.8], [0.9, 0.1]])
         mock_rf.feature_importances_ = np.array([0.7, 0.3])
         
         model = train()
         
         mock_prepare.assert_called_once()
-        mock_rf.fit.assert_called_once_with(X_train, y_train)
+        mock_rf.fit.assert_called_once_with(X, y)
         assert model == mock_rf
-        assert mock_open.call_count == 3
-        assert mock_dump.call_count == 3
+        assert mock_dump.call_count >= 1
 
 class TestFocalLoss:
     """Тести для Focal Loss функції."""
@@ -106,7 +101,7 @@ class TestGlobalATE:
     """Тести для статистичного аналізу ATE."""
     
     @patch("src.ml.global_ate.prepare_dataset")
-    @patch("src.ml.global_ate.safe_pickle_load")
+    @patch("src.ml.global_ate.load_model")
     @patch("src.ml.global_ate.Path.exists")
     def test_calculate_global_ate(self, mock_exists, mock_load, mock_prepare):
         mock_exists.return_value = True
@@ -118,7 +113,7 @@ class TestGlobalATE:
         
         mock_model = MagicMock()
         mock_model.predict_proba.return_value = np.array([[0.1, 0.9], [0.8, 0.2]])
-        mock_load.return_value = mock_model
+        mock_load.return_value = (mock_model, MagicMock())
         
         calculate_global_ate()
         mock_load.assert_called_once()
@@ -128,10 +123,9 @@ class TestExperimentTracker:
     """Тести для трекера експериментів."""
     
     @patch("src.ml.experiment_tracker.duckdb.connect")
-    @patch("src.ml.experiment_tracker.pickle.dump")
+    @patch("src.ml.experiment_tracker.joblib.dump")
     @patch("src.ml.experiment_tracker.Path.mkdir")
-    @patch("builtins.open")
-    def test_log_experiment(self, mock_open, mock_mkdir, mock_dump, mock_connect):
+    def test_log_experiment(self, mock_mkdir, mock_dump, mock_connect):
         mock_con = MagicMock()
         mock_connect.return_value = mock_con
         
@@ -162,32 +156,31 @@ class TestExperimentTracker:
 class TestTrainXGBoost:
     """Тести для тренування XGBoost моделі."""
     
-    @patch("src.ml.train_xgboost.prepare_dataset")
+    @patch("src.ml.train_xgboost.cross_val_score")
+    @patch("src.ml.train_xgboost.prepare_dataset_full")
     @patch("src.ml.train_xgboost.SMOTETomek")
     @patch("src.ml.train_xgboost.log_experiment")
-    @patch("src.ml.train_xgboost.pickle.dump")
-    @patch("builtins.open")
+    @patch("src.ml.train_xgboost.joblib.dump")
     @patch("src.ml.train_xgboost.XGBClassifier")
-    def test_train_xgboost_success(self, mock_xgb_class, mock_open, mock_dump, mock_log_exp, mock_smote_class, mock_prepare):
-        X_train = pd.DataFrame({"f1": [1, 2, 3], "f2": [4, 5, 6]})
-        X_test = pd.DataFrame({"f1": [7, 8], "f2": [9, 10]})
-        y_train = pd.Series([0, 1, 0])
-        y_test = pd.Series([1, 0])
-        mock_prepare.return_value = (X_train, X_test, y_train, y_test)
+    def test_train_xgboost_success(self, mock_xgb_class, mock_dump, mock_log_exp, mock_smote_class, mock_prepare, mock_cv_score):
+        mock_cv_score.return_value = np.array([0.9, 0.95])
+        X_train = pd.DataFrame({"f1": [1, 2, 3] * 5, "f2": [4, 5, 6] * 5})
+        y_train = pd.Series([0, 1, 0] * 5)
+        mock_prepare.return_value = (X_train, y_train)
         
         mock_smt = MagicMock()
         mock_smt.fit_resample.return_value = (X_train, y_train)
         mock_smote_class.return_value = mock_smt
         
         mock_xgb = MagicMock()
-        mock_xgb.predict_proba.return_value = np.array([[0.2, 0.8], [0.9, 0.1]])
+        mock_xgb.predict_proba.return_value = np.array([[0.2, 0.8], [0.9, 0.1]] * 7 + [[0.5, 0.5]])
         mock_xgb_class.return_value = mock_xgb
         
         train_xgboost()
         
         mock_xgb.fit.assert_called_once()
         mock_log_exp.assert_called_once()
-        assert mock_open.call_count == 3
+        assert mock_dump.call_count >= 1
 
 class TestTrainEnsemble:
     """Тести для оптимізації та тренування ансамблю моделей."""
@@ -210,15 +203,12 @@ class TestTrainEnsemble:
     @patch("src.utils.memory_guard.MemoryGuard.check_memory")
     @patch("src.ml.train_ensemble.prepare_dataset")
     @patch("src.ml.train_ensemble.optimize_hyperparameters")
-    @patch("src.ml.train_ensemble.SMOTETomek")
     @patch("src.ml.train_ensemble.CalibratedClassifierCV")
     @patch("src.ml.train_ensemble.log_experiment")
-    @patch("src.ml.train_ensemble.safe_pickle_load")
-    @patch("src.ml.train_ensemble.pickle.dump")
-    @patch("builtins.open")
+    @patch("src.ml.predictor._safe_model_load")
+    @patch("src.ml.train_ensemble.joblib.dump")
     @patch("src.ml.train_ensemble.Path.exists")
-    @patch("src.ml.train_ensemble.hashlib.sha256")
-    def test_train_ensemble_success(self, mock_sha, mock_exists, mock_open, mock_dump, mock_load, mock_log_exp, mock_calibrated_class, mock_smote_class, mock_opt, mock_prepare, mock_check_mem):
+    def test_train_ensemble_success(self, mock_exists, mock_dump, mock_load, mock_log_exp, mock_calibrated_class, mock_opt, mock_prepare, mock_check_mem):
         mock_check_mem.return_value = True
         X_train = pd.DataFrame({"f1": [1, 2, 3], "f2": [4, 5, 6]})
         X_test = pd.DataFrame({"f1": [7, 8], "f2": [9, 10]})
@@ -227,18 +217,17 @@ class TestTrainEnsemble:
         mock_prepare.return_value = (X_train, X_test, y_train, y_test)
         mock_opt.return_value = {"rf_max_depth": 5}
         
-        mock_smt = MagicMock()
-        mock_smt.fit_resample.return_value = (X_train, y_train)
-        mock_smote_class.return_value = mock_smt
-        
         mock_calibrated = MagicMock()
         mock_calibrated.predict_proba.return_value = np.array([[0.2, 0.8], [0.9, 0.1]])
         mock_calibrated_class.return_value = mock_calibrated
         
         mock_exists.return_value = False # немає старого лідера
         
-        train_ensemble()
+        from src.ml.train_ensemble import train_ensemble
+        
+        with patch.dict("os.environ", {"MODEL_SIGN_KEY": "my-secret-key"}):
+            train_ensemble()
         
         mock_calibrated.fit.assert_called()
         mock_log_exp.assert_called_once()
-        assert mock_open.call_count >= 4
+        assert mock_dump.call_count >= 1
