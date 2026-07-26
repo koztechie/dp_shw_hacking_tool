@@ -13,13 +13,13 @@ from src.ml.train_ensemble import optimize_hyperparameters
 
 import pathlib as _pl
 
-def _ensure_dummy_model():
-    """Створює dummy best_model.pkl для HMAC-підпису в CI."""
+def _ensure_model_dir():
+    """Створює data/models/ з dummy best_model.pkl для HMAC-підпису в CI."""
     model_dir = _pl.Path("data/models")
     model_dir.mkdir(parents=True, exist_ok=True)
     dummy = model_dir / "best_model.pkl"
     if not dummy.exists():
-        dummy.write_bytes(b"dummy-model-bytes-for-ci")
+        dummy.write_bytes(b"dummy-model-bytes-for-ci-hmac")
 
 
 
@@ -81,6 +81,7 @@ class TestMLPipeline:
     @patch("pathlib.Path.read_bytes", return_value=b"dummy-model-bytes-for-ci")
     def test_train_model_success(self, mock_read, mock_prepare, mock_rf_class, mock_mkdir, mock_dump, mock_cv_score):
         """Успішне тренування класичної моделі та збереження артефактів."""
+        _ensure_model_dir()
         mock_cv_score.return_value = np.array([0.9, 0.95])
         X = pd.DataFrame({"feature1": [1, 2, 3], "feature2": [4, 5, 6]})
         y = pd.Series([0, 1, 0])
@@ -176,6 +177,7 @@ class TestTrainXGBoost:
     @patch("src.ml.train_xgboost.joblib.dump")
     @patch("src.ml.train_xgboost.XGBClassifier")
     def test_train_xgboost_success(self, mock_xgb_class, mock_dump, mock_log_exp, mock_smote_class, mock_prepare, mock_cv_score):
+        _ensure_model_dir()
         mock_cv_score.return_value = np.array([0.9, 0.95])
         X_train = pd.DataFrame({"f1": [1, 2, 3] * 5, "f2": [4, 5, 6] * 5})
         y_train = pd.Series([0, 1, 0] * 5)
