@@ -171,13 +171,15 @@ class TestExperimentTracker:
 class TestTrainXGBoost:
     """Тести для тренування XGBoost моделі."""
     
+    @patch("pathlib.Path.write_bytes")
+    @patch("pathlib.Path.read_bytes", return_value=b"dummy-model-bytes-for-ci-hmac")
     @patch("src.ml.train_xgboost.cross_val_score")
     @patch("src.ml.train_xgboost.prepare_dataset_full")
     @patch("src.ml.train_xgboost.SMOTETomek")
     @patch("src.ml.train_xgboost.log_experiment")
     @patch("src.ml.train_xgboost.joblib.dump")
     @patch("src.ml.train_xgboost.XGBClassifier")
-    def test_train_xgboost_success(self, mock_xgb_class, mock_dump, mock_log_exp, mock_smote_class, mock_prepare, mock_cv_score):
+    def test_train_xgboost_success(self, mock_xgb_class, mock_dump, mock_log_exp, mock_smote_class, mock_prepare, mock_cv_score, mock_read_bytes, mock_write_bytes):
         mock_cv_score.return_value = np.array([0.9, 0.95])
         X_train = pd.DataFrame({"f1": [1, 2, 3] * 5, "f2": [4, 5, 6] * 5})
         y_train = pd.Series([0, 1, 0] * 5)
