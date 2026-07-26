@@ -68,7 +68,6 @@ def generate_winning_ideas(hackathon_data: dict, hackathon_analysis: dict, hard_
                     results = check_existing_apps(title)
                     # Search by broader concept (extract 2-3 keywords from tagline)
                     if tagline:
-                        import re
                         words = re.findall(r'\b[a-zA-Z0-9]+\b', tagline.lower())
                         stop_words = {"a", "an", "the", "and", "or", "but", "in", "on", "at", "to", "for", "with", "by", "about", "as", "of", "is", "it", "this", "that", "are", "you", "your", "app", "can", "will", "how", "what", "why"}
                         keywords = [w for w in words if w not in stop_words and len(w) > 2]
