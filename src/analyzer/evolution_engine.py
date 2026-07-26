@@ -17,7 +17,8 @@ def detect_data_drift() -> dict:
     Виконує статистичний тест Колмогорова-Смирнова (KS-test) 
     для виявлення дрейфу даних (Data Drift) на основі 'novelty_score'.
     """
-    con = duckdb.connect(DB_PATH, read_only=True)
+    from src.db import get_connection
+    con = get_connection()
     try:
         # Порівнюємо розподіл novelty_score останніх 50 проектів vs перших 50
         recent = con.execute("SELECT novelty_score FROM features ORDER BY project_id DESC LIMIT 50").fetchdf()
@@ -45,7 +46,8 @@ def analyze_system_performance() -> dict:
     Аналізує розбіжність між прогнозами моделі та реальними результатами хакатонів.
     Генерує готовий промпт для VS Code Antigravity CLI для покращення коду.
     """
-    con = duckdb.connect(DB_PATH, read_only=True)
+    from src.db import get_connection
+    con = get_connection()
     
     # Зчитуємо історію зворотного зв'язку та прогнозів
     try:

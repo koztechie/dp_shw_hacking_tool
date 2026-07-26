@@ -11,6 +11,18 @@ from src.ml.experiment_tracker import log_experiment, generate_weekly_report
 from src.ml.train_xgboost import train_xgboost
 from src.ml.train_ensemble import optimize_hyperparameters
 
+import pathlib as _pl
+
+def _ensure_dummy_model():
+    """Створює dummy best_model.pkl для HMAC-підпису в CI."""
+    model_dir = _pl.Path("data/models")
+    model_dir.mkdir(parents=True, exist_ok=True)
+    dummy = model_dir / "best_model.pkl"
+    if not dummy.exists():
+        dummy.write_bytes(b"dummy-model-bytes-for-ci")
+
+
+
 class TestMLPipeline:
     """Тести для ML-пайплайну: підготовка датасету та тренування моделі."""
     
