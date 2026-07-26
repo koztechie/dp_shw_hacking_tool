@@ -6,7 +6,7 @@ from src.analyzer.evolution_engine import analyze_system_performance, trigger_au
 class TestEvolutionEngine:
     """Тести для модуля автоеволюції (Self-Evolution Engine)."""
 
-    @patch("src.analyzer.evolution_engine.duckdb.connect")
+    @patch("src.analyzer.evolution_engine.get_connection")
     @patch("src.analyzer.evolution_engine.generate_json_with_failover")
     def test_analyze_system_performance_empty_feedback(self, mock_failover, mock_connect):
         """Проактивний режим аналізу при відсутності фідбеку в БД."""
@@ -25,9 +25,10 @@ class TestEvolutionEngine:
         
         assert result["diagnostic_summary"] == "Proactive recommendation"
         mock_failover.assert_called_once()
-        mock_con.close.assert_called_once()
+        # PooledConnection не викликає close — повертає в пул
+        # mock_con.close.assert_called_once()
 
-    @patch("src.analyzer.evolution_engine.duckdb.connect")
+    @patch("src.analyzer.evolution_engine.get_connection")
     @patch("src.analyzer.evolution_engine.generate_json_with_failover")
     def test_analyze_system_performance_with_feedback(self, mock_failover, mock_connect):
         """Аналіз на основі накопиченого фідбеку."""
@@ -52,7 +53,8 @@ class TestEvolutionEngine:
         
         assert result["diagnostic_summary"] == "Feedback analysis"
         mock_failover.assert_called_once()
-        mock_con.close.assert_called_once()
+        # PooledConnection не викликає close — повертає в пул
+        # mock_con.close.assert_called_once()
 
     @patch("src.analyzer.evolution_engine.analyze_system_performance")
     @patch("src.analyzer.evolution_engine.sentry_sdk")
