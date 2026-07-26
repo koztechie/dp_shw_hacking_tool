@@ -79,7 +79,7 @@ class TestMLPipeline:
     @patch("src.ml.train_model.RandomForestClassifier")
     @patch("src.ml.train_model.prepare_dataset_full")
     @patch("pathlib.Path.read_bytes", return_value=b"dummy-model-bytes-for-ci")
-    def test_train_model_success(self, mock_prepare, mock_rf_class, mock_mkdir, mock_dump, mock_cv_score):
+    def test_train_model_success(self, mock_read, mock_prepare, mock_rf_class, mock_mkdir, mock_dump, mock_cv_score):
         """Успішне тренування класичної моделі та збереження артефактів."""
         mock_cv_score.return_value = np.array([0.9, 0.95])
         X = pd.DataFrame({"feature1": [1, 2, 3], "feature2": [4, 5, 6]})

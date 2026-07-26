@@ -6,7 +6,7 @@ from src.analyzer.evolution_engine import analyze_system_performance, trigger_au
 class TestEvolutionEngine:
     """Тести для модуля автоеволюції (Self-Evolution Engine)."""
 
-    @patch("src.analyzer.evolution_engine.get_connection")
+    @patch("src.db.get_connection")
     @patch("src.analyzer.evolution_engine.generate_json_with_failover")
     def test_analyze_system_performance_empty_feedback(self, mock_failover, mock_connect):
         """Проактивний режим аналізу при відсутності фідбеку в БД."""
@@ -28,7 +28,7 @@ class TestEvolutionEngine:
         # PooledConnection не викликає close — повертає в пул
         # mock_con.close.assert_called_once()
 
-    @patch("src.analyzer.evolution_engine.get_connection")
+    @patch("src.db.get_connection")
     @patch("src.analyzer.evolution_engine.generate_json_with_failover")
     def test_analyze_system_performance_with_feedback(self, mock_failover, mock_connect):
         """Аналіз на основі накопиченого фідбеку."""
