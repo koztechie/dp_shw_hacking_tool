@@ -67,7 +67,7 @@ class TestAIGenerators:
         result = generate_winning_ideas({"title": "Test Hackathon"}, {}, {})
         
         assert len(result) == 3
-        assert result[0]["title"] == "Offline Web App"
+        assert result[0]["title"] == "Offline App Beta for Test Hackathon"
         assert mock_generate.call_count == 3
 
     @patch("src.analyzer.techspec_generator.context_manager")

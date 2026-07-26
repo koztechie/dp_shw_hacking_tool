@@ -1,12 +1,13 @@
 import base64
+import html
 import json
 import re
 import sys
+import threading
 import time
-import html
 from datetime import datetime, timedelta
-from tenacity import retry, stop_after_attempt, wait_exponential
 from pathlib import Path
+from tenacity import retry, stop_after_attempt, wait_exponential
 
 # Гарантуємо правильні шляхи імпорту
 
@@ -302,7 +303,6 @@ def sanitize_user_input(text: str, max_length: int = 5000) -> str:
                  "delete all", "rm -rf", "exec(", "eval(", "import os"]
     for d in dangerous:
         if d.lower() in text.lower():
-            import re
             text = re.sub(re.escape(d), f"[BLOCKED:{d.upper()}]", text, flags=re.IGNORECASE)
             logger.warning(f"Заблоковано потенційно небезпечний фрагмент: {d}")
     return text
