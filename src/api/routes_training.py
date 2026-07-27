@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request, BackgroundTasks, Form, Depends
 from fastapi.responses import HTMLResponse, JSONResponse
-from src.api.core import templates, AppState, limiter, verify_local_access, get_workflow_context
+from src.api.core import templates, AppState, limiter, verify_local_access
 from src.ui.i18n.system import t
 from src.logger import logger
 from config.settings import DB_PATH
@@ -82,4 +82,7 @@ async def training_status():
         con.close()
     except Exception:
         pass
-    return JSONResponse({"hackathons_collected": AppState.get_count()})
+    return JSONResponse({
+        "hackathons_collected": AppState.get_count(),
+        "is_running": _ingestion_active
+    })

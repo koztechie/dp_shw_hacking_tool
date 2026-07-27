@@ -19,6 +19,8 @@ class Settings(BaseSettings):
     sentry_dsn: str = Field(default="", env="SENTRY_DSN")
     github_token: str = Field(default="", env="GITHUB_TOKEN")
     model_sign_key: str = Field(default="", env="MODEL_SIGN_KEY")
+    csrf_secret: str = Field(default="", env="CSRF_SECRET")
+    api_secret_key: str = Field(default="", env="API_SECRET_KEY")
     
     @validator("model_sign_key", pre=True, always=True)
     def validate_model_sign_key(cls, v):

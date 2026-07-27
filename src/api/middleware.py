@@ -108,7 +108,8 @@ def setup_middlewares(app):
             env = os.getenv("ENV", "production").lower()
             is_testing = env in ("testing", "test", "ci")
 
-            csrf_secret = os.getenv("CSRF_SECRET")
+            from config.settings import SETTINGS
+            csrf_secret = SETTINGS.csrf_secret or os.getenv("CSRF_SECRET")
             if not csrf_secret or csrf_secret == "your_random_secret_min_32_chars":
                 if is_testing:
                     csrf_secret = "ci-test-csrf-secret-not-for-prod-use"
@@ -169,7 +170,8 @@ def setup_middlewares(app):
             if request.client.host in ("127.0.0.1", "localhost", "::1"):
                 return await call_next(request)
             api_key = request.headers.get("X-API-Key")
-            expected_key = os.getenv("API_SECRET_KEY")
+            from config.settings import SETTINGS
+            expected_key = SETTINGS.api_secret_key or os.getenv("API_SECRET_KEY")
             
             # FAIL-CLOSED if API key is not set or uses the .env.example default
             if not expected_key or expected_key == "your_random_api_key_min_32_chars":

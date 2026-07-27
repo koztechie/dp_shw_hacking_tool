@@ -36,7 +36,11 @@
     {% endif %}
 
     <!-- БЛОК СТАТУСУ ЗБОРУ (Показується за замовчуванням) -->
-    <div id="status-box" style="margin-top: 2rem; display: {% if hackathons_collected > 0 %}block{% else %}none{% endif %}; text-align: center; padding: 1.5rem; border: 1px solid #30363d; border-radius: 8px; background: #0d1117;">
+    {% if hackathons_collected > 0 %}
+    <div id="status-box" style="margin-top: 2rem; display: block; text-align: center; padding: 1.5rem; border: 1px solid #30363d; border-radius: 8px; background: #0d1117;">
+    {% else %}
+    <div id="status-box" style="margin-top: 2rem; display: none; text-align: center; padding: 1.5rem; border: 1px solid #30363d; border-radius: 8px; background: #0d1117;">
+    {% endif %}
         <div style="font-size: 1.2rem; color: var(--muted); margin-bottom: 0.5rem;">
             Зібрано хакатонів у базі:
         </div>
@@ -91,6 +95,17 @@
                 const emptyState = document.getElementById('training-empty-state');
                 if (emptyState) emptyState.style.display = 'none';
                 document.getElementById('status-box').style.display = 'block';
+            }
+            if (data.is_running === false && pollInterval) {
+                clearInterval(pollInterval);
+                pollInterval = null;
+                const btn = document.getElementById('start-btn');
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = "{{ t('training.start') }}";
+                    btn.style.opacity = "1";
+                    btn.style.cursor = "pointer";
+                }
             }
         } catch (e) {
             console.error("Помилка опитування статусу:", e);
