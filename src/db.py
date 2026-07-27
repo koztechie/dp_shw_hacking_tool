@@ -8,13 +8,66 @@ import duckdb
 from config.settings import SETTINGS  # noqa: E402
 from src.logger import logger  # noqa: E402
 
-
+import shutil
 import threading
+
+DB_PATH = Path(SETTINGS.db_path)
+WAL_PATH = DB_PATH.with_suffix(".duckdb.wal")
+
+def _recover_wal_if_needed():
+    """Видаляє пошкоджений WAL і робить checkpoint перед першим з'єднанням."""
+    if not WAL_PATH.exists():
+        return
+
+    try:
+        # Спробувати відкрити — якщо WAL пошкоджений, буде помилка
+        con = duckdb.connect(str(DB_PATH))
+        con.execute("CHECKPOINT")  # Примусово злити WAL у основний файл
+        con.close()
+        logger.info("✅ WAL успішно checkpoint'нуто")
+    except Exception as e:
+        logger.warning(f"⚠️ WAL пошкоджений ({e}). Видаляю та відновлюю...")
+        # Backup пошкодженого WAL для діагностики
+        backup = WAL_PATH.with_suffix(".wal.corrupt")
+        shutil.move(str(WAL_PATH), str(backup))
+        # Відкрити без WAL — DuckDB автоматично проігнорує відсутній WAL
+        try:
+            con = duckdb.connect(str(DB_PATH))
+            con.execute("CHECKPOINT")
+            con.close()
+            logger.info("✅ БД відновлено без WAL (дані збережено)")
+        except Exception as e2:
+            logger.critical(f"❌ БД невідновна: {e2}")
+            raise
+
+# Викликати ОДИН РАЗ при імпорті модуля, до DuckDBPool
+_recover_wal_if_needed()
+
 
 class DuckDBPool:
     _read_con = None
     _write_con = None
     write_lock = threading.Lock()
+
+    @classmethod
+    def shutdown(cls):
+        """Безпечне завершення: checkpoint + close."""
+        try:
+            if cls._write_con:
+                cls._write_con.execute("CHECKPOINT")
+                cls._write_con.close()
+                cls._write_con = None
+            
+            if getattr(cls, "_read_con", None):
+                cls._read_con.close()
+                cls._read_con = None
+                
+            if hasattr(cls, "_read_cons"):
+                for con in cls._read_cons:
+                    con.close()
+                cls._read_cons.clear()
+        except Exception:
+            pass  # Best-effort при shutdown
 
     @classmethod
     def get_read_connection(cls):
@@ -222,7 +275,8 @@ MIGRATIONS = [
     """,
     # v1: Add indexes and has_video (as suggested)
     """
-    ALTER TABLE features ADD COLUMN IF NOT EXISTS has_video BOOLEAN DEFAULT FALSE;
+    ALTER TABLE features ADD COLUMN IF NOT EXISTS has_video BOOLEAN;
+    UPDATE features SET has_video = FALSE WHERE has_video IS NULL;
     CREATE INDEX IF NOT EXISTS idx_projects_hackathon_id ON projects(hackathon_id);
     CREATE INDEX IF NOT EXISTS idx_projects_is_winner ON projects(is_winner);
     CREATE INDEX IF NOT EXISTS idx_projects_scraped_at ON projects(scraped_at);
@@ -257,7 +311,8 @@ def init_db():
                 
         # Міграція для існуючої таблиці, що була створена без DEFAULT
         try:
-            con.execute("ALTER TABLE audit_log ALTER id SET DEFAULT nextval('audit_log_id_seq')")
+            con.execute("UPDATE audit_log SET id = nextval('audit_log_id_seq') WHERE id IS NULL")
+            con.execute("CHECKPOINT")
         except Exception:
             pass
 

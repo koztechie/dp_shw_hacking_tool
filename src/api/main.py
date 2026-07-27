@@ -3,6 +3,7 @@ import asyncio
 import contextlib
 import os
 import signal
+import sys
 import uuid
 import traceback
 from contextlib import asynccontextmanager
@@ -28,13 +29,17 @@ from src.ui.i18n.system import t
 shutdown_event = asyncio.Event()
 
 
-def signal_handler(sig, frame):
-    logger.info(f"🛑 Отримано сигнал {sig}. Ініціюю graceful shutdown...")
+
+
+def _graceful_shutdown(signum, frame):
+    logger.info(f"🛑 Отримано сигнал {signum}, graceful shutdown...")
+    from src.db import DuckDBPool
+    DuckDBPool.shutdown()
     shutdown_event.set()
+    sys.exit(0)
 
-
-signal.signal(signal.SIGTERM, signal_handler)
-signal.signal(signal.SIGINT, signal_handler)
+signal.signal(signal.SIGTERM, _graceful_shutdown)
+signal.signal(signal.SIGINT, _graceful_shutdown)
 
 
 @asynccontextmanager
@@ -47,10 +52,22 @@ async def lifespan(app: FastAPI):
         logger.info("✅ База даних ініціалізована")
     except Exception as e:
         logger.error(f"❌ Помилка ініціалізації БД: {e}")
+        # Не падати — сервер може працювати в degraded mode
+    
     yield
+    
     logger.info("🛑 Отримано сигнал завершення. Чекаємо на фонові задачі...")
     shutdown_event.set()
     await asyncio.sleep(2)
+    
+    # --- Shutdown (КРИТИЧНО!) ---
+    try:
+        from src.db import DuckDBPool
+        DuckDBPool.shutdown()  # Закрити ВСІ з'єднання пулу
+        logger.info("🛑 З'єднання БД закрито")
+    except Exception as e:
+        logger.warning(f"Помилка при закритті БД: {e}")
+        
     logger.info("✅ Завершення роботи.")
 
 
