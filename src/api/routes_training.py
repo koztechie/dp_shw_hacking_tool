@@ -21,7 +21,10 @@ async def training_page(request: Request):
         count = con.execute("SELECT COUNT(*) FROM hackathons").fetchone()[0]
         AppState.set_count(count)
         con.close()
-    except Exception:
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        logger.error(f"Error getting training stats: {e}")
         count = AppState.get_count()
     return templates.TemplateResponse(request=request, name="training.html", context={"t": t, "hackathons_collected": count})
 
@@ -81,8 +84,10 @@ async def training_status():
         count = con.execute("SELECT COUNT(*) FROM hackathons").fetchone()[0]
         AppState.set_count(count)
         con.close()
-    except Exception:
-        pass
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        logger.error(f"Error in training_status: {e}")
     return JSONResponse({
         "hackathons_collected": AppState.get_count(),
         "is_running": _ingestion_active

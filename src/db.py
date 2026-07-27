@@ -98,9 +98,9 @@ class PooledConnection:
         # Якщо read_only=True, беремо read-con, інакше write-con
         try:
             self.con = DuckDBPool.get_read_connection() if read_only else DuckDBPool.get_write_connection()
-        except duckdb.IOException:
-            # DuckDB не дозволяє write_con та read_con одночасно в одному процесі у старих версіях, 
-            # або навпаки. Якщо падає - використовуємо write-con для всього.
+        except duckdb.Error:
+            # DuckDB не дозволяє write_con та read_con одночасно в одному процесі у новіших версіях
+            # через конфлікти конфігурацій. Якщо падає - використовуємо write-con для всього.
             self.con = DuckDBPool.get_write_connection()
 
     def __eq__(self, other):
