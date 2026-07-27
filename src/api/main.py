@@ -1,3 +1,4 @@
+from src.db import get_connection
 import shutil
 import asyncio
 import contextlib
@@ -186,7 +187,7 @@ async def dashboard(request: Request):
     try:
         import duckdb
 
-        con = duckdb.connect(DB_PATH, read_only=True)
+        con = get_connection(read_only=True)
         stats["hackathons"] = con.execute("SELECT COUNT(*) FROM hackathons").fetchone()[
             0
         ]
@@ -261,7 +262,7 @@ async def health(request: Request):
     critical_failures = []
 
     try:
-        con = duckdb.connect(DB_PATH, read_only=True)
+        con = get_connection(read_only=True)
         health_status["metrics"]["hackathons"] = con.execute(
             "SELECT COUNT(*) FROM hackathons"
         ).fetchone()[0]

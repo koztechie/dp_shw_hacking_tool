@@ -1,3 +1,4 @@
+from src.db import get_connection
 import hmac
 
 from urllib.parse import urlparse
@@ -32,7 +33,7 @@ def _audit_flush_worker():
             continue
 
         try:
-            con = duckdb.connect(str(DB_PATH))
+            con = get_connection(read_only=False)
             con.execute("BEGIN")
             for entry in batch:
                 con.execute(

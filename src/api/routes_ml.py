@@ -1,3 +1,4 @@
+from src.db import get_connection
 import time as _time
 from fastapi import APIRouter, Request, BackgroundTasks, Form, Depends
 from fastapi.responses import HTMLResponse, JSONResponse
@@ -22,7 +23,7 @@ async def ideas_page(request: Request, prediction_id: str):
     try:
         import duckdb
 
-        con = duckdb.connect(DB_PATH, read_only=True)
+        con = get_connection(read_only=True)
         row = con.execute(
             "SELECT hackathon_url, idea_1_description, idea_2_description, idea_3_description FROM predictions WHERE id = ?",
             [prediction_id],
@@ -65,7 +66,7 @@ async def get_techspec(request: Request, prediction_id: str, idea_index: int):
     try:
         import duckdb
 
-        con = duckdb.connect(DB_PATH, read_only=True)
+        con = get_connection(read_only=True)
         row = con.execute(
             "SELECT hackathon_url FROM predictions WHERE id = ?", [prediction_id]
         ).fetchone()
@@ -90,7 +91,7 @@ async def techspec_page(request: Request, prediction_id: str):
     try:
         import duckdb
 
-        con = duckdb.connect(DB_PATH, read_only=True)
+        con = get_connection(read_only=True)
         row = con.execute(
             "SELECT techspec, selected_idea FROM predictions WHERE id = ?",
             [prediction_id],
@@ -125,7 +126,7 @@ async def history_page(request: Request, page: int = 1, limit: int = 50):
         import duckdb
         import pandas as pd
 
-        con = duckdb.connect(DB_PATH, read_only=True)
+        con = get_connection(read_only=True)
         df = con.execute(
             "SELECT p.id, p.hackathon_url, strftime('%Y-%m-%d %H:%M', p.generated_at) as gen_date, p.idea_1_title, p.idea_1_score, p.selected_idea, f.won as feedback_won FROM predictions p LEFT JOIN feedback f ON p.id = f.prediction_id ORDER BY p.generated_at DESC LIMIT ? OFFSET ?",
             [limit, offset],
@@ -154,7 +155,7 @@ async def delete_all_history(request: Request):
     try:
         import duckdb
 
-        con = duckdb.connect(DB_PATH)
+        con = get_connection(read_only=False)
         con.execute("DELETE FROM feedback")
         con.execute("DELETE FROM predictions")
         con.close()
@@ -169,7 +170,7 @@ async def delete_history_item(request: Request, prediction_id: str):
     try:
         import duckdb
 
-        con = duckdb.connect(DB_PATH)
+        con = get_connection(read_only=False)
         con.execute("DELETE FROM feedback WHERE prediction_id = ?", [prediction_id])
         con.execute("DELETE FROM predictions WHERE id = ?", [prediction_id])
         con.close()
@@ -208,7 +209,7 @@ async def retrain_check():
     try:
         import duckdb
 
-        con = duckdb.connect(DB_PATH, read_only=True)
+        con = get_connection(read_only=True)
         current_count = con.execute("SELECT COUNT(*) FROM hackathons").fetchone()[0]
     except Exception:
         pass
@@ -268,7 +269,7 @@ def run_ml_pipeline():
 
         run_batch_feature_extraction()
         train_ensemble()
-        con = duckdb.connect(DB_PATH, read_only=True)
+        con = get_connection(read_only=True)
         current_count = con.execute("SELECT COUNT(*) FROM hackathons").fetchone()[0]
         con.close()
         count_file = PROJECT_ROOT / "data" / "models" / "last_train_count.txt"
@@ -306,7 +307,7 @@ async def submit_feedback(
     try:
         import duckdb
 
-        con = duckdb.connect(DB_PATH)
+        con = get_connection(read_only=False)
         if not con.execute(
             "SELECT id FROM predictions WHERE id = ?", [prediction_id]
         ).fetchone():
@@ -334,7 +335,7 @@ async def generate_assets(prediction_id: str):
     try:
         import duckdb
 
-        con = duckdb.connect(DB_PATH, read_only=True)
+        con = get_connection(read_only=True)
         row = con.execute(
             "SELECT techspec FROM predictions WHERE id = ?", [prediction_id]
         ).fetchone()

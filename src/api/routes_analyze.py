@@ -1,3 +1,4 @@
+from src.db import get_connection
 from urllib.parse import urlparse
 import socket
 import re

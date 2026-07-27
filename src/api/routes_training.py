@@ -1,3 +1,4 @@
+from src.db import get_connection
 from fastapi import APIRouter, Request, BackgroundTasks, Form, Depends
 from fastapi.responses import HTMLResponse, JSONResponse
 from src.api.core import templates, AppState, limiter, verify_local_access
@@ -16,7 +17,7 @@ _ingestion_lock = threading.Lock()
 async def training_page(request: Request):
     try:
         import duckdb
-        con = duckdb.connect(DB_PATH, read_only=True)
+        con = get_connection(read_only=True)
         count = con.execute("SELECT COUNT(*) FROM hackathons").fetchone()[0]
         AppState.set_count(count)
         con.close()
@@ -76,7 +77,7 @@ async def start_training(request: Request, background_tasks: BackgroundTasks, pa
 async def training_status():
     try:
         import duckdb
-        con = duckdb.connect(DB_PATH, read_only=True)
+        con = get_connection(read_only=True)
         count = con.execute("SELECT COUNT(*) FROM hackathons").fetchone()[0]
         AppState.set_count(count)
         con.close()
