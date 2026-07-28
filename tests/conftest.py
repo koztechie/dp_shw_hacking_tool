@@ -79,8 +79,9 @@ def test_db(test_data_dir):
     """)
 
     con.execute("""
+        CREATE SEQUENCE IF NOT EXISTS audit_log_id_seq START 1;
         CREATE TABLE IF NOT EXISTS audit_log (
-            id INTEGER PRIMARY KEY,
+            id INTEGER PRIMARY KEY DEFAULT nextval('audit_log_id_seq'),
             timestamp TIMESTAMP DEFAULT current_timestamp,
             user_ip VARCHAR,
             endpoint VARCHAR,
@@ -203,3 +204,19 @@ def mock_environment():
         "ENV": "testing"
     }):
         yield
+
+@pytest.fixture(autouse=True)
+def patch_db_settings(test_db):
+    """АНТИКРИХКІСТЬ: Забезпечує, щоб усі тести використовували тестову БД та очищає пул з'єднань."""
+    from config.settings import SETTINGS
+    from src.db import DuckDBPool
+    
+    DuckDBPool.shutdown()
+    
+    original_path = SETTINGS.db_path
+    SETTINGS.db_path = test_db
+    
+    yield
+    
+    DuckDBPool.shutdown()
+    SETTINGS.db_path = original_path

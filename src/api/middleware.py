@@ -45,6 +45,10 @@ def _audit_flush_worker():
             con.close()
         except Exception as e:
             logger.error(f"Audit flush failed: {e}")
+            try:
+                con.execute("ROLLBACK")
+            except Exception:
+                pass
 
 # Запускаємо worker при старті
 _audit_thread = threading.Thread(target=_audit_flush_worker, daemon=True)

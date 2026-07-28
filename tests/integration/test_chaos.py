@@ -20,11 +20,11 @@ class TestChaosEngineering:
             "x-api-key": "test_key_12345"
         }
 
-    @patch("src.db.duckdb.connect")
-    def test_database_locked_chaos(self, mock_db_connect, client, auth_headers):
+    @patch("src.api.main.get_connection")
+    def test_database_locked_chaos(self, mock_get_connection, client, auth_headers):
         """Симуляція: База даних заблокована іншим процесом (IO Exception)."""
         # Імітуємо помилку читання БД
-        mock_db_connect.side_effect = duckdb.IOException("IO Error: File is locked")
+        mock_get_connection.side_effect = duckdb.IOException("IO Error: File is locked")
         
         # Перевіряємо health check (повинен повернути 503 Service Unavailable)
         health_resp = client.get("/health", headers=auth_headers)
