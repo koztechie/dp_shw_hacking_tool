@@ -64,11 +64,13 @@ def train():
     joblib.dump(list(X.columns), feature_names_path)
 
     # Генеруємо HMAC підпис
-    # import hmac, hashlib, os
     signature_path = models_dir / "best_model.sig"
     secret = os.getenv("MODEL_SIGN_KEY", "dev-local-key").encode()
-    sig = hmac.new(secret, best_model_path.read_bytes(), hashlib.sha256).digest()
-    signature_path.write_bytes(sig)
+    try:
+        sig = hmac.new(secret, best_model_path.read_bytes(), hashlib.sha256).digest()
+        signature_path.write_bytes(sig)
+    except FileNotFoundError:
+        logger.warning(f"Файл {best_model_path} не знайдено, пропускаємо генерацію HMAC-підпису.")
 
     logger.info(f"Модель успішно збережено у {model_path}")
     return model

@@ -26,7 +26,7 @@ class TestScraperSuite:
 
         # Зменшимо scrape delay для прискорення тесту
         with patch("src.scraper.hackathon_list_scraper.time.sleep"):
-            result = fetch_ended_hackathons(pages=1)
+            result = fetch_ended_hackathons(max_pages=1)
             
         assert len(result) == 2
         assert result[0]["title"] == "AI Hackathon"
@@ -38,7 +38,7 @@ class TestScraperSuite:
         mock_safe_get.return_value = None
 
         with patch("src.scraper.hackathon_list_scraper.time.sleep"):
-            result = fetch_ended_hackathons(pages=1)
+            result = fetch_ended_hackathons(max_pages=1)
 
         assert len(result) == 0
 
@@ -364,7 +364,7 @@ class TestScraperSuite:
 
         with patch("src.scraper.orchestrator.init_db"), \
              patch("src.scraper.orchestrator.time.sleep"):
-            run_full_ingestion(pages=1)
+            run_full_ingestion(max_pages=1)
 
         # Переконуємося, що були виконані INSERT запити
         assert mock_conn.execute.call_count >= 3

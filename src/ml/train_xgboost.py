@@ -136,10 +136,12 @@ def train_xgboost():
         joblib.dump(xgb_model, best_model_path)
         
         # Генеруємо HMAC підпис
-        # import hmac, hashlib, os
         secret = os.getenv("MODEL_SIGN_KEY", "dev-local-key").encode()
-        sig = hmac.new(secret, best_model_path.read_bytes(), hashlib.sha256).digest()
-        signature_path.write_bytes(sig)
+        try:
+            sig = hmac.new(secret, best_model_path.read_bytes(), hashlib.sha256).digest()
+            signature_path.write_bytes(sig)
+        except FileNotFoundError:
+            logger.warning(f"Файл {best_model_path} не знайдено, пропускаємо генерацію HMAC-підпису.")
         
         feature_names_path = models_dir / "feature_names.pkl"
         joblib.dump(list(X.columns), feature_names_path)

@@ -44,7 +44,7 @@ def _process_single_project(p: dict, h_id: str) -> dict:
         "url": p_url
     }
 
-def run_full_ingestion(pages: int = 5):
+def run_full_ingestion(max_pages: int = 50):
     """
     Повний цикл збору даних з Devpost.
     Використовує Lightweight ThreadPool для паралельного I/O мережі,
@@ -53,7 +53,7 @@ def run_full_ingestion(pages: int = 5):
     logger.info("Запуск ініціалізації бази даних...")
     init_db()
     
-    hackathons_list = fetch_ended_hackathons(pages=pages)
+    hackathons_list = fetch_ended_hackathons(max_pages=max_pages)
     logger.info(f"Отримано список із {len(hackathons_list)} хакатонів. Починаємо оркестрацію...")
     
     for idx, h in enumerate(hackathons_list, start=1):
@@ -160,4 +160,4 @@ def run_full_ingestion(pages: int = 5):
     logger.info("Оркестрацію успішно завершено.")
 
 if __name__ == "__main__":
-    run_full_ingestion(pages=1)
+    run_full_ingestion(max_pages=50)
